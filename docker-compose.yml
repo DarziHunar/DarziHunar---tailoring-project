@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: tailoring-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tailoring
+    ports:
+      - '5432:5432'
