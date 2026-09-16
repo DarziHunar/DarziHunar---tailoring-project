@@ -10,4 +10,5 @@
  */
 export type * from './models/User.js'
 export type * from './models/Tailor.js'
+export type * from './models/PortfolioImage.js'
 export type * from './commonInputTypes.js'

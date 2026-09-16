@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
@@ -11,6 +12,7 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
+  const passwordHash = await bcrypt.hash('Tailor@123', 12);
   console.log('🌱 Starting database seed...');
 
   const tailors = [
@@ -23,6 +25,8 @@ async function main() {
       longitude: 72.8777,
       verified: true,
       rating: 4.8,
+      startingPrice: 500,
+      acceptingOrders: true,
     },
     {
       email: 'tailor2@darzihunar.com',
@@ -33,6 +37,8 @@ async function main() {
       longitude: 72.8697,
       verified: true,
       rating: 4.7,
+      startingPrice: 500,
+      acceptingOrders: true,
     },
     {
       email: 'tailor3@darzihunar.com',
@@ -43,6 +49,8 @@ async function main() {
       longitude: 73.061,
       verified: true,
       rating: 4.6,
+      startingPrice: 500,
+      acceptingOrders: true,
     },
     {
       email: 'tailor4@darzihunar.com',
@@ -53,6 +61,8 @@ async function main() {
       longitude: 73.1175,
       verified: false,
       rating: 4.3,
+      startingPrice: 500,
+      acceptingOrders: true,
     },
     {
       email: 'tailor5@darzihunar.com',
@@ -63,6 +73,8 @@ async function main() {
       longitude: 72.9781,
       verified: true,
       rating: 4.5,
+      startingPrice: 500,
+      acceptingOrders: true,
     },
   ];
 
@@ -72,12 +84,12 @@ async function main() {
         email: tailor.email,
       },
       update: {
+        passwordHash,
         role: 'TAILOR',
       },
       create: {
         email: tailor.email,
-        passwordHash:
-          '$2b$10$abcdefghijklmnopqrstuuabcdefghijklmnopqrstuvwxyz123456',
+        passwordHash,
         role: 'TAILOR',
       },
     });

@@ -27,3 +27,8 @@ export type User = Prisma.UserModel
  * 
  */
 export type Tailor = Prisma.TailorModel
+/**
+ * Model PortfolioImage
+ * 
+ */
+export type PortfolioImage = Prisma.PortfolioImageModel

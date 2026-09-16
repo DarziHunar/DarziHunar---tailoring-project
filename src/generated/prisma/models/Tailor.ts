@@ -30,12 +30,14 @@ export type TailorAvgAggregateOutputType = {
   id: number | null
   userId: number | null
   rating: number | null
+  startingPrice: number | null
 }
 
 export type TailorSumAggregateOutputType = {
   id: number | null
   userId: number | null
   rating: number | null
+  startingPrice: number | null
 }
 
 export type TailorMinAggregateOutputType = {
@@ -45,6 +47,8 @@ export type TailorMinAggregateOutputType = {
   bio: string | null
   verified: boolean | null
   rating: number | null
+  startingPrice: number | null
+  acceptingOrders: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +60,8 @@ export type TailorMaxAggregateOutputType = {
   bio: string | null
   verified: boolean | null
   rating: number | null
+  startingPrice: number | null
+  acceptingOrders: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -68,6 +74,8 @@ export type TailorCountAggregateOutputType = {
   categories: number
   verified: number
   rating: number
+  startingPrice: number
+  acceptingOrders: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -78,12 +86,14 @@ export type TailorAvgAggregateInputType = {
   id?: true
   userId?: true
   rating?: true
+  startingPrice?: true
 }
 
 export type TailorSumAggregateInputType = {
   id?: true
   userId?: true
   rating?: true
+  startingPrice?: true
 }
 
 export type TailorMinAggregateInputType = {
@@ -93,6 +103,8 @@ export type TailorMinAggregateInputType = {
   bio?: true
   verified?: true
   rating?: true
+  startingPrice?: true
+  acceptingOrders?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -104,6 +116,8 @@ export type TailorMaxAggregateInputType = {
   bio?: true
   verified?: true
   rating?: true
+  startingPrice?: true
+  acceptingOrders?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -116,6 +130,8 @@ export type TailorCountAggregateInputType = {
   categories?: true
   verified?: true
   rating?: true
+  startingPrice?: true
+  acceptingOrders?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -215,6 +231,8 @@ export type TailorGroupByOutputType = {
   categories: string[]
   verified: boolean
   rating: number
+  startingPrice: number
+  acceptingOrders: boolean
   createdAt: Date
   updatedAt: Date
   _count: TailorCountAggregateOutputType | null
@@ -250,9 +268,12 @@ export type TailorWhereInput = {
   categories?: Prisma.StringNullableListFilter<"Tailor">
   verified?: Prisma.BoolFilter<"Tailor"> | boolean
   rating?: Prisma.FloatFilter<"Tailor"> | number
+  startingPrice?: Prisma.IntFilter<"Tailor"> | number
+  acceptingOrders?: Prisma.BoolFilter<"Tailor"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Tailor"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tailor"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  portfolioImages?: Prisma.PortfolioImageListRelationFilter
 }
 
 export type TailorOrderByWithRelationInput = {
@@ -263,9 +284,12 @@ export type TailorOrderByWithRelationInput = {
   categories?: Prisma.SortOrder
   verified?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  startingPrice?: Prisma.SortOrder
+  acceptingOrders?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  portfolioImages?: Prisma.PortfolioImageOrderByRelationAggregateInput
 }
 
 export type TailorWhereUniqueInput = Prisma.AtLeast<{
@@ -279,9 +303,12 @@ export type TailorWhereUniqueInput = Prisma.AtLeast<{
   categories?: Prisma.StringNullableListFilter<"Tailor">
   verified?: Prisma.BoolFilter<"Tailor"> | boolean
   rating?: Prisma.FloatFilter<"Tailor"> | number
+  startingPrice?: Prisma.IntFilter<"Tailor"> | number
+  acceptingOrders?: Prisma.BoolFilter<"Tailor"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Tailor"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tailor"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  portfolioImages?: Prisma.PortfolioImageListRelationFilter
 }, "id" | "userId">
 
 export type TailorOrderByWithAggregationInput = {
@@ -292,6 +319,8 @@ export type TailorOrderByWithAggregationInput = {
   categories?: Prisma.SortOrder
   verified?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  startingPrice?: Prisma.SortOrder
+  acceptingOrders?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TailorCountOrderByAggregateInput
@@ -312,6 +341,8 @@ export type TailorScalarWhereWithAggregatesInput = {
   categories?: Prisma.StringNullableListFilter<"Tailor">
   verified?: Prisma.BoolWithAggregatesFilter<"Tailor"> | boolean
   rating?: Prisma.FloatWithAggregatesFilter<"Tailor"> | number
+  startingPrice?: Prisma.IntWithAggregatesFilter<"Tailor"> | number
+  acceptingOrders?: Prisma.BoolWithAggregatesFilter<"Tailor"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tailor"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tailor"> | Date | string
 }
@@ -322,9 +353,12 @@ export type TailorUpdateInput = {
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  acceptingOrders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTailorNestedInput
+  portfolioImages?: Prisma.PortfolioImageUpdateManyWithoutTailorNestedInput
 }
 
 export type TailorUncheckedUpdateInput = {
@@ -335,8 +369,11 @@ export type TailorUncheckedUpdateInput = {
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  acceptingOrders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  portfolioImages?: Prisma.PortfolioImageUncheckedUpdateManyWithoutTailorNestedInput
 }
 
 export type TailorUpdateManyMutationInput = {
@@ -345,6 +382,8 @@ export type TailorUpdateManyMutationInput = {
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  acceptingOrders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -357,6 +396,8 @@ export type TailorUncheckedUpdateManyInput = {
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  acceptingOrders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -382,6 +423,8 @@ export type TailorCountOrderByAggregateInput = {
   categories?: Prisma.SortOrder
   verified?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  startingPrice?: Prisma.SortOrder
+  acceptingOrders?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -390,6 +433,7 @@ export type TailorAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  startingPrice?: Prisma.SortOrder
 }
 
 export type TailorMaxOrderByAggregateInput = {
@@ -399,6 +443,8 @@ export type TailorMaxOrderByAggregateInput = {
   bio?: Prisma.SortOrder
   verified?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  startingPrice?: Prisma.SortOrder
+  acceptingOrders?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -410,6 +456,8 @@ export type TailorMinOrderByAggregateInput = {
   bio?: Prisma.SortOrder
   verified?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  startingPrice?: Prisma.SortOrder
+  acceptingOrders?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -418,6 +466,12 @@ export type TailorSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   rating?: Prisma.SortOrder
+  startingPrice?: Prisma.SortOrder
+}
+
+export type TailorScalarRelationFilter = {
+  is?: Prisma.TailorWhereInput
+  isNot?: Prisma.TailorWhereInput
 }
 
 export type TailorCreateNestedOneWithoutUserInput = {
@@ -463,6 +517,15 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type TailorCreateNestedOneWithoutPortfolioImagesInput = {
+  connect?: Prisma.TailorWhereUniqueInput
+}
+
+export type TailorUpdateOneRequiredWithoutPortfolioImagesNestedInput = {
+  connect?: Prisma.TailorWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TailorUpdateToOneWithWhereWithoutPortfolioImagesInput, Prisma.TailorUpdateWithoutPortfolioImagesInput>, Prisma.TailorUncheckedUpdateWithoutPortfolioImagesInput>
+}
+
 export type TailorUpdateToOneWithWhereWithoutUserInput = {
   where?: Prisma.TailorWhereInput
   data: Prisma.XOR<Prisma.TailorUpdateWithoutUserInput, Prisma.TailorUncheckedUpdateWithoutUserInput>
@@ -474,8 +537,11 @@ export type TailorUpdateWithoutUserInput = {
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  acceptingOrders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  portfolioImages?: Prisma.PortfolioImageUpdateManyWithoutTailorNestedInput
 }
 
 export type TailorUncheckedUpdateWithoutUserInput = {
@@ -485,10 +551,74 @@ export type TailorUncheckedUpdateWithoutUserInput = {
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  acceptingOrders?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  portfolioImages?: Prisma.PortfolioImageUncheckedUpdateManyWithoutTailorNestedInput
+}
+
+export type TailorUpdateToOneWithWhereWithoutPortfolioImagesInput = {
+  where?: Prisma.TailorWhereInput
+  data: Prisma.XOR<Prisma.TailorUpdateWithoutPortfolioImagesInput, Prisma.TailorUncheckedUpdateWithoutPortfolioImagesInput>
+}
+
+export type TailorUpdateWithoutPortfolioImagesInput = {
+  shopName?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  acceptingOrders?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutTailorNestedInput
+}
+
+export type TailorUncheckedUpdateWithoutPortfolioImagesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  shopName?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rating?: Prisma.FloatFieldUpdateOperationsInput | number
+  startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  acceptingOrders?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type TailorCountOutputType
+ */
+
+export type TailorCountOutputType = {
+  portfolioImages: number
+}
+
+export type TailorCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  portfolioImages?: boolean | TailorCountOutputTypeCountPortfolioImagesArgs
+}
+
+/**
+ * TailorCountOutputType without action
+ */
+export type TailorCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TailorCountOutputType
+   */
+  select?: Prisma.TailorCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * TailorCountOutputType without action
+ */
+export type TailorCountOutputTypeCountPortfolioImagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PortfolioImageWhereInput
+}
 
 
 export type TailorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -499,9 +629,13 @@ export type TailorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   categories?: boolean
   verified?: boolean
   rating?: boolean
+  startingPrice?: boolean
+  acceptingOrders?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  portfolioImages?: boolean | Prisma.Tailor$portfolioImagesArgs<ExtArgs>
+  _count?: boolean | Prisma.TailorCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tailor"]>
 
 
@@ -513,6 +647,8 @@ export type TailorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   categories?: boolean
   verified?: boolean
   rating?: boolean
+  startingPrice?: boolean
+  acceptingOrders?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -526,13 +662,17 @@ export type TailorSelectScalar = {
   categories?: boolean
   verified?: boolean
   rating?: boolean
+  startingPrice?: boolean
+  acceptingOrders?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TailorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "shopName" | "bio" | "categories" | "verified" | "rating" | "createdAt" | "updatedAt", ExtArgs["result"]["tailor"]>
+export type TailorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "shopName" | "bio" | "categories" | "verified" | "rating" | "startingPrice" | "acceptingOrders" | "createdAt" | "updatedAt", ExtArgs["result"]["tailor"]>
 export type TailorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  portfolioImages?: boolean | Prisma.Tailor$portfolioImagesArgs<ExtArgs>
+  _count?: boolean | Prisma.TailorCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TailorIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -542,6 +682,7 @@ export type $TailorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name: "Tailor"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    portfolioImages: Prisma.$PortfolioImagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -551,6 +692,8 @@ export type $TailorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     categories: string[]
     verified: boolean
     rating: number
+    startingPrice: number
+    acceptingOrders: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["tailor"]>
@@ -877,6 +1020,7 @@ readonly fields: TailorFieldRefs;
 export interface Prisma__TailorClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  portfolioImages<T extends Prisma.Tailor$portfolioImagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tailor$portfolioImagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PortfolioImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -913,6 +1057,8 @@ export interface TailorFieldRefs {
   readonly categories: Prisma.FieldRef<"Tailor", 'String[]'>
   readonly verified: Prisma.FieldRef<"Tailor", 'Boolean'>
   readonly rating: Prisma.FieldRef<"Tailor", 'Float'>
+  readonly startingPrice: Prisma.FieldRef<"Tailor", 'Int'>
+  readonly acceptingOrders: Prisma.FieldRef<"Tailor", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Tailor", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tailor", 'DateTime'>
 }
@@ -1227,6 +1373,30 @@ export type TailorDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many Tailors to delete.
    */
   limit?: number
+}
+
+/**
+ * Tailor.portfolioImages
+ */
+export type Tailor$portfolioImagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PortfolioImage
+   */
+  select?: Prisma.PortfolioImageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PortfolioImage
+   */
+  omit?: Prisma.PortfolioImageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PortfolioImageInclude<ExtArgs> | null
+  where?: Prisma.PortfolioImageWhereInput
+  orderBy?: Prisma.PortfolioImageOrderByWithRelationInput | Prisma.PortfolioImageOrderByWithRelationInput[]
+  cursor?: Prisma.PortfolioImageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PortfolioImageScalarFieldEnum | Prisma.PortfolioImageScalarFieldEnum[]
 }
 
 /**

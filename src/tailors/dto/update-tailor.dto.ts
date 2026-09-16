@@ -4,8 +4,8 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  Min,
   Max,
+  Min,
 } from 'class-validator';
 
 export class UpdateTailorDto {
@@ -39,4 +39,13 @@ export class UpdateTailorDto {
   @Min(0)
   @Max(5)
   rating?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  startingPrice?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  acceptingOrders?: boolean;
 }
