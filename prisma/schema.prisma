@@ -37,11 +37,31 @@ model Tailor {
 
   location Unsupported("geography(Point, 4326)")
 
-  verified Boolean @default(false)
-  rating   Float   @default(0)
+  verified        Boolean @default(false)
+  rating          Float   @default(0)
+  startingPrice   Int     @default(0)
+  acceptingOrders Boolean @default(true)
+
+  portfolioImages PortfolioImage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([verified])
+  @@index([acceptingOrders])
+  @@index([startingPrice])
+}
+
+model PortfolioImage {
+  id          Int      @id @default(autoincrement())
+  tailorId    Int
+  tailor      Tailor   @relation(fields: [tailorId], references: [id], onDelete: Cascade)
+
+  s3Key       String   @unique
+  fileName    String
+  contentType String
+
+  createdAt   DateTime @default(now())
+
+  @@index([tailorId])
 }

@@ -398,7 +398,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
-  Tailor: 'Tailor'
+  Tailor: 'Tailor',
+  PortfolioImage: 'PortfolioImage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "tailor"
+    modelProps: "user" | "tailor" | "portfolioImage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -550,6 +551,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PortfolioImage: {
+      payload: Prisma.$PortfolioImagePayload<ExtArgs>
+      fields: Prisma.PortfolioImageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PortfolioImageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PortfolioImagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PortfolioImageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PortfolioImagePayload>
+        }
+        findFirst: {
+          args: Prisma.PortfolioImageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PortfolioImagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PortfolioImageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PortfolioImagePayload>
+        }
+        findMany: {
+          args: Prisma.PortfolioImageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PortfolioImagePayload>[]
+        }
+        create: {
+          args: Prisma.PortfolioImageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PortfolioImagePayload>
+        }
+        createMany: {
+          args: Prisma.PortfolioImageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PortfolioImageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PortfolioImagePayload>[]
+        }
+        delete: {
+          args: Prisma.PortfolioImageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PortfolioImagePayload>
+        }
+        update: {
+          args: Prisma.PortfolioImageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PortfolioImagePayload>
+        }
+        deleteMany: {
+          args: Prisma.PortfolioImageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PortfolioImageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PortfolioImageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PortfolioImagePayload>[]
+        }
+        upsert: {
+          args: Prisma.PortfolioImageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PortfolioImagePayload>
+        }
+        aggregate: {
+          args: Prisma.PortfolioImageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePortfolioImage>
+        }
+        groupBy: {
+          args: Prisma.PortfolioImageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PortfolioImageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PortfolioImageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PortfolioImageCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -609,11 +684,25 @@ export const TailorScalarFieldEnum = {
   categories: 'categories',
   verified: 'verified',
   rating: 'rating',
+  startingPrice: 'startingPrice',
+  acceptingOrders: 'acceptingOrders',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TailorScalarFieldEnum = (typeof TailorScalarFieldEnum)[keyof typeof TailorScalarFieldEnum]
+
+
+export const PortfolioImageScalarFieldEnum = {
+  id: 'id',
+  tailorId: 'tailorId',
+  s3Key: 's3Key',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  createdAt: 'createdAt'
+} as const
+
+export type PortfolioImageScalarFieldEnum = (typeof PortfolioImageScalarFieldEnum)[keyof typeof PortfolioImageScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -875,6 +964,7 @@ export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaC
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   tailor?: Prisma.TailorOmit
+  portfolioImage?: Prisma.PortfolioImageOmit
 }
 
 /* Types for Logging */

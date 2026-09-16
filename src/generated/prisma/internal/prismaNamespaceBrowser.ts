@@ -52,7 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  Tailor: 'Tailor'
+  Tailor: 'Tailor',
+  PortfolioImage: 'PortfolioImage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -91,11 +92,25 @@ export const TailorScalarFieldEnum = {
   categories: 'categories',
   verified: 'verified',
   rating: 'rating',
+  startingPrice: 'startingPrice',
+  acceptingOrders: 'acceptingOrders',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TailorScalarFieldEnum = (typeof TailorScalarFieldEnum)[keyof typeof TailorScalarFieldEnum]
+
+
+export const PortfolioImageScalarFieldEnum = {
+  id: 'id',
+  tailorId: 'tailorId',
+  s3Key: 's3Key',
+  fileName: 'fileName',
+  contentType: 'contentType',
+  createdAt: 'createdAt'
+} as const
+
+export type PortfolioImageScalarFieldEnum = (typeof PortfolioImageScalarFieldEnum)[keyof typeof PortfolioImageScalarFieldEnum]
 
 
 export const SortOrder = {

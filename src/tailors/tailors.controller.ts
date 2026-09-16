@@ -17,6 +17,8 @@ import { Roles } from '../auth/decorators/roles.decorators';
 import { TailorsService } from './tailors.service';
 import { CreateTailorDto } from './dto/create-tailor.dto';
 import { UpdateTailorDto } from './dto/update-tailor.dto';
+import { Query } from '@nestjs/common';
+import { NearbyTailorsDto } from './dto/nearby-tailors.dto';
 
 @Controller('tailors')
 export class TailorsController {
@@ -40,6 +42,10 @@ export class TailorsController {
         return this.tailorsService.update(id, req.user.sub, dto);
     }
 
+    @Get('nearby')
+    findNearby(@Query() dto: NearbyTailorsDto) {
+        return this.tailorsService.findNearby(dto);
+    }
     @Get(':id')
     findById(@Param('id', ParseIntPipe) id: number) {
         return this.tailorsService.findById(id);

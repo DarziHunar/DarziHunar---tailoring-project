@@ -8,6 +8,7 @@ import { TailorsModule } from './tailors/tailors.module';
 import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { MediaModule } from './media/media.module';
 
 
 @Module({
@@ -20,6 +21,7 @@ import { PrismaModule } from './prisma/prisma.module';
     OrdersModule,
     AuthModule,
     PrismaModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

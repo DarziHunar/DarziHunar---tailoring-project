@@ -1,12 +1,14 @@
 import {
+    BadRequestException,
     ConflictException,
     ForbiddenException,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-
+import { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTailorDto } from './dto/create-tailor.dto';
+import { NearbyTailorsDto } from './dto/nearby-tailors.dto';
 import { UpdateTailorDto } from './dto/update-tailor.dto';
 
 @Injectable()
@@ -15,9 +17,7 @@ export class TailorsService {
 
     async create(userId: number, dto: CreateTailorDto) {
         const existingTailor = await this.prisma.tailor.findUnique({
-            where: {
-                userId,
-            },
+            where: { userId },
         });
 
         if (existingTailor) {
@@ -27,9 +27,7 @@ export class TailorsService {
         }
 
         const user = await this.prisma.user.findUnique({
-            where: {
-                id: userId,
-            },
+            where: { id: userId },
         });
 
         if (!user) {
@@ -42,9 +40,7 @@ export class TailorsService {
             );
         }
 
-        const result = await this.prisma.$queryRaw<
-            Array<{ id: number }>
-        >`
+        const result = await this.prisma.$queryRaw<Array<{ id: number }>>`
     INSERT INTO "Tailor"
       (
         "userId",
@@ -54,6 +50,8 @@ export class TailorsService {
         "location",
         "verified",
         "rating",
+        "startingPrice",
+        "acceptingOrders",
         "createdAt",
         "updatedAt"
       )
@@ -68,6 +66,8 @@ export class TailorsService {
       )::geography,
       ${dto.verified ?? false},
       ${dto.rating ?? 0},
+      ${dto.startingPrice ?? 0},
+      ${dto.acceptingOrders ?? true},
       CURRENT_TIMESTAMP,
       CURRENT_TIMESTAMP
     )
@@ -134,10 +134,167 @@ export class TailorsService {
                 longitude: number;
                 verified: boolean;
                 rating: number;
+                startingPrice: number;
+                acceptingOrders: boolean;
                 createdAt: Date;
                 updatedAt: Date;
             }>
         >`
+    SELECT
+      id,
+      "userId",
+      "shopName",
+      bio,
+      categories,
+      ST_Y(location::geometry) AS latitude,
+      ST_X(location::geometry) AS longitude,
+      verified,
+      rating,
+      "startingPrice",
+      "acceptingOrders",
+      "createdAt",
+      "updatedAt"
+    FROM "Tailor"
+    WHERE id = ${tailorId};
+  `;
+
+        if (result.length === 0) {
+            throw new NotFoundException('Tailor profile not found');
+        }
+
+        return result[0];
+    }
+    async findNearby(dto: NearbyTailorsDto) {
+        const latitude = Number(dto.lat);
+        const longitude = Number(dto.lng);
+        const radius = Number(dto.radius);
+
+        const minRating =
+            dto.minRating !== undefined
+                ? Number(dto.minRating)
+                : undefined;
+
+        const limit = Math.min(
+            dto.limit !== undefined ? Number(dto.limit) : 10,
+            100,
+        );
+
+        const offset =
+            dto.offset !== undefined
+                ? Number(dto.offset)
+                : 0;
+
+        let minPrice: number | undefined;
+        let maxPrice: number | undefined;
+
+        if (dto.priceRange) {
+            const parts = dto.priceRange.split('-');
+
+            if (parts.length !== 2) {
+                throw new BadRequestException(
+                    'priceRange must be in format min-max',
+                );
+            }
+
+            minPrice = Number(parts[0]);
+            maxPrice = Number(parts[1]);
+
+            if (
+                Number.isNaN(minPrice) ||
+                Number.isNaN(maxPrice) ||
+                minPrice < 0 ||
+                maxPrice < minPrice
+            ) {
+                throw new BadRequestException(
+                    'Invalid priceRange. Example: 500-2000',
+                );
+            }
+        }
+
+        const verified =
+            dto.verified !== undefined
+                ? dto.verified === 'true'
+                : undefined;
+
+        const acceptingOrders =
+            dto.acceptingOrders !== undefined
+                ? dto.acceptingOrders === 'true'
+                : undefined;
+
+        let categoryCondition = Prisma.empty;
+        let ratingCondition = Prisma.empty;
+        let priceCondition = Prisma.empty;
+        let verifiedCondition = Prisma.empty;
+        let acceptingOrdersCondition = Prisma.empty;
+
+        if (dto.category) {
+            categoryCondition = Prisma.sql`
+      AND ${Prisma.raw('"categories"')} @> ARRAY[${dto.category}]::text[]
+    `;
+        }
+
+        if (minRating !== undefined) {
+            ratingCondition = Prisma.sql`
+      AND "rating" >= ${minRating}
+    `;
+        }
+
+        if (minPrice !== undefined && maxPrice !== undefined) {
+            priceCondition = Prisma.sql`
+      AND "startingPrice" BETWEEN ${minPrice} AND ${maxPrice}
+    `;
+        }
+
+        if (verified !== undefined) {
+            verifiedCondition = Prisma.sql`
+      AND "verified" = ${verified}
+    `;
+        }
+
+        if (acceptingOrders !== undefined) {
+            acceptingOrdersCondition = Prisma.sql`
+      AND "acceptingOrders" = ${acceptingOrders}
+    `;
+        }
+
+        let orderBy = Prisma.sql`
+    distance_meters ASC
+  `;
+
+        if (dto.sort === 'rating') {
+            orderBy = Prisma.sql`
+      "rating" DESC,
+      distance_meters ASC
+    `;
+        }
+
+        if (dto.sort === 'price') {
+            orderBy = Prisma.sql`
+      "startingPrice" ASC,
+      distance_meters ASC
+    `;
+        }
+
+        const result = await this.prisma.$queryRaw<
+            Array<{
+                id: number;
+                userId: number;
+                shopName: string;
+                bio: string | null;
+                categories: string[];
+                latitude: number;
+                longitude: number;
+                verified: boolean;
+                rating: number;
+                startingPrice: number;
+                acceptingOrders: boolean;
+                distance_meters: number;
+                total_count: number;
+                createdAt: Date;
+                updatedAt: Date;
+            }>
+        >`
+    WITH nearby AS (
       SELECT
         id,
         "userId",
@@ -148,16 +305,69 @@ export class TailorsService {
         ST_X(location::geometry) AS longitude,
         verified,
         rating,
+        "startingPrice",
+        "acceptingOrders",
+        ST_Distance(
+          location,
+          ST_SetSRID(
+            ST_MakePoint(${longitude}, ${latitude}),
+            4326
+          )::geography
+        ) AS distance_meters,
         "createdAt",
         "updatedAt"
       FROM "Tailor"
-      WHERE id = ${tailorId};
-    `;
+      WHERE ST_DWithin(
+        location,
+        ST_SetSRID(
+          ST_MakePoint(${longitude}, ${latitude}),
+          4326
+        )::geography,
+        ${radius}
+      )
+      ${categoryCondition}
+      ${ratingCondition}
+      ${priceCondition}
+      ${verifiedCondition}
+      ${acceptingOrdersCondition}
+    )
+    SELECT
+      *,
+      COUNT(*) OVER()::integer AS total_count
+    FROM nearby
+    ORDER BY ${orderBy}
+    LIMIT ${limit}
+    OFFSET ${offset};
+  `;
 
-        if (result.length === 0) {
-            throw new NotFoundException('Tailor profile not found');
-        }
+        const total =
+            result.length > 0
+                ? result[0].total_count
+                : 0;
 
-        return result[0];
+        return {
+            data: result.map((tailor) => ({
+                id: tailor.id,
+                userId: tailor.userId,
+                shopName: tailor.shopName,
+                bio: tailor.bio,
+                categories: tailor.categories,
+                latitude: tailor.latitude,
+                longitude: tailor.longitude,
+                verified: tailor.verified,
+                rating: tailor.rating,
+                startingPrice: tailor.startingPrice,
+                acceptingOrders: tailor.acceptingOrders,
+                distanceMeters: Math.round(tailor.distance_meters),
+                createdAt: tailor.createdAt,
+                updatedAt: tailor.updatedAt,
+            })),
+            pagination: {
+                total,
+                limit,
+                offset,
+                hasMore: offset + result.length < total,
+            },
+        };
     }
 }
