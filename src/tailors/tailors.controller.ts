@@ -6,6 +6,7 @@ import {
     ParseIntPipe,
     Patch,
     Post,
+    Delete,
     Req,
     UseGuards,
 } from '@nestjs/common';
@@ -50,4 +51,16 @@ export class TailorsController {
     findById(@Param('id', ParseIntPipe) id: number) {
         return this.tailorsService.findById(id);
     }
+
+    @Delete(':id')
+    remove(
+        @Param('id', ParseIntPipe) id: number,
+        @Req() req: any,
+    ) {
+        return this.tailorsService.remove(
+            id,
+            req.user.sub,
+        );
+    }
+
 }

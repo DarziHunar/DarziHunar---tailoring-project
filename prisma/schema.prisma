@@ -13,13 +13,41 @@ enum Role {
   ADMIN
 }
 
-model User {
-  id           Int    @id @default(autoincrement())
-  email        String @unique
-  passwordHash String
-  role         Role   @default(CUSTOMER)
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
+  READY
+  COMPLETED
+  CANCELLED
+}
 
-  tailor Tailor?
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  UPI
+  CARD
+  NET_BANKING
+  CASH_ON_DELIVERY
+}
+
+model User {
+  id           Int     @id @default(autoincrement())
+  email        String  @unique
+  phoneNumber  String? @unique
+  passwordHash String
+  role         Role    @default(CUSTOMER)
+
+  tailor              Tailor?
+  orders              Order[]
+  measurementProfiles MeasurementProfile[]
+  reviewsGiven Review[] @relation("CustomerReviews")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -39,10 +67,12 @@ model Tailor {
 
   verified        Boolean @default(false)
   rating          Float   @default(0)
-  startingPrice   Int     @default(0)
+  startingPrice   Int
   acceptingOrders Boolean @default(true)
 
   portfolioImages PortfolioImage[]
+  orders          Order[]
+  reviews Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -53,15 +83,116 @@ model Tailor {
 }
 
 model PortfolioImage {
-  id          Int      @id @default(autoincrement())
-  tailorId    Int
-  tailor      Tailor   @relation(fields: [tailorId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  tailorId Int
+  tailor   Tailor @relation(fields: [tailorId], references: [id], onDelete: Cascade)
 
-  s3Key       String   @unique
+  s3Key       String @unique
   fileName    String
   contentType String
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([tailorId])
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  customerId  Int
+  tailorId    Int
+  status      OrderStatus @default(PENDING)
+  totalAmount Int
+
+  customer User   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  tailor   Tailor @relation(fields: [tailorId], references: [id], onDelete: Restrict)
+
+  items OrderItem[]
+  payments Payment[]
+  review   Review?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId, createdAt])
+  @@index([tailorId, createdAt])
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  garmentType     String
+  measurements    Json
+  notes           String?
+  referenceImages String[] @default([])
+
+  quantity  Int @default(1)
+  unitPrice Int
+
+  measurementProfileId Int?
+  measurementProfile   MeasurementProfile? @relation(fields: [measurementProfileId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+}
+
+model MeasurementProfile {
+  id           Int    @id @default(autoincrement())
+  userId       Int
+  name         String
+  garmentType  String
+  measurements Json
+  unit         String @default("cm")
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, garmentType])
+}
+
+model Payment {
+  id        Int           @id @default(autoincrement())
+  orderId   Int
+  amount    Int
+  currency  String        @default("INR")
+  method    PaymentMethod
+  status    PaymentStatus @default(PENDING)
+
+  // Reference from a payment provider, once integrated.
+  providerReference String? @unique
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId, createdAt])
+  @@index([status, createdAt])
+}
+
+model Review {
+  id         Int     @id @default(autoincrement())
+  orderId    Int     @unique
+  customerId Int
+  tailorId   Int
+  rating     Int
+  comment    String?
+
+  order    Order  @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  customer User   @relation("CustomerReviews", fields: [customerId], references: [id], onDelete: Restrict)
+  tailor   Tailor @relation(fields: [tailorId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tailorId, createdAt])
+  @@index([customerId, createdAt])
 }

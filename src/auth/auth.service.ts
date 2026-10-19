@@ -1,9 +1,11 @@
+
 import {
   ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Prisma } from '../generated/prisma/client';
 import * as bcrypt from 'bcrypt';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -18,34 +20,63 @@ export class AuthService {
   ) {}
 
   async signup(dto: SignupDto) {
-    const existingUser = await this.prisma.user.findUnique({
+    const existingUser = await this.prisma.user.findFirst({
       where: {
-        email: dto.email,
+        OR: [
+          { email: dto.email },
+          { phoneNumber: dto.phoneNumber },
+        ],
+      },
+      select: {
+        email: true,
+        phoneNumber: true,
       },
     });
 
-    if (existingUser) {
+    if (existingUser?.email === dto.email) {
       throw new ConflictException('Email is already registered');
+    }
+
+    if (existingUser?.phoneNumber === dto.phoneNumber) {
+      throw new ConflictException(
+        'Phone number is already registered',
+      );
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
 
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        passwordHash,
-        role: 'CUSTOMER',
-      },
-    });
+    try {
+      const user = await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          phoneNumber: dto.phoneNumber,
+          passwordHash,
+          role: 'CUSTOMER',
+        },
+        select: {
+          id: true,
+          email: true,
+          phoneNumber: true,
+          role: true,
+        },
+      });
 
-    return {
-      message: 'User registered successfully',
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
-    };
+      return {
+        message: 'User registered successfully',
+        user,
+      };
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'Email or phone number is already registered',
+        );
+      }
+
+      throw error;
+    }
   }
 
   async login(dto: LoginDto) {
@@ -56,7 +87,9 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException(
+        'Invalid email or password',
+      );
     }
 
     const passwordMatches = await bcrypt.compare(
@@ -65,7 +98,9 @@ export class AuthService {
     );
 
     if (!passwordMatches) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException(
+        'Invalid email or password',
+      );
     }
 
     const payload = {
@@ -82,6 +117,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        phoneNumber: user.phoneNumber,
         role: user.role,
       },
     };

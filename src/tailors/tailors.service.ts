@@ -370,4 +370,145 @@ export class TailorsService {
             },
         };
     }
+
+    async adminFindAll() {
+        const result = await this.prisma.$queryRaw<
+            Array<{
+                id: number;
+                userId: number;
+                shopName: string;
+                bio: string | null;
+                categories: string[];
+                latitude: number;
+                longitude: number;
+                verified: boolean;
+                rating: number;
+                startingPrice: number;
+                acceptingOrders: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                user_id: number;
+                user_email: string;
+                user_role: string;
+            }>
+        >`
+    SELECT
+      t.id,
+      t."userId",
+      t."shopName",
+      t.bio,
+      t.categories,
+      ST_Y(t.location::geometry) AS latitude,
+      ST_X(t.location::geometry) AS longitude,
+      t.verified,
+      t.rating,
+      t."startingPrice",
+      t."acceptingOrders",
+      t."createdAt",
+      t."updatedAt",
+      u.id AS user_id,
+      u.email AS user_email,
+      u.role::text AS user_role
+    FROM "Tailor" t
+    INNER JOIN "User" u
+      ON u.id = t."userId"
+    ORDER BY t.id ASC;
+  `;
+
+        return result.map((tailor) => ({
+            id: tailor.id,
+            userId: tailor.userId,
+            shopName: tailor.shopName,
+            bio: tailor.bio,
+            categories: tailor.categories,
+            latitude: tailor.latitude,
+            longitude: tailor.longitude,
+            verified: tailor.verified,
+            rating: tailor.rating,
+            startingPrice: tailor.startingPrice,
+            acceptingOrders: tailor.acceptingOrders,
+            createdAt: tailor.createdAt,
+            updatedAt: tailor.updatedAt,
+            user: {
+                id: tailor.user_id,
+                email: tailor.user_email,
+                role: tailor.user_role,
+            },
+        }));
+    }
+
+    async remove(tailorId: number, userId: number) {
+        const tailor = await this.prisma.tailor.findUnique({
+            where: { id: tailorId },
+            select: {
+                id: true,
+                userId: true,
+            },
+        });
+
+        if (!tailor) {
+            throw new NotFoundException('Tailor profile not found');
+        }
+
+        if (tailor.userId !== userId) {
+            throw new ForbiddenException(
+                'You can only delete your own tailor profile',
+            );
+        }
+
+        try {
+            await this.prisma.tailor.delete({
+                where: { id: tailorId },
+            });
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2003'
+            ) {
+                throw new ConflictException(
+                    'Cannot delete this tailor profile because related records exist',
+                );
+            }
+
+            throw error;
+        }
+
+        return {
+            message: 'Tailor profile deleted successfully',
+            tailorId,
+        };
+    }
+
+    async adminRemove(tailorId: number) {
+        const tailor = await this.prisma.tailor.findUnique({
+            where: { id: tailorId },
+            select: { id: true },
+        });
+
+        if (!tailor) {
+            throw new NotFoundException('Tailor profile not found');
+        }
+
+        try {
+            await this.prisma.tailor.delete({
+                where: { id: tailorId },
+            });
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2003'
+            ) {
+                throw new ConflictException(
+                    'Cannot delete this tailor profile because related records exist',
+                );
+            }
+
+            throw error;
+        }
+
+        return {
+            message: 'Tailor profile deleted successfully by admin',
+            tailorId,
+        };
+    }
 }

@@ -54,3 +54,28 @@ export type Tailor = Prisma.TailorModel
  * 
  */
 export type PortfolioImage = Prisma.PortfolioImageModel
+/**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model OrderItem
+ * 
+ */
+export type OrderItem = Prisma.OrderItemModel
+/**
+ * Model MeasurementProfile
+ * 
+ */
+export type MeasurementProfile = Prisma.MeasurementProfileModel
+/**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
+/**
+ * Model Review
+ * 
+ */
+export type Review = Prisma.ReviewModel

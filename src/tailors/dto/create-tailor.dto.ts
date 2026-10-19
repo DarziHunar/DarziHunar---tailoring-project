@@ -5,11 +5,14 @@ import {
   IsOptional,
   IsString,
   Max,
+  // IsInt,
   Min,
+  IsNotEmpty,
 } from 'class-validator';
 
 export class CreateTailorDto {
   @IsString()
+  @IsNotEmpty()
   shopName: string;
 
   @IsOptional()

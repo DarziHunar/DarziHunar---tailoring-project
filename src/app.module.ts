@@ -9,7 +9,9 @@ import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { MediaModule } from './media/media.module';
-
+import { MeasurementsModule } from './measurements/measurements.module';
+import { PaymentsModule } from './payments/payments.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -22,8 +24,11 @@ import { MediaModule } from './media/media.module';
     AuthModule,
     PrismaModule,
     MediaModule,
+    MeasurementsModule,
+    PaymentsModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
