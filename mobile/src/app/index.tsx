@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -11,6 +10,8 @@ import {
   Alert,
   Image,
 } from "react-native";
+
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const C = {
   bg: "#F8F3EC",
