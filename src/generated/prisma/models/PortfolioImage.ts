@@ -386,6 +386,20 @@ export type PortfolioImageSumOrderByAggregateInput = {
   tailorId?: Prisma.SortOrder
 }
 
+export type PortfolioImageCreateNestedManyWithoutTailorInput = {
+  create?: Prisma.XOR<Prisma.PortfolioImageCreateWithoutTailorInput, Prisma.PortfolioImageUncheckedCreateWithoutTailorInput> | Prisma.PortfolioImageCreateWithoutTailorInput[] | Prisma.PortfolioImageUncheckedCreateWithoutTailorInput[]
+  connectOrCreate?: Prisma.PortfolioImageCreateOrConnectWithoutTailorInput | Prisma.PortfolioImageCreateOrConnectWithoutTailorInput[]
+  createMany?: Prisma.PortfolioImageCreateManyTailorInputEnvelope
+  connect?: Prisma.PortfolioImageWhereUniqueInput | Prisma.PortfolioImageWhereUniqueInput[]
+}
+
+export type PortfolioImageUncheckedCreateNestedManyWithoutTailorInput = {
+  create?: Prisma.XOR<Prisma.PortfolioImageCreateWithoutTailorInput, Prisma.PortfolioImageUncheckedCreateWithoutTailorInput> | Prisma.PortfolioImageCreateWithoutTailorInput[] | Prisma.PortfolioImageUncheckedCreateWithoutTailorInput[]
+  connectOrCreate?: Prisma.PortfolioImageCreateOrConnectWithoutTailorInput | Prisma.PortfolioImageCreateOrConnectWithoutTailorInput[]
+  createMany?: Prisma.PortfolioImageCreateManyTailorInputEnvelope
+  connect?: Prisma.PortfolioImageWhereUniqueInput | Prisma.PortfolioImageWhereUniqueInput[]
+}
+
 export type PortfolioImageUpdateManyWithoutTailorNestedInput = {
   create?: Prisma.XOR<Prisma.PortfolioImageCreateWithoutTailorInput, Prisma.PortfolioImageUncheckedCreateWithoutTailorInput> | Prisma.PortfolioImageCreateWithoutTailorInput[] | Prisma.PortfolioImageUncheckedCreateWithoutTailorInput[]
   connectOrCreate?: Prisma.PortfolioImageCreateOrConnectWithoutTailorInput | Prisma.PortfolioImageCreateOrConnectWithoutTailorInput[]
@@ -434,15 +448,15 @@ export type PortfolioImageCreateOrConnectWithoutTailorInput = {
   create: Prisma.XOR<Prisma.PortfolioImageCreateWithoutTailorInput, Prisma.PortfolioImageUncheckedCreateWithoutTailorInput>
 }
 
+export type PortfolioImageCreateManyTailorInputEnvelope = {
+  data: Prisma.PortfolioImageCreateManyTailorInput | Prisma.PortfolioImageCreateManyTailorInput[]
+  skipDuplicates?: boolean
+}
+
 export type PortfolioImageUpsertWithWhereUniqueWithoutTailorInput = {
   where: Prisma.PortfolioImageWhereUniqueInput
   update: Prisma.XOR<Prisma.PortfolioImageUpdateWithoutTailorInput, Prisma.PortfolioImageUncheckedUpdateWithoutTailorInput>
   create: Prisma.XOR<Prisma.PortfolioImageCreateWithoutTailorInput, Prisma.PortfolioImageUncheckedCreateWithoutTailorInput>
-}
-
-export type PortfolioImageCreateManyTailorInputEnvelope = {
-  data: Prisma.PortfolioImageCreateManyTailorInput | Prisma.PortfolioImageCreateManyTailorInput[]
-  skipDuplicates?: boolean
 }
 
 export type PortfolioImageUpdateWithWhereUniqueWithoutTailorInput = {
@@ -467,6 +481,14 @@ export type PortfolioImageScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"PortfolioImage"> | Date | string
 }
 
+export type PortfolioImageCreateManyTailorInput = {
+  id?: number
+  s3Key: string
+  fileName: string
+  contentType: string
+  createdAt?: Date | string
+}
+
 export type PortfolioImageUpdateWithoutTailorInput = {
   s3Key?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -480,14 +502,6 @@ export type PortfolioImageUncheckedUpdateWithoutTailorInput = {
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   contentType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type PortfolioImageCreateManyTailorInput = {
-  id?: number
-  s3Key: string
-  fileName: string
-  contentType: string
-  createdAt?: Date | string
 }
 
 export type PortfolioImageUncheckedUpdateManyWithoutTailorInput = {

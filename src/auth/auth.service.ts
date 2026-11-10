@@ -1,11 +1,10 @@
-
 import {
   ConflictException,
   Injectable,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Prisma } from '../generated/prisma/client';
 import * as bcrypt from 'bcrypt';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -20,76 +19,89 @@ export class AuthService {
   ) {}
 
   async signup(dto: SignupDto) {
-    const existingUser = await this.prisma.user.findFirst({
-      where: {
-        OR: [
-          { email: dto.email },
-          { phoneNumber: dto.phoneNumber },
-        ],
-      },
-      select: {
-        email: true,
-        phoneNumber: true,
-      },
+    const role = dto.role ?? 'CUSTOMER';
+
+    if (
+      role === 'TAILOR' &&
+      (!dto.shopName?.trim() || !dto.specialization?.trim())
+    ) {
+      throw new BadRequestException(
+        'Shop name and specialization are required for tailor registration',
+      );
+    }
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.email.toLowerCase().trim() },
     });
 
-    if (existingUser?.email === dto.email) {
+    if (existingUser) {
       throw new ConflictException('Email is already registered');
     }
 
-    if (existingUser?.phoneNumber === dto.phoneNumber) {
-      throw new ConflictException(
-        'Phone number is already registered',
-      );
+    if (dto.phoneNumber) {
+      const existingPhone = await this.prisma.user.findUnique({
+        where: { phoneNumber: dto.phoneNumber },
+      });
+
+      if (existingPhone) {
+        throw new ConflictException('Phone number is already registered');
+      }
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
 
-    try {
-      const user = await this.prisma.user.create({
-        data: {
-          email: dto.email,
-          phoneNumber: dto.phoneNumber,
-          passwordHash,
-          role: 'CUSTOMER',
-        },
-        select: {
-          id: true,
-          email: true,
-          phoneNumber: true,
-          role: true,
-        },
-      });
+    const user = await this.prisma.user.create({
+      data: {
+        fullName: dto.fullName.trim(),
+        email: dto.email.toLowerCase().trim(),
+        phoneNumber: dto.phoneNumber,
+        passwordHash,
+        role,
 
-      return {
-        message: 'User registered successfully',
-        user,
-      };
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new ConflictException(
-          'Email or phone number is already registered',
-        );
-      }
+        ...(role === 'TAILOR'
+          ? {
+              tailor: {
+                create: {
+                  shopName: dto.shopName!.trim(),
+                  experienceYears: dto.experience ?? 0,
+                  specialization: dto.specialization!.trim(),
+                  categories: [dto.specialization!.trim()],
+                },
+              },
+            }
+          : {}),
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+        role: true,
+      },
+    });
 
-      throw error;
-    }
+    const accessToken = await this.jwtService.signAsync({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    return {
+      message: 'User registered successfully',
+      accessToken,
+      user,
+    };
   }
 
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: {
-        email: dto.email,
+        email: dto.email.toLowerCase().trim(),
       },
     });
 
     if (!user) {
-      throw new UnauthorizedException(
-        'Invalid email or password',
-      );
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     const passwordMatches = await bcrypt.compare(
@@ -98,24 +110,21 @@ export class AuthService {
     );
 
     if (!passwordMatches) {
-      throw new UnauthorizedException(
-        'Invalid email or password',
-      );
+      throw new UnauthorizedException('Invalid email or password');
     }
 
-    const payload = {
+    const accessToken = await this.jwtService.signAsync({
       sub: user.id,
       email: user.email,
       role: user.role,
-    };
-
-    const accessToken = await this.jwtService.signAsync(payload);
+    });
 
     return {
       message: 'Login successful',
       accessToken,
       user: {
         id: user.id,
+        fullName: user.fullName,
         email: user.email,
         phoneNumber: user.phoneNumber,
         role: user.role,

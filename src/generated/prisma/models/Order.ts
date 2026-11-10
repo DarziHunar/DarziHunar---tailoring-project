@@ -490,6 +490,20 @@ export type OrderUncheckedUpdateManyWithoutCustomerNestedInput = {
   deleteMany?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
 }
 
+export type OrderCreateNestedManyWithoutTailorInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutTailorInput, Prisma.OrderUncheckedCreateWithoutTailorInput> | Prisma.OrderCreateWithoutTailorInput[] | Prisma.OrderUncheckedCreateWithoutTailorInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutTailorInput | Prisma.OrderCreateOrConnectWithoutTailorInput[]
+  createMany?: Prisma.OrderCreateManyTailorInputEnvelope
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+}
+
+export type OrderUncheckedCreateNestedManyWithoutTailorInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutTailorInput, Prisma.OrderUncheckedCreateWithoutTailorInput> | Prisma.OrderCreateWithoutTailorInput[] | Prisma.OrderUncheckedCreateWithoutTailorInput[]
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutTailorInput | Prisma.OrderCreateOrConnectWithoutTailorInput[]
+  createMany?: Prisma.OrderCreateManyTailorInputEnvelope
+  connect?: Prisma.OrderWhereUniqueInput | Prisma.OrderWhereUniqueInput[]
+}
+
 export type OrderUpdateManyWithoutTailorNestedInput = {
   create?: Prisma.XOR<Prisma.OrderCreateWithoutTailorInput, Prisma.OrderUncheckedCreateWithoutTailorInput> | Prisma.OrderCreateWithoutTailorInput[] | Prisma.OrderUncheckedCreateWithoutTailorInput[]
   connectOrCreate?: Prisma.OrderCreateOrConnectWithoutTailorInput | Prisma.OrderCreateOrConnectWithoutTailorInput[]
@@ -654,15 +668,15 @@ export type OrderCreateOrConnectWithoutTailorInput = {
   create: Prisma.XOR<Prisma.OrderCreateWithoutTailorInput, Prisma.OrderUncheckedCreateWithoutTailorInput>
 }
 
+export type OrderCreateManyTailorInputEnvelope = {
+  data: Prisma.OrderCreateManyTailorInput | Prisma.OrderCreateManyTailorInput[]
+  skipDuplicates?: boolean
+}
+
 export type OrderUpsertWithWhereUniqueWithoutTailorInput = {
   where: Prisma.OrderWhereUniqueInput
   update: Prisma.XOR<Prisma.OrderUpdateWithoutTailorInput, Prisma.OrderUncheckedUpdateWithoutTailorInput>
   create: Prisma.XOR<Prisma.OrderCreateWithoutTailorInput, Prisma.OrderUncheckedCreateWithoutTailorInput>
-}
-
-export type OrderCreateManyTailorInputEnvelope = {
-  data: Prisma.OrderCreateManyTailorInput | Prisma.OrderCreateManyTailorInput[]
-  skipDuplicates?: boolean
 }
 
 export type OrderUpdateWithWhereUniqueWithoutTailorInput = {
@@ -902,6 +916,15 @@ export type OrderUncheckedUpdateManyWithoutCustomerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type OrderCreateManyTailorInput = {
+  id?: number
+  customerId: number
+  status?: $Enums.OrderStatus
+  totalAmount: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
 export type OrderUpdateWithoutTailorInput = {
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -923,15 +946,6 @@ export type OrderUncheckedUpdateWithoutTailorInput = {
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutOrderNestedInput
   review?: Prisma.ReviewUncheckedUpdateOneWithoutOrderNestedInput
-}
-
-export type OrderCreateManyTailorInput = {
-  id?: number
-  customerId: number
-  status?: $Enums.OrderStatus
-  totalAmount: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
 }
 
 export type OrderUncheckedUpdateManyWithoutTailorInput = {

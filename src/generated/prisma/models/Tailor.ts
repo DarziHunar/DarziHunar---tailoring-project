@@ -29,6 +29,7 @@ export type AggregateTailor = {
 export type TailorAvgAggregateOutputType = {
   id: number | null
   userId: number | null
+  experienceYears: number | null
   rating: number | null
   startingPrice: number | null
 }
@@ -36,6 +37,7 @@ export type TailorAvgAggregateOutputType = {
 export type TailorSumAggregateOutputType = {
   id: number | null
   userId: number | null
+  experienceYears: number | null
   rating: number | null
   startingPrice: number | null
 }
@@ -45,6 +47,8 @@ export type TailorMinAggregateOutputType = {
   userId: number | null
   shopName: string | null
   bio: string | null
+  experienceYears: number | null
+  specialization: string | null
   verified: boolean | null
   rating: number | null
   startingPrice: number | null
@@ -58,6 +62,8 @@ export type TailorMaxAggregateOutputType = {
   userId: number | null
   shopName: string | null
   bio: string | null
+  experienceYears: number | null
+  specialization: string | null
   verified: boolean | null
   rating: number | null
   startingPrice: number | null
@@ -72,6 +78,8 @@ export type TailorCountAggregateOutputType = {
   shopName: number
   bio: number
   categories: number
+  experienceYears: number
+  specialization: number
   verified: number
   rating: number
   startingPrice: number
@@ -85,6 +93,7 @@ export type TailorCountAggregateOutputType = {
 export type TailorAvgAggregateInputType = {
   id?: true
   userId?: true
+  experienceYears?: true
   rating?: true
   startingPrice?: true
 }
@@ -92,6 +101,7 @@ export type TailorAvgAggregateInputType = {
 export type TailorSumAggregateInputType = {
   id?: true
   userId?: true
+  experienceYears?: true
   rating?: true
   startingPrice?: true
 }
@@ -101,6 +111,8 @@ export type TailorMinAggregateInputType = {
   userId?: true
   shopName?: true
   bio?: true
+  experienceYears?: true
+  specialization?: true
   verified?: true
   rating?: true
   startingPrice?: true
@@ -114,6 +126,8 @@ export type TailorMaxAggregateInputType = {
   userId?: true
   shopName?: true
   bio?: true
+  experienceYears?: true
+  specialization?: true
   verified?: true
   rating?: true
   startingPrice?: true
@@ -128,6 +142,8 @@ export type TailorCountAggregateInputType = {
   shopName?: true
   bio?: true
   categories?: true
+  experienceYears?: true
+  specialization?: true
   verified?: true
   rating?: true
   startingPrice?: true
@@ -229,6 +245,8 @@ export type TailorGroupByOutputType = {
   shopName: string
   bio: string | null
   categories: string[]
+  experienceYears: number | null
+  specialization: string | null
   verified: boolean
   rating: number
   startingPrice: number
@@ -266,6 +284,8 @@ export type TailorWhereInput = {
   shopName?: Prisma.StringFilter<"Tailor"> | string
   bio?: Prisma.StringNullableFilter<"Tailor"> | string | null
   categories?: Prisma.StringNullableListFilter<"Tailor">
+  experienceYears?: Prisma.IntNullableFilter<"Tailor"> | number | null
+  specialization?: Prisma.StringNullableFilter<"Tailor"> | string | null
   verified?: Prisma.BoolFilter<"Tailor"> | boolean
   rating?: Prisma.FloatFilter<"Tailor"> | number
   startingPrice?: Prisma.IntFilter<"Tailor"> | number
@@ -284,6 +304,8 @@ export type TailorOrderByWithRelationInput = {
   shopName?: Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   categories?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
+  specialization?: Prisma.SortOrderInput | Prisma.SortOrder
   verified?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   startingPrice?: Prisma.SortOrder
@@ -305,6 +327,8 @@ export type TailorWhereUniqueInput = Prisma.AtLeast<{
   shopName?: Prisma.StringFilter<"Tailor"> | string
   bio?: Prisma.StringNullableFilter<"Tailor"> | string | null
   categories?: Prisma.StringNullableListFilter<"Tailor">
+  experienceYears?: Prisma.IntNullableFilter<"Tailor"> | number | null
+  specialization?: Prisma.StringNullableFilter<"Tailor"> | string | null
   verified?: Prisma.BoolFilter<"Tailor"> | boolean
   rating?: Prisma.FloatFilter<"Tailor"> | number
   startingPrice?: Prisma.IntFilter<"Tailor"> | number
@@ -323,6 +347,8 @@ export type TailorOrderByWithAggregationInput = {
   shopName?: Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   categories?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
+  specialization?: Prisma.SortOrderInput | Prisma.SortOrder
   verified?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   startingPrice?: Prisma.SortOrder
@@ -345,6 +371,8 @@ export type TailorScalarWhereWithAggregatesInput = {
   shopName?: Prisma.StringWithAggregatesFilter<"Tailor"> | string
   bio?: Prisma.StringNullableWithAggregatesFilter<"Tailor"> | string | null
   categories?: Prisma.StringNullableListFilter<"Tailor">
+  experienceYears?: Prisma.IntNullableWithAggregatesFilter<"Tailor"> | number | null
+  specialization?: Prisma.StringNullableWithAggregatesFilter<"Tailor"> | string | null
   verified?: Prisma.BoolWithAggregatesFilter<"Tailor"> | boolean
   rating?: Prisma.FloatWithAggregatesFilter<"Tailor"> | number
   startingPrice?: Prisma.IntWithAggregatesFilter<"Tailor"> | number
@@ -353,10 +381,49 @@ export type TailorScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tailor"> | Date | string
 }
 
+export type TailorCreateInput = {
+  shopName: string
+  bio?: string | null
+  categories?: Prisma.TailorCreatecategoriesInput | string[]
+  experienceYears?: number | null
+  specialization?: string | null
+  verified?: boolean
+  rating?: number
+  startingPrice?: number
+  acceptingOrders?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutTailorInput
+  portfolioImages?: Prisma.PortfolioImageCreateNestedManyWithoutTailorInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTailorInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTailorInput
+}
+
+export type TailorUncheckedCreateInput = {
+  id?: number
+  userId: number
+  shopName: string
+  bio?: string | null
+  categories?: Prisma.TailorCreatecategoriesInput | string[]
+  experienceYears?: number | null
+  specialization?: string | null
+  verified?: boolean
+  rating?: number
+  startingPrice?: number
+  acceptingOrders?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  portfolioImages?: Prisma.PortfolioImageUncheckedCreateNestedManyWithoutTailorInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTailorInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTailorInput
+}
+
 export type TailorUpdateInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -375,6 +442,8 @@ export type TailorUncheckedUpdateInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -386,10 +455,28 @@ export type TailorUncheckedUpdateInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTailorNestedInput
 }
 
+export type TailorCreateManyInput = {
+  id?: number
+  userId: number
+  shopName: string
+  bio?: string | null
+  categories?: Prisma.TailorCreatecategoriesInput | string[]
+  experienceYears?: number | null
+  specialization?: string | null
+  verified?: boolean
+  rating?: number
+  startingPrice?: number
+  acceptingOrders?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
 export type TailorUpdateManyMutationInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -404,6 +491,8 @@ export type TailorUncheckedUpdateManyInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -431,6 +520,8 @@ export type TailorCountOrderByAggregateInput = {
   shopName?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   categories?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrder
+  specialization?: Prisma.SortOrder
   verified?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   startingPrice?: Prisma.SortOrder
@@ -442,6 +533,7 @@ export type TailorCountOrderByAggregateInput = {
 export type TailorAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   startingPrice?: Prisma.SortOrder
 }
@@ -451,6 +543,8 @@ export type TailorMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   shopName?: Prisma.SortOrder
   bio?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrder
+  specialization?: Prisma.SortOrder
   verified?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   startingPrice?: Prisma.SortOrder
@@ -464,6 +558,8 @@ export type TailorMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   shopName?: Prisma.SortOrder
   bio?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrder
+  specialization?: Prisma.SortOrder
   verified?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   startingPrice?: Prisma.SortOrder
@@ -475,6 +571,7 @@ export type TailorMinOrderByAggregateInput = {
 export type TailorSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrder
   rating?: Prisma.SortOrder
   startingPrice?: Prisma.SortOrder
 }
@@ -485,14 +582,21 @@ export type TailorScalarRelationFilter = {
 }
 
 export type TailorCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.TailorCreateWithoutUserInput, Prisma.TailorUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.TailorCreateOrConnectWithoutUserInput
   connect?: Prisma.TailorWhereUniqueInput
 }
 
 export type TailorUncheckedCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.TailorCreateWithoutUserInput, Prisma.TailorUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.TailorCreateOrConnectWithoutUserInput
   connect?: Prisma.TailorWhereUniqueInput
 }
 
 export type TailorUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.TailorCreateWithoutUserInput, Prisma.TailorUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.TailorCreateOrConnectWithoutUserInput
+  upsert?: Prisma.TailorUpsertWithoutUserInput
   disconnect?: Prisma.TailorWhereInput | boolean
   delete?: Prisma.TailorWhereInput | boolean
   connect?: Prisma.TailorWhereUniqueInput
@@ -500,15 +604,30 @@ export type TailorUpdateOneWithoutUserNestedInput = {
 }
 
 export type TailorUncheckedUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.TailorCreateWithoutUserInput, Prisma.TailorUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.TailorCreateOrConnectWithoutUserInput
+  upsert?: Prisma.TailorUpsertWithoutUserInput
   disconnect?: Prisma.TailorWhereInput | boolean
   delete?: Prisma.TailorWhereInput | boolean
   connect?: Prisma.TailorWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TailorUpdateToOneWithWhereWithoutUserInput, Prisma.TailorUpdateWithoutUserInput>, Prisma.TailorUncheckedUpdateWithoutUserInput>
 }
 
+export type TailorCreatecategoriesInput = {
+  set: string[]
+}
+
 export type TailorUpdatecategoriesInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type BoolFieldUpdateOperationsInput = {
@@ -524,30 +643,91 @@ export type FloatFieldUpdateOperationsInput = {
 }
 
 export type TailorCreateNestedOneWithoutPortfolioImagesInput = {
+  create?: Prisma.XOR<Prisma.TailorCreateWithoutPortfolioImagesInput, Prisma.TailorUncheckedCreateWithoutPortfolioImagesInput>
+  connectOrCreate?: Prisma.TailorCreateOrConnectWithoutPortfolioImagesInput
   connect?: Prisma.TailorWhereUniqueInput
 }
 
 export type TailorUpdateOneRequiredWithoutPortfolioImagesNestedInput = {
+  create?: Prisma.XOR<Prisma.TailorCreateWithoutPortfolioImagesInput, Prisma.TailorUncheckedCreateWithoutPortfolioImagesInput>
+  connectOrCreate?: Prisma.TailorCreateOrConnectWithoutPortfolioImagesInput
+  upsert?: Prisma.TailorUpsertWithoutPortfolioImagesInput
   connect?: Prisma.TailorWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TailorUpdateToOneWithWhereWithoutPortfolioImagesInput, Prisma.TailorUpdateWithoutPortfolioImagesInput>, Prisma.TailorUncheckedUpdateWithoutPortfolioImagesInput>
 }
 
 export type TailorCreateNestedOneWithoutOrdersInput = {
+  create?: Prisma.XOR<Prisma.TailorCreateWithoutOrdersInput, Prisma.TailorUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.TailorCreateOrConnectWithoutOrdersInput
   connect?: Prisma.TailorWhereUniqueInput
 }
 
 export type TailorUpdateOneRequiredWithoutOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.TailorCreateWithoutOrdersInput, Prisma.TailorUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.TailorCreateOrConnectWithoutOrdersInput
+  upsert?: Prisma.TailorUpsertWithoutOrdersInput
   connect?: Prisma.TailorWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TailorUpdateToOneWithWhereWithoutOrdersInput, Prisma.TailorUpdateWithoutOrdersInput>, Prisma.TailorUncheckedUpdateWithoutOrdersInput>
 }
 
 export type TailorCreateNestedOneWithoutReviewsInput = {
+  create?: Prisma.XOR<Prisma.TailorCreateWithoutReviewsInput, Prisma.TailorUncheckedCreateWithoutReviewsInput>
+  connectOrCreate?: Prisma.TailorCreateOrConnectWithoutReviewsInput
   connect?: Prisma.TailorWhereUniqueInput
 }
 
 export type TailorUpdateOneRequiredWithoutReviewsNestedInput = {
+  create?: Prisma.XOR<Prisma.TailorCreateWithoutReviewsInput, Prisma.TailorUncheckedCreateWithoutReviewsInput>
+  connectOrCreate?: Prisma.TailorCreateOrConnectWithoutReviewsInput
+  upsert?: Prisma.TailorUpsertWithoutReviewsInput
   connect?: Prisma.TailorWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TailorUpdateToOneWithWhereWithoutReviewsInput, Prisma.TailorUpdateWithoutReviewsInput>, Prisma.TailorUncheckedUpdateWithoutReviewsInput>
+}
+
+export type TailorCreateWithoutUserInput = {
+  shopName: string
+  bio?: string | null
+  categories?: Prisma.TailorCreatecategoriesInput | string[]
+  experienceYears?: number | null
+  specialization?: string | null
+  verified?: boolean
+  rating?: number
+  startingPrice?: number
+  acceptingOrders?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  portfolioImages?: Prisma.PortfolioImageCreateNestedManyWithoutTailorInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTailorInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTailorInput
+}
+
+export type TailorUncheckedCreateWithoutUserInput = {
+  id?: number
+  shopName: string
+  bio?: string | null
+  categories?: Prisma.TailorCreatecategoriesInput | string[]
+  experienceYears?: number | null
+  specialization?: string | null
+  verified?: boolean
+  rating?: number
+  startingPrice?: number
+  acceptingOrders?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  portfolioImages?: Prisma.PortfolioImageUncheckedCreateNestedManyWithoutTailorInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTailorInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTailorInput
+}
+
+export type TailorCreateOrConnectWithoutUserInput = {
+  where: Prisma.TailorWhereUniqueInput
+  create: Prisma.XOR<Prisma.TailorCreateWithoutUserInput, Prisma.TailorUncheckedCreateWithoutUserInput>
+}
+
+export type TailorUpsertWithoutUserInput = {
+  update: Prisma.XOR<Prisma.TailorUpdateWithoutUserInput, Prisma.TailorUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.TailorCreateWithoutUserInput, Prisma.TailorUncheckedCreateWithoutUserInput>
+  where?: Prisma.TailorWhereInput
 }
 
 export type TailorUpdateToOneWithWhereWithoutUserInput = {
@@ -559,6 +739,8 @@ export type TailorUpdateWithoutUserInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -575,6 +757,8 @@ export type TailorUncheckedUpdateWithoutUserInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -586,6 +770,52 @@ export type TailorUncheckedUpdateWithoutUserInput = {
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTailorNestedInput
 }
 
+export type TailorCreateWithoutPortfolioImagesInput = {
+  shopName: string
+  bio?: string | null
+  categories?: Prisma.TailorCreatecategoriesInput | string[]
+  experienceYears?: number | null
+  specialization?: string | null
+  verified?: boolean
+  rating?: number
+  startingPrice?: number
+  acceptingOrders?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutTailorInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTailorInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTailorInput
+}
+
+export type TailorUncheckedCreateWithoutPortfolioImagesInput = {
+  id?: number
+  userId: number
+  shopName: string
+  bio?: string | null
+  categories?: Prisma.TailorCreatecategoriesInput | string[]
+  experienceYears?: number | null
+  specialization?: string | null
+  verified?: boolean
+  rating?: number
+  startingPrice?: number
+  acceptingOrders?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTailorInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTailorInput
+}
+
+export type TailorCreateOrConnectWithoutPortfolioImagesInput = {
+  where: Prisma.TailorWhereUniqueInput
+  create: Prisma.XOR<Prisma.TailorCreateWithoutPortfolioImagesInput, Prisma.TailorUncheckedCreateWithoutPortfolioImagesInput>
+}
+
+export type TailorUpsertWithoutPortfolioImagesInput = {
+  update: Prisma.XOR<Prisma.TailorUpdateWithoutPortfolioImagesInput, Prisma.TailorUncheckedUpdateWithoutPortfolioImagesInput>
+  create: Prisma.XOR<Prisma.TailorCreateWithoutPortfolioImagesInput, Prisma.TailorUncheckedCreateWithoutPortfolioImagesInput>
+  where?: Prisma.TailorWhereInput
+}
+
 export type TailorUpdateToOneWithWhereWithoutPortfolioImagesInput = {
   where?: Prisma.TailorWhereInput
   data: Prisma.XOR<Prisma.TailorUpdateWithoutPortfolioImagesInput, Prisma.TailorUncheckedUpdateWithoutPortfolioImagesInput>
@@ -595,6 +825,8 @@ export type TailorUpdateWithoutPortfolioImagesInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -612,6 +844,8 @@ export type TailorUncheckedUpdateWithoutPortfolioImagesInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -620,6 +854,52 @@ export type TailorUncheckedUpdateWithoutPortfolioImagesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutTailorNestedInput
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTailorNestedInput
+}
+
+export type TailorCreateWithoutOrdersInput = {
+  shopName: string
+  bio?: string | null
+  categories?: Prisma.TailorCreatecategoriesInput | string[]
+  experienceYears?: number | null
+  specialization?: string | null
+  verified?: boolean
+  rating?: number
+  startingPrice?: number
+  acceptingOrders?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutTailorInput
+  portfolioImages?: Prisma.PortfolioImageCreateNestedManyWithoutTailorInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutTailorInput
+}
+
+export type TailorUncheckedCreateWithoutOrdersInput = {
+  id?: number
+  userId: number
+  shopName: string
+  bio?: string | null
+  categories?: Prisma.TailorCreatecategoriesInput | string[]
+  experienceYears?: number | null
+  specialization?: string | null
+  verified?: boolean
+  rating?: number
+  startingPrice?: number
+  acceptingOrders?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  portfolioImages?: Prisma.PortfolioImageUncheckedCreateNestedManyWithoutTailorInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutTailorInput
+}
+
+export type TailorCreateOrConnectWithoutOrdersInput = {
+  where: Prisma.TailorWhereUniqueInput
+  create: Prisma.XOR<Prisma.TailorCreateWithoutOrdersInput, Prisma.TailorUncheckedCreateWithoutOrdersInput>
+}
+
+export type TailorUpsertWithoutOrdersInput = {
+  update: Prisma.XOR<Prisma.TailorUpdateWithoutOrdersInput, Prisma.TailorUncheckedUpdateWithoutOrdersInput>
+  create: Prisma.XOR<Prisma.TailorCreateWithoutOrdersInput, Prisma.TailorUncheckedCreateWithoutOrdersInput>
+  where?: Prisma.TailorWhereInput
 }
 
 export type TailorUpdateToOneWithWhereWithoutOrdersInput = {
@@ -631,6 +911,8 @@ export type TailorUpdateWithoutOrdersInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -648,6 +930,8 @@ export type TailorUncheckedUpdateWithoutOrdersInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -656,6 +940,52 @@ export type TailorUncheckedUpdateWithoutOrdersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   portfolioImages?: Prisma.PortfolioImageUncheckedUpdateManyWithoutTailorNestedInput
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutTailorNestedInput
+}
+
+export type TailorCreateWithoutReviewsInput = {
+  shopName: string
+  bio?: string | null
+  categories?: Prisma.TailorCreatecategoriesInput | string[]
+  experienceYears?: number | null
+  specialization?: string | null
+  verified?: boolean
+  rating?: number
+  startingPrice?: number
+  acceptingOrders?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutTailorInput
+  portfolioImages?: Prisma.PortfolioImageCreateNestedManyWithoutTailorInput
+  orders?: Prisma.OrderCreateNestedManyWithoutTailorInput
+}
+
+export type TailorUncheckedCreateWithoutReviewsInput = {
+  id?: number
+  userId: number
+  shopName: string
+  bio?: string | null
+  categories?: Prisma.TailorCreatecategoriesInput | string[]
+  experienceYears?: number | null
+  specialization?: string | null
+  verified?: boolean
+  rating?: number
+  startingPrice?: number
+  acceptingOrders?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  portfolioImages?: Prisma.PortfolioImageUncheckedCreateNestedManyWithoutTailorInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutTailorInput
+}
+
+export type TailorCreateOrConnectWithoutReviewsInput = {
+  where: Prisma.TailorWhereUniqueInput
+  create: Prisma.XOR<Prisma.TailorCreateWithoutReviewsInput, Prisma.TailorUncheckedCreateWithoutReviewsInput>
+}
+
+export type TailorUpsertWithoutReviewsInput = {
+  update: Prisma.XOR<Prisma.TailorUpdateWithoutReviewsInput, Prisma.TailorUncheckedUpdateWithoutReviewsInput>
+  create: Prisma.XOR<Prisma.TailorCreateWithoutReviewsInput, Prisma.TailorUncheckedCreateWithoutReviewsInput>
+  where?: Prisma.TailorWhereInput
 }
 
 export type TailorUpdateToOneWithWhereWithoutReviewsInput = {
@@ -667,6 +997,8 @@ export type TailorUpdateWithoutReviewsInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -684,6 +1016,8 @@ export type TailorUncheckedUpdateWithoutReviewsInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rating?: Prisma.FloatFieldUpdateOperationsInput | number
   startingPrice?: Prisma.IntFieldUpdateOperationsInput | number
@@ -749,6 +1083,8 @@ export type TailorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   shopName?: boolean
   bio?: boolean
   categories?: boolean
+  experienceYears?: boolean
+  specialization?: boolean
   verified?: boolean
   rating?: boolean
   startingPrice?: boolean
@@ -762,6 +1098,22 @@ export type TailorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   _count?: boolean | Prisma.TailorCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tailor"]>
 
+export type TailorSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  userId?: boolean
+  shopName?: boolean
+  bio?: boolean
+  categories?: boolean
+  experienceYears?: boolean
+  specialization?: boolean
+  verified?: boolean
+  rating?: boolean
+  startingPrice?: boolean
+  acceptingOrders?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["tailor"]>
 
 export type TailorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -769,6 +1121,8 @@ export type TailorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   shopName?: boolean
   bio?: boolean
   categories?: boolean
+  experienceYears?: boolean
+  specialization?: boolean
   verified?: boolean
   rating?: boolean
   startingPrice?: boolean
@@ -784,6 +1138,8 @@ export type TailorSelectScalar = {
   shopName?: boolean
   bio?: boolean
   categories?: boolean
+  experienceYears?: boolean
+  specialization?: boolean
   verified?: boolean
   rating?: boolean
   startingPrice?: boolean
@@ -792,13 +1148,16 @@ export type TailorSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TailorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "shopName" | "bio" | "categories" | "verified" | "rating" | "startingPrice" | "acceptingOrders" | "createdAt" | "updatedAt", ExtArgs["result"]["tailor"]>
+export type TailorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "shopName" | "bio" | "categories" | "experienceYears" | "specialization" | "verified" | "rating" | "startingPrice" | "acceptingOrders" | "createdAt" | "updatedAt", ExtArgs["result"]["tailor"]>
 export type TailorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   portfolioImages?: boolean | Prisma.Tailor$portfolioImagesArgs<ExtArgs>
   orders?: boolean | Prisma.Tailor$ordersArgs<ExtArgs>
   reviews?: boolean | Prisma.Tailor$reviewsArgs<ExtArgs>
   _count?: boolean | Prisma.TailorCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type TailorIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type TailorIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -818,6 +1177,8 @@ export type $TailorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     shopName: string
     bio: string | null
     categories: string[]
+    experienceYears: number | null
+    specialization: string | null
     verified: boolean
     rating: number
     startingPrice: number
@@ -914,6 +1275,58 @@ export interface TailorDelegate<ExtArgs extends runtime.Types.Extensions.Interna
   findMany<T extends TailorFindManyArgs>(args?: Prisma.SelectSubset<T, TailorFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TailorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
   /**
+   * Create a Tailor.
+   * @param {TailorCreateArgs} args - Arguments to create a Tailor.
+   * @example
+   * // Create one Tailor
+   * const Tailor = await prisma.tailor.create({
+   *   data: {
+   *     // ... data to create a Tailor
+   *   }
+   * })
+   * 
+   */
+  create<T extends TailorCreateArgs>(args: Prisma.SelectSubset<T, TailorCreateArgs<ExtArgs>>): Prisma.Prisma__TailorClient<runtime.Types.Result.GetResult<Prisma.$TailorPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+  /**
+   * Create many Tailors.
+   * @param {TailorCreateManyArgs} args - Arguments to create many Tailors.
+   * @example
+   * // Create many Tailors
+   * const tailor = await prisma.tailor.createMany({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   *     
+   */
+  createMany<T extends TailorCreateManyArgs>(args?: Prisma.SelectSubset<T, TailorCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Create many Tailors and returns the data saved in the database.
+   * @param {TailorCreateManyAndReturnArgs} args - Arguments to create many Tailors.
+   * @example
+   * // Create many Tailors
+   * const tailor = await prisma.tailor.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Tailors and only return the `id`
+   * const tailorWithIdOnly = await prisma.tailor.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends TailorCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, TailorCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TailorPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Tailor.
    * @param {TailorDeleteArgs} args - Arguments to delete one Tailor.
    * @example
@@ -1006,6 +1419,25 @@ export interface TailorDelegate<ExtArgs extends runtime.Types.Extensions.Interna
    * 
    */
   updateManyAndReturn<T extends TailorUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, TailorUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TailorPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+  /**
+   * Create or update one Tailor.
+   * @param {TailorUpsertArgs} args - Arguments to update or create a Tailor.
+   * @example
+   * // Update or create a Tailor
+   * const tailor = await prisma.tailor.upsert({
+   *   create: {
+   *     // ... data to create a Tailor
+   *   },
+   *   update: {
+   *     // ... in case it already exists, update
+   *   },
+   *   where: {
+   *     // ... the filter for the Tailor we want to update
+   *   }
+   * })
+   */
+  upsert<T extends TailorUpsertArgs>(args: Prisma.SelectSubset<T, TailorUpsertArgs<ExtArgs>>): Prisma.Prisma__TailorClient<runtime.Types.Result.GetResult<Prisma.$TailorPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
   /**
@@ -1185,6 +1617,8 @@ export interface TailorFieldRefs {
   readonly shopName: Prisma.FieldRef<"Tailor", 'String'>
   readonly bio: Prisma.FieldRef<"Tailor", 'String'>
   readonly categories: Prisma.FieldRef<"Tailor", 'String[]'>
+  readonly experienceYears: Prisma.FieldRef<"Tailor", 'Int'>
+  readonly specialization: Prisma.FieldRef<"Tailor", 'String'>
   readonly verified: Prisma.FieldRef<"Tailor", 'Boolean'>
   readonly rating: Prisma.FieldRef<"Tailor", 'Float'>
   readonly startingPrice: Prisma.FieldRef<"Tailor", 'Int'>
@@ -1396,6 +1830,62 @@ export type TailorFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
+ * Tailor create
+ */
+export type TailorCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Tailor
+   */
+  select?: Prisma.TailorSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Tailor
+   */
+  omit?: Prisma.TailorOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TailorInclude<ExtArgs> | null
+  /**
+   * The data needed to create a Tailor.
+   */
+  data: Prisma.XOR<Prisma.TailorCreateInput, Prisma.TailorUncheckedCreateInput>
+}
+
+/**
+ * Tailor createMany
+ */
+export type TailorCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The data used to create many Tailors.
+   */
+  data: Prisma.TailorCreateManyInput | Prisma.TailorCreateManyInput[]
+  skipDuplicates?: boolean
+}
+
+/**
+ * Tailor createManyAndReturn
+ */
+export type TailorCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Tailor
+   */
+  select?: Prisma.TailorSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the Tailor
+   */
+  omit?: Prisma.TailorOmit<ExtArgs> | null
+  /**
+   * The data used to create many Tailors.
+   */
+  data: Prisma.TailorCreateManyInput | Prisma.TailorCreateManyInput[]
+  skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TailorIncludeCreateManyAndReturn<ExtArgs> | null
+}
+
+/**
  * Tailor update
  */
 export type TailorUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1467,6 +1957,36 @@ export type TailorUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensio
    * Choose, which related nodes to fetch as well
    */
   include?: Prisma.TailorIncludeUpdateManyAndReturn<ExtArgs> | null
+}
+
+/**
+ * Tailor upsert
+ */
+export type TailorUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Tailor
+   */
+  select?: Prisma.TailorSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Tailor
+   */
+  omit?: Prisma.TailorOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TailorInclude<ExtArgs> | null
+  /**
+   * The filter to search for the Tailor to update in case it exists.
+   */
+  where: Prisma.TailorWhereUniqueInput
+  /**
+   * In case the Tailor found by the `where` argument doesn't exist, create a new Tailor with this data.
+   */
+  create: Prisma.XOR<Prisma.TailorCreateInput, Prisma.TailorUncheckedCreateInput>
+  /**
+   * In case the Tailor was found with the provided `where` argument, update it with this data.
+   */
+  update: Prisma.XOR<Prisma.TailorUpdateInput, Prisma.TailorUncheckedUpdateInput>
 }
 
 /**

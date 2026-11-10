@@ -499,6 +499,20 @@ export type ReviewUncheckedUpdateManyWithoutCustomerNestedInput = {
   deleteMany?: Prisma.ReviewScalarWhereInput | Prisma.ReviewScalarWhereInput[]
 }
 
+export type ReviewCreateNestedManyWithoutTailorInput = {
+  create?: Prisma.XOR<Prisma.ReviewCreateWithoutTailorInput, Prisma.ReviewUncheckedCreateWithoutTailorInput> | Prisma.ReviewCreateWithoutTailorInput[] | Prisma.ReviewUncheckedCreateWithoutTailorInput[]
+  connectOrCreate?: Prisma.ReviewCreateOrConnectWithoutTailorInput | Prisma.ReviewCreateOrConnectWithoutTailorInput[]
+  createMany?: Prisma.ReviewCreateManyTailorInputEnvelope
+  connect?: Prisma.ReviewWhereUniqueInput | Prisma.ReviewWhereUniqueInput[]
+}
+
+export type ReviewUncheckedCreateNestedManyWithoutTailorInput = {
+  create?: Prisma.XOR<Prisma.ReviewCreateWithoutTailorInput, Prisma.ReviewUncheckedCreateWithoutTailorInput> | Prisma.ReviewCreateWithoutTailorInput[] | Prisma.ReviewUncheckedCreateWithoutTailorInput[]
+  connectOrCreate?: Prisma.ReviewCreateOrConnectWithoutTailorInput | Prisma.ReviewCreateOrConnectWithoutTailorInput[]
+  createMany?: Prisma.ReviewCreateManyTailorInputEnvelope
+  connect?: Prisma.ReviewWhereUniqueInput | Prisma.ReviewWhereUniqueInput[]
+}
+
 export type ReviewUpdateManyWithoutTailorNestedInput = {
   create?: Prisma.XOR<Prisma.ReviewCreateWithoutTailorInput, Prisma.ReviewUncheckedCreateWithoutTailorInput> | Prisma.ReviewCreateWithoutTailorInput[] | Prisma.ReviewUncheckedCreateWithoutTailorInput[]
   connectOrCreate?: Prisma.ReviewCreateOrConnectWithoutTailorInput | Prisma.ReviewCreateOrConnectWithoutTailorInput[]
@@ -642,15 +656,15 @@ export type ReviewCreateOrConnectWithoutTailorInput = {
   create: Prisma.XOR<Prisma.ReviewCreateWithoutTailorInput, Prisma.ReviewUncheckedCreateWithoutTailorInput>
 }
 
+export type ReviewCreateManyTailorInputEnvelope = {
+  data: Prisma.ReviewCreateManyTailorInput | Prisma.ReviewCreateManyTailorInput[]
+  skipDuplicates?: boolean
+}
+
 export type ReviewUpsertWithWhereUniqueWithoutTailorInput = {
   where: Prisma.ReviewWhereUniqueInput
   update: Prisma.XOR<Prisma.ReviewUpdateWithoutTailorInput, Prisma.ReviewUncheckedUpdateWithoutTailorInput>
   create: Prisma.XOR<Prisma.ReviewCreateWithoutTailorInput, Prisma.ReviewUncheckedCreateWithoutTailorInput>
-}
-
-export type ReviewCreateManyTailorInputEnvelope = {
-  data: Prisma.ReviewCreateManyTailorInput | Prisma.ReviewCreateManyTailorInput[]
-  skipDuplicates?: boolean
 }
 
 export type ReviewUpdateWithWhereUniqueWithoutTailorInput = {
@@ -756,6 +770,16 @@ export type ReviewUncheckedUpdateManyWithoutCustomerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type ReviewCreateManyTailorInput = {
+  id?: number
+  orderId: number
+  customerId: number
+  rating: number
+  comment?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
 export type ReviewUpdateWithoutTailorInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -773,16 +797,6 @@ export type ReviewUncheckedUpdateWithoutTailorInput = {
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ReviewCreateManyTailorInput = {
-  id?: number
-  orderId: number
-  customerId: number
-  rating: number
-  comment?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
 }
 
 export type ReviewUncheckedUpdateManyWithoutTailorInput = {

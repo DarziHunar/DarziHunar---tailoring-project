@@ -39,6 +39,7 @@ enum PaymentMethod {
 
 model User {
   id           Int     @id @default(autoincrement())
+  fullName     String?
   email        String  @unique
   phoneNumber  String? @unique
   passwordHash String
@@ -47,7 +48,7 @@ model User {
   tailor              Tailor?
   orders              Order[]
   measurementProfiles MeasurementProfile[]
-  reviewsGiven Review[] @relation("CustomerReviews")
+  reviewsGiven        Review[]             @relation("CustomerReviews")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -59,20 +60,22 @@ model Tailor {
   userId Int  @unique
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  shopName   String
-  bio        String?
-  categories String[]
+  shopName        String
+  bio             String?
+  categories      String[] @default([])
+  experienceYears Int?
+  specialization  String?
 
-  location Unsupported("geography(Point, 4326)")
+  location Unsupported("geography(Point, 4326)")?
 
   verified        Boolean @default(false)
   rating          Float   @default(0)
-  startingPrice   Int
+  startingPrice   Int     @default(0)
   acceptingOrders Boolean @default(true)
 
   portfolioImages PortfolioImage[]
   orders          Order[]
-  reviews Review[]
+  reviews         Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -106,7 +109,7 @@ model Order {
   customer User   @relation(fields: [customerId], references: [id], onDelete: Restrict)
   tailor   Tailor @relation(fields: [tailorId], references: [id], onDelete: Restrict)
 
-  items OrderItem[]
+  items    OrderItem[]
   payments Payment[]
   review   Review?
 
@@ -159,12 +162,12 @@ model MeasurementProfile {
 }
 
 model Payment {
-  id        Int           @id @default(autoincrement())
-  orderId   Int
-  amount    Int
-  currency  String        @default("INR")
-  method    PaymentMethod
-  status    PaymentStatus @default(PENDING)
+  id       Int           @id @default(autoincrement())
+  orderId  Int
+  amount   Int
+  currency String        @default("INR")
+  method   PaymentMethod
+  status   PaymentStatus @default(PENDING)
 
   // Reference from a payment provider, once integrated.
   providerReference String? @unique

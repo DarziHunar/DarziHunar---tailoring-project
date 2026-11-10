@@ -522,6 +522,18 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
           args: Prisma.TailorFindManyArgs<ExtArgs>
           result: runtime.Types.Utils.PayloadToResult<Prisma.$TailorPayload>[]
         }
+        create: {
+          args: Prisma.TailorCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TailorPayload>
+        }
+        createMany: {
+          args: Prisma.TailorCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TailorCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TailorPayload>[]
+        }
         delete: {
           args: Prisma.TailorDeleteArgs<ExtArgs>
           result: runtime.Types.Utils.PayloadToResult<Prisma.$TailorPayload>
@@ -541,6 +553,10 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         updateManyAndReturn: {
           args: Prisma.TailorUpdateManyAndReturnArgs<ExtArgs>
           result: runtime.Types.Utils.PayloadToResult<Prisma.$TailorPayload>[]
+        }
+        upsert: {
+          args: Prisma.TailorUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TailorPayload>
         }
         aggregate: {
           args: Prisma.TailorAggregateArgs<ExtArgs>
@@ -1041,6 +1057,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserScalarFieldEnum = {
   id: 'id',
+  fullName: 'fullName',
   email: 'email',
   phoneNumber: 'phoneNumber',
   passwordHash: 'passwordHash',
@@ -1058,6 +1075,8 @@ export const TailorScalarFieldEnum = {
   shopName: 'shopName',
   bio: 'bio',
   categories: 'categories',
+  experienceYears: 'experienceYears',
+  specialization: 'specialization',
   verified: 'verified',
   rating: 'rating',
   startingPrice: 'startingPrice',

@@ -555,14 +555,6 @@ export type OrderItemUpdatereferenceImagesInput = {
   push?: string | string[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type OrderItemCreateNestedManyWithoutMeasurementProfileInput = {
   create?: Prisma.XOR<Prisma.OrderItemCreateWithoutMeasurementProfileInput, Prisma.OrderItemUncheckedCreateWithoutMeasurementProfileInput> | Prisma.OrderItemCreateWithoutMeasurementProfileInput[] | Prisma.OrderItemUncheckedCreateWithoutMeasurementProfileInput[]
   connectOrCreate?: Prisma.OrderItemCreateOrConnectWithoutMeasurementProfileInput | Prisma.OrderItemCreateOrConnectWithoutMeasurementProfileInput[]
