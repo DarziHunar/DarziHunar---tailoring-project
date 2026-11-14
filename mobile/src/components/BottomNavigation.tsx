@@ -1,48 +1,52 @@
-import React from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import { C } from "../theme/colors";
+import React from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { C } from '../theme/colors';
+import type { MainTab } from '../types/navigation';
 
-const tabs = [
-  { label: "Home", symbol: "⌂" },
-  { label: "Favorites", symbol: "♡" },
-  { label: "My Orders", symbol: "▤" },
-  { label: "Explore", symbol: "◇" },
-  { label: "Measurements", symbol: "↔" },
+type Props = {
+  activeTab: MainTab;
+  onNavigate: (tab: MainTab) => void;
+};
+
+const tabs: { key: MainTab; label: string; icon: string }[] = [
+  { key: 'home', label: 'Home', icon: '⌂' },
+  { key: 'favorites', label: 'Favorites', icon: '♡' },
+  { key: 'orders', label: 'My Orders', icon: '▤' },
+  { key: 'explore', label: 'Explore', icon: '◇' },
+  { key: 'measurements', label: 'Measurements', icon: '↔' },
 ];
 
-export default function BottomNavigation() {
+export default function BottomNavigation({ activeTab, onNavigate }: Props) {
   return (
-    <View style={styles.bottomArea}>
-      <View style={styles.bottomNav}>
-        {tabs.map((tab) => (
-          <Pressable
-            key={tab.label}
-            style={styles.bottomTab}
-            onPress={() => Alert.alert(tab.label, `${tab.label} screen will be added next.`)}
-          >
-            <Text style={[styles.bottomSymbol, tab.label === "Home" && styles.activeTab]}>
-              {tab.symbol}
-            </Text>
-            <Text
-              style={[styles.bottomLabel, tab.label === "Home" && styles.activeTab]}
-              numberOfLines={1}
+    <View style={{ backgroundColor: C.bg, borderTopWidth: 1, borderTopColor: '#E9E0D9' }}>
+      <View style={{ flexDirection: 'row', paddingTop: 9, paddingBottom: 5 }}>
+        {tabs.map((tab) => {
+          const active = activeTab === tab.key;
+          return (
+            <Pressable
+              key={tab.key}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              accessibilityLabel={`Open ${tab.label}`}
+              onPress={() => onNavigate(tab.key)}
+              style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 4 }}
             >
-              {tab.label}
-            </Text>
-          </Pressable>
-        ))}
+              <Text style={{ fontSize: 25, lineHeight: 29, color: active ? C.wine : '#8D8580' }}>
+                {tab.icon}
+              </Text>
+              <Text
+                numberOfLines={1}
+                style={{ fontSize: 11, marginTop: 3, color: active ? C.wine : '#8D8580', fontWeight: active ? '700' : '400' }}
+              >
+                {tab.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
-      <Text style={styles.footerTagline}>CRAFTED WITH CARE · STITCHED WITH LOVE</Text>
+      <Text style={{ textAlign: 'center', color: '#8D8580', fontSize: 10, letterSpacing: 0.4, paddingBottom: 4 }}>
+        CRAFTED WITH CARE · STITCHED WITH LOVE
+      </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  bottomArea: { backgroundColor: C.bg, borderTopWidth: 0, paddingTop: 4, paddingBottom: 2 },
-  bottomNav: { flexDirection: "row", alignItems: "center", justifyContent: "space-around" },
-  bottomTab: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 2 },
-  bottomSymbol: { fontSize: 20, color: C.muted, marginBottom: 3 },
-  bottomLabel: { fontSize: 9, color: C.muted, textAlign: "center" },
-  activeTab: { color: C.wine, fontWeight: "700" },
-  footerTagline: { textAlign: "center", color: C.muted, fontSize: 10, marginTop: 6 },
-});

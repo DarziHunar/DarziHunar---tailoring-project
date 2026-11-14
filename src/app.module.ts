@@ -12,6 +12,8 @@ import { MediaModule } from './media/media.module';
 import { MeasurementsModule } from './measurements/measurements.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { StylesModule } from './styles/styles.module';
+
 
 @Module({
   imports: [
@@ -27,6 +29,7 @@ import { ReviewsModule } from './reviews/reviews.module';
     MeasurementsModule,
     PaymentsModule,
     ReviewsModule,
+    StylesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -34,10 +34,9 @@ type AuthenticatedRequest = Request & {
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
-  // GET /users
-  // Only admins can list all accounts.
+  // GET /users - Admin only
   @Get()
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
@@ -45,8 +44,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  // GET /users/:id
-  // Users can view their own profile; admins can view any profile.
+  // GET /users/:id - Own profile or admin
   @Get(':id')
   findById(
     @Param('id', ParseIntPipe) id: number,
@@ -59,8 +57,7 @@ export class UsersController {
     );
   }
 
-  // PATCH /users/:id
-  // Users can update only their own profile.
+  // PATCH /users/:id - Update own profile
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -74,8 +71,7 @@ export class UsersController {
     );
   }
 
-  // DELETE /users/:id
-  // Users can delete their own account, subject to database constraints.
+  // DELETE /users/:id - Delete own account
   @Delete(':id')
   remove(
     @Param('id', ParseIntPipe) id: number,
@@ -94,7 +90,7 @@ export class UsersController {
 export class AdminUsersController {
   constructor(
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   // GET /admin/users
   @Get()
@@ -137,7 +133,6 @@ export class AdminUsersController {
   }
 
   // DELETE /admin/users
-  // Requires explicit confirmation and preserves all admin accounts.
   @Delete()
   deleteAllNonAdminUsers(
     @Body('confirmation') confirmation: string,

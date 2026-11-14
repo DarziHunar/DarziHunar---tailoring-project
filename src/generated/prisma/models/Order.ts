@@ -66,6 +66,7 @@ export type OrderCountAggregateOutputType = {
   tailorId: number
   status: number
   totalAmount: number
+  deliveryDetails: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -112,6 +113,7 @@ export type OrderCountAggregateInputType = {
   tailorId?: true
   status?: true
   totalAmount?: true
+  deliveryDetails?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -209,6 +211,7 @@ export type OrderGroupByOutputType = {
   tailorId: number
   status: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails: runtime.JsonValue | null
   createdAt: Date
   updatedAt: Date
   _count: OrderCountAggregateOutputType | null
@@ -242,6 +245,7 @@ export type OrderWhereInput = {
   tailorId?: Prisma.IntFilter<"Order"> | number
   status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
   totalAmount?: Prisma.IntFilter<"Order"> | number
+  deliveryDetails?: Prisma.JsonNullableFilter<"Order">
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   customer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -257,6 +261,7 @@ export type OrderOrderByWithRelationInput = {
   tailorId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  deliveryDetails?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   customer?: Prisma.UserOrderByWithRelationInput
@@ -275,6 +280,7 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   tailorId?: Prisma.IntFilter<"Order"> | number
   status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
   totalAmount?: Prisma.IntFilter<"Order"> | number
+  deliveryDetails?: Prisma.JsonNullableFilter<"Order">
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   customer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -290,6 +296,7 @@ export type OrderOrderByWithAggregationInput = {
   tailorId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  deliveryDetails?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrderCountOrderByAggregateInput
@@ -308,6 +315,7 @@ export type OrderScalarWhereWithAggregatesInput = {
   tailorId?: Prisma.IntWithAggregatesFilter<"Order"> | number
   status?: Prisma.EnumOrderStatusWithAggregatesFilter<"Order"> | $Enums.OrderStatus
   totalAmount?: Prisma.IntWithAggregatesFilter<"Order"> | number
+  deliveryDetails?: Prisma.JsonNullableWithAggregatesFilter<"Order">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Order"> | Date | string
 }
@@ -315,6 +323,7 @@ export type OrderScalarWhereWithAggregatesInput = {
 export type OrderCreateInput = {
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -330,6 +339,7 @@ export type OrderUncheckedCreateInput = {
   tailorId: number
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -340,6 +350,7 @@ export type OrderUncheckedCreateInput = {
 export type OrderUpdateInput = {
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.UserUpdateOneRequiredWithoutOrdersNestedInput
@@ -355,6 +366,7 @@ export type OrderUncheckedUpdateInput = {
   tailorId?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -368,6 +380,7 @@ export type OrderCreateManyInput = {
   tailorId: number
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -375,6 +388,7 @@ export type OrderCreateManyInput = {
 export type OrderUpdateManyMutationInput = {
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -385,6 +399,7 @@ export type OrderUncheckedUpdateManyInput = {
   tailorId?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -405,6 +420,7 @@ export type OrderCountOrderByAggregateInput = {
   tailorId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  deliveryDetails?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -581,6 +597,7 @@ export type OrderUpdateOneRequiredWithoutReviewNestedInput = {
 export type OrderCreateWithoutCustomerInput = {
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   tailor: Prisma.TailorCreateNestedOneWithoutOrdersInput
@@ -594,6 +611,7 @@ export type OrderUncheckedCreateWithoutCustomerInput = {
   tailorId: number
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -636,6 +654,7 @@ export type OrderScalarWhereInput = {
   tailorId?: Prisma.IntFilter<"Order"> | number
   status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
   totalAmount?: Prisma.IntFilter<"Order"> | number
+  deliveryDetails?: Prisma.JsonNullableFilter<"Order">
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
 }
@@ -643,6 +662,7 @@ export type OrderScalarWhereInput = {
 export type OrderCreateWithoutTailorInput = {
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -656,6 +676,7 @@ export type OrderUncheckedCreateWithoutTailorInput = {
   customerId: number
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -692,6 +713,7 @@ export type OrderUpdateManyWithWhereWithoutTailorInput = {
 export type OrderCreateWithoutItemsInput = {
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -706,6 +728,7 @@ export type OrderUncheckedCreateWithoutItemsInput = {
   tailorId: number
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOrderInput
@@ -731,6 +754,7 @@ export type OrderUpdateToOneWithWhereWithoutItemsInput = {
 export type OrderUpdateWithoutItemsInput = {
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.UserUpdateOneRequiredWithoutOrdersNestedInput
@@ -745,6 +769,7 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
   tailorId?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutOrderNestedInput
@@ -754,6 +779,7 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
 export type OrderCreateWithoutPaymentsInput = {
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -768,6 +794,7 @@ export type OrderUncheckedCreateWithoutPaymentsInput = {
   tailorId: number
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -793,6 +820,7 @@ export type OrderUpdateToOneWithWhereWithoutPaymentsInput = {
 export type OrderUpdateWithoutPaymentsInput = {
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.UserUpdateOneRequiredWithoutOrdersNestedInput
@@ -807,6 +835,7 @@ export type OrderUncheckedUpdateWithoutPaymentsInput = {
   tailorId?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -816,6 +845,7 @@ export type OrderUncheckedUpdateWithoutPaymentsInput = {
 export type OrderCreateWithoutReviewInput = {
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.UserCreateNestedOneWithoutOrdersInput
@@ -830,6 +860,7 @@ export type OrderUncheckedCreateWithoutReviewInput = {
   tailorId: number
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
@@ -855,6 +886,7 @@ export type OrderUpdateToOneWithWhereWithoutReviewInput = {
 export type OrderUpdateWithoutReviewInput = {
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.UserUpdateOneRequiredWithoutOrdersNestedInput
@@ -869,6 +901,7 @@ export type OrderUncheckedUpdateWithoutReviewInput = {
   tailorId?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -880,6 +913,7 @@ export type OrderCreateManyCustomerInput = {
   tailorId: number
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -887,6 +921,7 @@ export type OrderCreateManyCustomerInput = {
 export type OrderUpdateWithoutCustomerInput = {
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tailor?: Prisma.TailorUpdateOneRequiredWithoutOrdersNestedInput
@@ -900,6 +935,7 @@ export type OrderUncheckedUpdateWithoutCustomerInput = {
   tailorId?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -912,6 +948,7 @@ export type OrderUncheckedUpdateManyWithoutCustomerInput = {
   tailorId?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -921,6 +958,7 @@ export type OrderCreateManyTailorInput = {
   customerId: number
   status?: $Enums.OrderStatus
   totalAmount: number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -928,6 +966,7 @@ export type OrderCreateManyTailorInput = {
 export type OrderUpdateWithoutTailorInput = {
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.UserUpdateOneRequiredWithoutOrdersNestedInput
@@ -941,6 +980,7 @@ export type OrderUncheckedUpdateWithoutTailorInput = {
   customerId?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
@@ -953,6 +993,7 @@ export type OrderUncheckedUpdateManyWithoutTailorInput = {
   customerId?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
   totalAmount?: Prisma.IntFieldUpdateOperationsInput | number
+  deliveryDetails?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1003,6 +1044,7 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   tailorId?: boolean
   status?: boolean
   totalAmount?: boolean
+  deliveryDetails?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1019,6 +1061,7 @@ export type OrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   tailorId?: boolean
   status?: boolean
   totalAmount?: boolean
+  deliveryDetails?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1031,6 +1074,7 @@ export type OrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   tailorId?: boolean
   status?: boolean
   totalAmount?: boolean
+  deliveryDetails?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1043,11 +1087,12 @@ export type OrderSelectScalar = {
   tailorId?: boolean
   status?: boolean
   totalAmount?: boolean
+  deliveryDetails?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "tailorId" | "status" | "totalAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "tailorId" | "status" | "totalAmount" | "deliveryDetails" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
 export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   tailor?: boolean | Prisma.TailorDefaultArgs<ExtArgs>
@@ -1080,6 +1125,7 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     tailorId: number
     status: $Enums.OrderStatus
     totalAmount: number
+    deliveryDetails: runtime.JsonValue | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["order"]>
@@ -1515,6 +1561,7 @@ export interface OrderFieldRefs {
   readonly tailorId: Prisma.FieldRef<"Order", 'Int'>
   readonly status: Prisma.FieldRef<"Order", 'OrderStatus'>
   readonly totalAmount: Prisma.FieldRef<"Order", 'Int'>
+  readonly deliveryDetails: Prisma.FieldRef<"Order", 'Json'>
   readonly createdAt: Prisma.FieldRef<"Order", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Order", 'DateTime'>
 }

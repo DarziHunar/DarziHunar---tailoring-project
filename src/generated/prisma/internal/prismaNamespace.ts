@@ -1062,6 +1062,8 @@ export const UserScalarFieldEnum = {
   phoneNumber: 'phoneNumber',
   passwordHash: 'passwordHash',
   role: 'role',
+  cognitoSub: 'cognitoSub',
+  profileImageKey: 'profileImageKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1106,6 +1108,7 @@ export const OrderScalarFieldEnum = {
   tailorId: 'tailorId',
   status: 'status',
   totalAmount: 'totalAmount',
+  deliveryDetails: 'deliveryDetails',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1124,7 +1127,13 @@ export const OrderItemScalarFieldEnum = {
   unitPrice: 'unitPrice',
   measurementProfileId: 'measurementProfileId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  audience: 'audience',
+  fabric: 'fabric',
+  sizeLabel: 'sizeLabel',
+  measurementMethod: 'measurementMethod',
+  measurementUnit: 'measurementUnit',
+  styleName: 'styleName'
 } as const
 
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
@@ -1152,6 +1161,9 @@ export const PaymentScalarFieldEnum = {
   method: 'method',
   status: 'status',
   providerReference: 'providerReference',
+  providerOrderId: 'providerOrderId',
+  providerPaymentId: 'providerPaymentId',
+  providerSignature: 'providerSignature',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1179,6 +1191,14 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const JsonNullValueInput = {
@@ -1321,6 +1341,34 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'StyleAudience'
+ */
+export type EnumStyleAudienceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StyleAudience'>
+    
+
+
+/**
+ * Reference to a field of type 'StyleAudience[]'
+ */
+export type ListEnumStyleAudienceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StyleAudience[]'>
+    
+
+
+/**
+ * Reference to a field of type 'MeasurementMethod'
+ */
+export type EnumMeasurementMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MeasurementMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'MeasurementMethod[]'
+ */
+export type ListEnumMeasurementMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MeasurementMethod[]'>
     
 
 

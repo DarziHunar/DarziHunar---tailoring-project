@@ -1,20 +1,24 @@
 import {
   IsArray,
   IsBoolean,
+  IsInt,
   IsNumber,
   IsOptional,
   IsString,
   Max,
+  MaxLength,
   Min,
 } from 'class-validator';
 
 export class UpdateTailorDto {
   @IsOptional()
   @IsString()
+  @MaxLength(120)
   shopName?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(1000)
   bio?: string;
 
   @IsOptional()
@@ -24,21 +28,26 @@ export class UpdateTailorDto {
 
   @IsOptional()
   @IsNumber()
+  @Min(-90)
+  @Max(90)
   latitude?: number;
 
   @IsOptional()
   @IsNumber()
+  @Min(-180)
+  @Max(180)
   longitude?: number;
 
   @IsOptional()
-  @IsBoolean()
-  verified?: boolean;
+  @IsInt()
+  @Min(0)
+  @Max(80)
+  experienceYears?: number;
 
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Max(5)
-  rating?: number;
+  @IsString()
+  @MaxLength(120)
+  specialization?: string;
 
   @IsOptional()
   @IsNumber()

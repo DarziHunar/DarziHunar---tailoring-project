@@ -1,3 +1,4 @@
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/http-exception/http-exception.filter';
@@ -5,7 +6,6 @@ import { ResponseInterceptor } from './common/response/response.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(
@@ -18,7 +18,11 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = Number(process.env.PORT) || 3000;
+
+  await app.listen(port, '0.0.0.0');
+
+  console.log(`DarziHunar API running on port ${port}`);
 }
 
 bootstrap();

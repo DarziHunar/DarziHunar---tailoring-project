@@ -11,6 +11,7 @@ import {
 
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { CreatePaymentDto } from './dto/create-payment.dto';
+import { VerifyRazorpayPaymentDto } from './dto/verify-razorpay-payment.dto';
 import { PaymentsService } from './payments.service';
 
 @Controller('payments')
@@ -21,6 +22,16 @@ export class PaymentsController {
     @Post()
     create(@Req() req: any, @Body() dto: CreatePaymentDto) {
         return this.paymentsService.create(req.user, dto);
+    }
+
+    @Post('razorpay/order')
+    createRazorpayOrder(@Req() req: any, @Body() dto: CreatePaymentDto) {
+        return this.paymentsService.createRazorpayOrder(req.user, dto);
+    }
+
+    @Post('razorpay/verify')
+    verifyRazorpayPayment(@Req() req: any, @Body() dto: VerifyRazorpayPaymentDto) {
+        return this.paymentsService.verifyRazorpayPayment(req.user, dto);
     }
 
     @Get('my')

@@ -30,6 +30,7 @@ const ALLOWED_MEASUREMENTS: Record<string, string[]> = {
     KURTA: [
         'chest',
         'waist',
+        'hip',
         'shoulder',
         'sleeveLength',
         'kurtaLength',

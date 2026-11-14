@@ -31,10 +31,23 @@ enum PaymentStatus {
 }
 
 enum PaymentMethod {
+  RAZORPAY
   UPI
   CARD
   NET_BANKING
   CASH_ON_DELIVERY
+}
+
+enum MeasurementMethod {
+  MANUAL
+  CAMERA_ASSISTED
+}
+
+enum StyleAudience {
+  WOMEN
+  MEN
+  TEENAGERS
+  CHILDREN
 }
 
 model User {
@@ -42,8 +55,11 @@ model User {
   fullName     String?
   email        String  @unique
   phoneNumber  String? @unique
-  passwordHash String
+  passwordHash String?
   role         Role    @default(CUSTOMER)
+
+  cognitoSub      String? @unique
+  profileImageKey String?
 
   tailor              Tailor?
   orders              Order[]
@@ -105,6 +121,8 @@ model Order {
   tailorId    Int
   status      OrderStatus @default(PENDING)
   totalAmount Int
+  // Immutable delivery details captured when the customer confirms the order.
+  deliveryDetails Json?
 
   customer User   @relation(fields: [customerId], references: [id], onDelete: Restrict)
   tailor   Tailor @relation(fields: [tailorId], references: [id], onDelete: Restrict)
@@ -141,6 +159,13 @@ model OrderItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  audience          StyleAudience?
+  fabric            String?
+  sizeLabel         String?
+  measurementMethod MeasurementMethod @default(MANUAL)
+  measurementUnit   String @default("cm")
+  styleName         String?
+
   @@index([orderId])
 }
 
@@ -170,7 +195,10 @@ model Payment {
   status   PaymentStatus @default(PENDING)
 
   // Reference from a payment provider, once integrated.
-  providerReference String? @unique
+  providerReference  String? @unique
+  providerOrderId    String? @unique
+  providerPaymentId  String? @unique
+  providerSignature  String?
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
 

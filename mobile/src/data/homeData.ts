@@ -47,4 +47,3 @@ export const creations = [
       "https://diademstore.com/cdn/shop/files/Black_Floral_Designed_Cotton_Kurta_Set_With_Pant_2.webp?v=1757055302",
   },
 ];
-

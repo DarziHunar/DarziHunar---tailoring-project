@@ -32,6 +32,11 @@ export class OrdersController {
         return this.ordersService.findAll(req.user);
     }
 
+    @Get('pending-payment')
+    findPendingPayment(@Req() req: any) {
+        return this.ordersService.findPendingPayment(req.user);
+    }
+
     @Get(':id')
     findById(
         @Param('id', ParseIntPipe) id: number,

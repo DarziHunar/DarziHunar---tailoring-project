@@ -10,10 +10,11 @@ import { C } from "../theme/colors";
 type Props = { onBack: () => void; onSignup: () => void };
 
 export default function LoginPage({ onBack, onSignup }: Props) {
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
 
   const handleLogin = async () => {
     if (!email.trim() || !password) {
@@ -39,6 +40,12 @@ export default function LoginPage({ onBack, onSignup }: Props) {
         <AuthInput placeholder="Email Address" value={email} onChangeText={setEmail} keyboardType="email-address" autoComplete="email" />
         <AuthInput placeholder="Password" value={password} onChangeText={setPassword} secure autoComplete="password" />
         <AuthButton title="Login" onPress={handleLogin} loading={submitting} disabled={submitting} />
+        <AuthButton title="Continue with Google" outline onPress={async () => {
+          setGoogleSubmitting(true);
+          try { await signInWithGoogle(); }
+          catch (error) { Alert.alert('Google sign-in failed', error instanceof Error ? error.message : 'Please try again.'); }
+          finally { setGoogleSubmitting(false); }
+        }} loading={googleSubmitting} disabled={submitting || googleSubmitting} />
         <Pressable onPress={onSignup} style={{ marginTop: 25, alignItems: "center" }}>
           <Text style={{ color: C.wine }}>Don’t have an account? Sign Up</Text>
         </Pressable>

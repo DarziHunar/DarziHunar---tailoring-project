@@ -40,36 +40,33 @@ export class TailorsService {
             );
         }
 
+        if ((dto.latitude === undefined) !== (dto.longitude === undefined)) {
+            throw new BadRequestException('Provide both latitude and longitude, or leave both empty');
+        }
+
         const result = await this.prisma.$queryRaw<Array<{ id: number }>>`
     INSERT INTO "Tailor"
       (
-        "userId",
-        "shopName",
-        "bio",
-        "categories",
-        "location",
-        "verified",
-        "rating",
-        "startingPrice",
-        "acceptingOrders",
-        "createdAt",
-        "updatedAt"
+        "userId", "shopName", "bio", "categories", "location",
+        "experienceYears", "specialization", "verified", "rating",
+        "startingPrice", "acceptingOrders", "createdAt", "updatedAt"
       )
     VALUES (
       ${userId},
-      ${dto.shopName},
-      ${dto.bio ?? null},
+      ${dto.shopName.trim()},
+      ${dto.bio?.trim() ?? null},
       ${dto.categories},
-      ST_SetSRID(
-        ST_MakePoint(${dto.longitude}, ${dto.latitude}),
-        4326
-      )::geography,
-      ${dto.verified ?? false},
-      ${dto.rating ?? 0},
+      CASE
+        WHEN ${dto.latitude ?? null}::double precision IS NULL THEN NULL
+        ELSE ST_SetSRID(ST_MakePoint(${dto.longitude ?? null}, ${dto.latitude ?? null}), 4326)::geography
+      END,
+      ${dto.experienceYears ?? null},
+      ${dto.specialization?.trim() ?? null},
+      false,
+      0,
       ${dto.startingPrice ?? 0},
       ${dto.acceptingOrders ?? true},
-      CURRENT_TIMESTAMP,
-      CURRENT_TIMESTAMP
+      CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     )
     RETURNING id;
   `;
@@ -99,6 +96,9 @@ export class TailorsService {
         }
 
         const { latitude, longitude, ...regularFields } = dto;
+        if ((latitude === undefined) !== (longitude === undefined)) {
+            throw new BadRequestException('Provide both latitude and longitude, or leave both empty');
+        }
 
         await this.prisma.tailor.update({
             where: {
@@ -130,8 +130,10 @@ export class TailorsService {
                 shopName: string;
                 bio: string | null;
                 categories: string[];
-                latitude: number;
-                longitude: number;
+                latitude: number | null;
+                longitude: number | null;
+                experienceYears: number | null;
+                specialization: string | null;
                 verified: boolean;
                 rating: number;
                 startingPrice: number;
@@ -148,6 +150,8 @@ export class TailorsService {
       categories,
       ST_Y(location::geometry) AS latitude,
       ST_X(location::geometry) AS longitude,
+      "experienceYears",
+      specialization,
       verified,
       rating,
       "startingPrice",
@@ -162,12 +166,79 @@ export class TailorsService {
             throw new NotFoundException('Tailor profile not found');
         }
 
-        return result[0];
+        const user = await this.prisma.user.findUnique({
+            where: { id: result[0].userId },
+            select: { fullName: true },
+        });
+        return { ...result[0], fullName: user?.fullName ?? null };
     }
+
+    async findMine(userId: number) {
+        const tailor = await this.prisma.tailor.findUnique({
+            where: { userId },
+            select: { id: true },
+        });
+        if (!tailor) throw new NotFoundException('Tailor profile not found');
+        return this.findById(tailor.id);
+    }
+
+    async findCategories() {
+        const rows = await this.prisma.tailor.findMany({
+            where: { acceptingOrders: true },
+            select: { categories: true },
+        });
+        const categories = Array.from(new Set(
+            rows.flatMap((row) => row.categories)
+                .map((value) => value.trim())
+                .filter(Boolean),
+        )).sort((a, b) => a.localeCompare(b));
+        return categories;
+    }
+
+    async findAll() {
+        return this.prisma.tailor.findMany({
+            where: { acceptingOrders: true },
+            select: {
+                id: true, userId: true, shopName: true, bio: true,
+                categories: true, experienceYears: true, specialization: true,
+                verified: true, rating: true, startingPrice: true, acceptingOrders: true,
+                createdAt: true, updatedAt: true,
+                user: { select: { fullName: true } },
+            },
+            orderBy: [{ verified: 'desc' }, { rating: 'desc' }, { createdAt: 'desc' }],
+        });
+    }
+
+    async findByCategory(category: string) {
+        const normalized = category.trim();
+        if (!normalized) throw new BadRequestException('category is required');
+        return this.prisma.tailor.findMany({
+            where: { categories: { has: normalized }, acceptingOrders: true },
+            select: {
+                id: true, userId: true, shopName: true, bio: true,
+                categories: true, experienceYears: true, specialization: true,
+                verified: true, rating: true, startingPrice: true, acceptingOrders: true,
+                createdAt: true, updatedAt: true,
+                user: { select: { fullName: true } },
+            },
+            orderBy: [{ verified: 'desc' }, { rating: 'desc' }, { createdAt: 'desc' }],
+        });
+    }
+
     async findNearby(dto: NearbyTailorsDto) {
         const latitude = Number(dto.lat);
         const longitude = Number(dto.lng);
         const radius = Number(dto.radius);
+
+        if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90) {
+            throw new BadRequestException('lat must be a valid latitude');
+        }
+        if (!Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+            throw new BadRequestException('lng must be a valid longitude');
+        }
+        if (!Number.isFinite(radius) || radius < 100 || radius > 10000) {
+            throw new BadRequestException('radius must be between 100 and 10000 metres');
+        }
 
         const minRating =
             dto.minRating !== undefined
@@ -284,6 +355,8 @@ export class TailorsService {
                 categories: string[];
                 latitude: number;
                 longitude: number;
+                experienceYears: number | null;
+                specialization: string | null;
                 verified: boolean;
                 rating: number;
                 startingPrice: number;
@@ -303,6 +376,8 @@ export class TailorsService {
         categories,
         ST_Y(location::geometry) AS latitude,
         ST_X(location::geometry) AS longitude,
+        "experienceYears",
+        specialization,
         verified,
         rating,
         "startingPrice",
@@ -354,6 +429,8 @@ export class TailorsService {
                 categories: tailor.categories,
                 latitude: tailor.latitude,
                 longitude: tailor.longitude,
+                experienceYears: tailor.experienceYears,
+                specialization: tailor.specialization,
                 verified: tailor.verified,
                 rating: tailor.rating,
                 startingPrice: tailor.startingPrice,
@@ -381,6 +458,8 @@ export class TailorsService {
                 categories: string[];
                 latitude: number;
                 longitude: number;
+                experienceYears: number | null;
+                specialization: string | null;
                 verified: boolean;
                 rating: number;
                 startingPrice: number;
@@ -398,6 +477,8 @@ export class TailorsService {
       t."shopName",
       t.bio,
       t.categories,
+      t."experienceYears",
+      t.specialization,
       ST_Y(t.location::geometry) AS latitude,
       ST_X(t.location::geometry) AS longitude,
       t.verified,
@@ -421,6 +502,8 @@ export class TailorsService {
             shopName: tailor.shopName,
             bio: tailor.bio,
             categories: tailor.categories,
+            experienceYears: tailor.experienceYears,
+            specialization: tailor.specialization,
             latitude: tailor.latitude,
             longitude: tailor.longitude,
             verified: tailor.verified,

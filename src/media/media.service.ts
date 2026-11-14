@@ -7,6 +7,8 @@ import {
 
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
@@ -122,6 +124,69 @@ export class MediaService {
       key,
       expiresIn: 300,
     };
+  }
+
+  private validateCustomerImage(fileName: string, contentType: string) {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(contentType)) throw new BadRequestException('Only JPEG, PNG or WebP images are allowed');
+    const extension = fileName.split('.').pop()?.toLowerCase() || '';
+    if (!['jpg', 'jpeg', 'png', 'webp'].includes(extension)) throw new BadRequestException('Unsupported image extension');
+  }
+
+  async createUserProfileImageUploadUrl(userId: number, fileName: string, contentType: string) {
+    this.validateCustomerImage(fileName, contentType);
+    const key = `users/${userId}/profile/${randomUUID()}-${fileName.replace(/[^a-zA-Z0-9._-]/g, '-')}`;
+    const command = new PutObjectCommand({ Bucket: this.bucket, Key: key, ContentType: contentType });
+    const uploadUrl = await getSignedUrl(this.s3, command, { expiresIn: 300 });
+    // Persist the key only after the client confirms that the S3 PUT succeeded.
+    return { uploadUrl, key, expiresIn: 300 };
+  }
+
+  async completeUserProfileImageUpload(userId: number, key: string) {
+    const prefix = `users/${userId}/profile/`;
+    if (!key || !key.startsWith(prefix) || key.includes('..')) {
+      throw new BadRequestException('Invalid profile image key');
+    }
+
+    try {
+      await this.s3.send(new HeadObjectCommand({ Bucket: this.bucket, Key: key }));
+    } catch {
+      throw new BadRequestException('The image was not found in S3. Upload the image before completing the profile update.');
+    }
+
+    const current = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { profileImageKey: true },
+    });
+    if (!current) throw new NotFoundException('User not found');
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { profileImageKey: key },
+    });
+
+    // Best-effort cleanup of the previous private profile image.
+    if (current.profileImageKey && current.profileImageKey !== key) {
+      await this.s3.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: current.profileImageKey })).catch(() => undefined);
+    }
+
+    return this.getUserProfileImageUrl(userId);
+  }
+
+  async getUserProfileImageUrl(userId: number) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profileImageKey: true } });
+    if (!user) throw new NotFoundException('User not found');
+    if (!user.profileImageKey) return { imageUrl: null };
+    const command = new GetObjectCommand({ Bucket: this.bucket, Key: user.profileImageKey });
+    return { imageUrl: await getSignedUrl(this.s3, command, { expiresIn: 3600 }) };
+  }
+
+  async createOrderReferenceUploadUrl(userId: number, fileName: string, contentType: string) {
+    this.validateCustomerImage(fileName, contentType);
+    const key = `users/${userId}/order-references/${randomUUID()}-${fileName.replace(/[^a-zA-Z0-9._-]/g, '-')}`;
+    const command = new PutObjectCommand({ Bucket: this.bucket, Key: key, ContentType: contentType });
+    const uploadUrl = await getSignedUrl(this.s3, command, { expiresIn: 300 });
+    return { uploadUrl, key, expiresIn: 300 };
   }
 
   async getPortfolio(tailorId: number) {

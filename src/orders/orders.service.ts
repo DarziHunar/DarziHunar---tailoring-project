@@ -5,8 +5,9 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 
+import { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role, OrderStatus } from '../generated/prisma/enums';
+import { Role, OrderStatus, StyleAudience, MeasurementMethod, PaymentStatus } from '../generated/prisma/enums';
 import { CreateOrderDto } from './dto/create-order.dto';
 
 interface AuthenticatedUser {
@@ -54,6 +55,22 @@ export class OrdersService {
             );
         }
 
+        for (const item of dto.items) {
+            if (!item.fabric?.trim() || !item.sizeLabel?.trim()) {
+                throw new BadRequestException('Fabric and size/fit are required for every order item');
+            }
+            const entries = Object.entries(item.measurements ?? {});
+            if (entries.length === 0 || entries.some(([key, value]) =>
+                !key.trim() || typeof value !== 'number' || !Number.isFinite(value) || value <= 0
+            )) {
+                throw new BadRequestException('Measurements must contain positive numeric values');
+            }
+            const references = item.referenceImages ?? [];
+            if (references.some((key) => !key.startsWith(`users/${customer.sub}/order-references/`))) {
+                throw new BadRequestException('An order reference image does not belong to this customer');
+            }
+        }
+
         const items = dto.items.map((item) => ({
             garmentType: item.garmentType.trim(),
             measurements: item.measurements as any,
@@ -61,6 +78,12 @@ export class OrdersService {
             referenceImages: item.referenceImages ?? [],
             quantity: item.quantity,
             unitPrice: tailor.startingPrice,
+            audience: item.audience as StyleAudience | undefined,
+            fabric: item.fabric?.trim() || null,
+            sizeLabel: item.sizeLabel?.trim() || null,
+            measurementMethod: (item.measurementMethod || 'MANUAL') as MeasurementMethod,
+            measurementUnit: item.measurementUnit || 'cm',
+            styleName: item.garmentType.trim(),
         }));
 
         const totalAmount = items.reduce(
@@ -79,6 +102,18 @@ export class OrdersService {
                 customerId: customer.sub,
                 tailorId: tailor.id,
                 totalAmount,
+                deliveryDetails: {
+                    fullName: dto.deliveryDetails.fullName,
+                    phone: dto.deliveryDetails.phone,
+                    addressLine1: dto.deliveryDetails.addressLine1,
+                    ...(dto.deliveryDetails.addressLine2 && {
+                        addressLine2: dto.deliveryDetails.addressLine2,
+                    }),
+                    city: dto.deliveryDetails.city,
+                    state: dto.deliveryDetails.state,
+                    postalCode: dto.deliveryDetails.postalCode,
+                    country: dto.deliveryDetails.country ?? 'India',
+                } satisfies Prisma.InputJsonObject,
                 items: {
                     create: items,
                 },
@@ -99,7 +134,7 @@ export class OrdersService {
     async findAll(user: AuthenticatedUser) {
         if (user.role === Role.CUSTOMER) {
             return this.prisma.order.findMany({
-                where: { customerId: user.sub },
+                where: { customerId: user.sub, payments: { some: { status: 'SUCCESS' } } },
                 include: this.orderInclude(),
                 orderBy: { createdAt: 'desc' },
             });
@@ -109,6 +144,7 @@ export class OrdersService {
             return this.prisma.order.findMany({
                 where: {
                     tailor: { userId: user.sub },
+                    payments: { some: { status: 'SUCCESS' } },
                 },
                 include: this.orderInclude(),
                 orderBy: { createdAt: 'desc' },
@@ -123,6 +159,23 @@ export class OrdersService {
         }
 
         throw new ForbiddenException('Role is not permitted');
+    }
+
+    // Customer recovery: orders created before checkout that do not yet have a successful payment.
+    async findPendingPayment(user: AuthenticatedUser) {
+        if (user.role !== Role.CUSTOMER) {
+            throw new ForbiddenException('Only customers can view their pending payments');
+        }
+
+        return this.prisma.order.findMany({
+            where: {
+                customerId: user.sub,
+                status: { notIn: [OrderStatus.CANCELLED, OrderStatus.REJECTED] },
+                payments: { none: { status: PaymentStatus.SUCCESS } },
+            },
+            include: this.orderInclude(),
+            orderBy: { createdAt: 'desc' },
+        });
     }
 
     async findById(id: number, user: AuthenticatedUser) {
@@ -174,6 +227,46 @@ export class OrdersService {
             include: this.orderInclude(),
         });
     }
+
+
+    // Admin: Get all orders
+    async adminFindAll() {
+        return this.prisma.order.findMany({
+            include: this.orderInclude(),
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }
+
+    // Admin: Get a specific order
+    async adminFindById(id: number) {
+        const order = await this.prisma.order.findUnique({
+            where: { id },
+            include: this.orderInclude(),
+        });
+
+        if (!order) {
+            throw new NotFoundException('Order not found');
+        }
+
+        return order;
+    }
+
+    // Admin: Update order status
+    async adminUpdateStatus(
+        id: number,
+        newStatus: OrderStatus,
+    ) {
+        const admin: AuthenticatedUser = {
+            sub: 0,
+            email: '',
+            role: Role.ADMIN,
+        };
+
+        return this.updateStatus(id, newStatus, admin);
+    }
+
 
     private async assertCanAccess(
         order: {
@@ -275,36 +368,5 @@ export class OrdersService {
                 },
             },
         };
-    }
-    async adminFindAll() {
-        return this.prisma.order.findMany({
-            include: this.orderInclude(),
-            orderBy: { createdAt: 'desc' },
-        });
-    }
-
-    async adminFindById(id: number) {
-        const order = await this.prisma.order.findUnique({
-            where: { id },
-            include: this.orderInclude(),
-        });
-
-        if (!order) {
-            throw new NotFoundException('Order not found');
-        }
-
-        return order;
-    }
-
-    async adminUpdateStatus(
-        id: number,
-        newStatus: OrderStatus,
-    ) {
-        // Reuse existing status validation and transition rules.
-        return this.updateStatus(id, newStatus, {
-            sub: 0,
-            email: 'admin',
-            role: Role.ADMIN,
-        });
     }
 }

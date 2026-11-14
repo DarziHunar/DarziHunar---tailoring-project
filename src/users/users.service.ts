@@ -30,8 +30,10 @@ export class UsersService {
     return this.prisma.user.findMany({
       select: {
         id: true,
+        fullName: true,
         email: true,
         phoneNumber: true,
+        profileImageKey: true,
         role: true,
         createdAt: true,
         updatedAt: true,
@@ -61,8 +63,10 @@ export class UsersService {
       where: { id },
       select: {
         id: true,
+        fullName: true,
         email: true,
         phoneNumber: true,
+        profileImageKey: true,
         role: true,
         createdAt: true,
         updatedAt: true,
@@ -129,13 +133,18 @@ export class UsersService {
     }
 
     const data: {
+      fullName?: string;
       email?: string;
       phoneNumber?: string;
       passwordHash?: string;
     } = {};
 
+    if (dto.fullName !== undefined) {
+      data.fullName = dto.fullName.trim();
+    }
+
     if (dto.email !== undefined) {
-      data.email = dto.email;
+      data.email = dto.email.trim().toLowerCase();
     }
 
     if (dto.phoneNumber !== undefined) {
@@ -155,6 +164,7 @@ export class UsersService {
         data,
         select: {
           id: true,
+          fullName: true,
           email: true,
           phoneNumber: true,
           role: true,
@@ -239,8 +249,10 @@ export class UsersService {
       where: { id },
       select: {
         id: true,
+        fullName: true,
         email: true,
         phoneNumber: true,
+        profileImageKey: true,
         role: true,
         createdAt: true,
         updatedAt: true,
@@ -301,8 +313,10 @@ export class UsersService {
       data: { role: newRole },
       select: {
         id: true,
+        fullName: true,
         email: true,
         phoneNumber: true,
+        profileImageKey: true,
         role: true,
         updatedAt: true,
       },
@@ -506,8 +520,10 @@ export class UsersService {
     return this.prisma.user.findMany({
       select: {
         id: true,
+        fullName: true,
         email: true,
         phoneNumber: true,
+        profileImageKey: true,
         role: true,
         createdAt: true,
         updatedAt: true,

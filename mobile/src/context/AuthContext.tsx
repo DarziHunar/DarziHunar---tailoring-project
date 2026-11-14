@@ -6,10 +6,11 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-
 import * as SecureStore from 'expo-secure-store';
 import { ApiError } from '../services/api';
-import { authService, SignupPayload } from '../services/authService';
+import { authService } from '../services/authService';
+import { cognitoAuthService } from '../services/cognitoAuthService';
+import type { SignupPayload } from '../services/authService';
 import type { AuthUser } from '../types/auth';
 
 const TOKEN_KEY = 'darzihunar.accessToken';
@@ -20,7 +21,9 @@ type AuthContextValue = {
   accessToken: string | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: (role?: 'CUSTOMER' | 'TAILOR') => Promise<void>;
   signUp: (payload: SignupPayload) => Promise<void>;
+  refreshUser: () => Promise<AuthUser>;
   signOut: () => Promise<void>;
 };
 
@@ -38,50 +41,37 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     ]);
   }, []);
 
-  const saveSession = useCallback(
-    async (token: string, nextUser: AuthUser) => {
-      await Promise.all([
-        SecureStore.setItemAsync(TOKEN_KEY, token),
-        SecureStore.setItemAsync(USER_KEY, JSON.stringify(nextUser)),
-      ]);
-
-      setAccessToken(token);
-      setUser(nextUser);
-    },
-    [],
-  );
+  const saveSession = useCallback(async (token: string, nextUser: AuthUser) => {
+    await Promise.all([
+      SecureStore.setItemAsync(TOKEN_KEY, token),
+      SecureStore.setItemAsync(USER_KEY, JSON.stringify(nextUser)),
+    ]);
+    setAccessToken(token);
+    setUser(nextUser);
+  }, []);
 
   useEffect(() => {
     let active = true;
-
     const restoreSession = async () => {
       try {
         const [storedToken, storedUser] = await Promise.all([
           SecureStore.getItemAsync(TOKEN_KEY),
           SecureStore.getItemAsync(USER_KEY),
         ]);
-
         if (!storedToken || !storedUser) {
           await clearStoredSession();
           return;
         }
 
         const cachedUser = JSON.parse(storedUser) as AuthUser;
-
         if (!cachedUser?.id || !cachedUser?.email || !cachedUser?.role) {
           await clearStoredSession();
           return;
         }
 
         try {
-          const currentUser = await authService.getCurrentUser(
-            cachedUser.id,
-            storedToken,
-          );
-
-          if (active) {
-            await saveSession(storedToken, currentUser);
-          }
+          const currentUser = await authService.getCurrentUser(cachedUser.id, storedToken);
+          if (active) await saveSession(storedToken, currentUser);
         } catch (error) {
           if (error instanceof ApiError && error.status === 401) {
             await clearStoredSession();
@@ -97,43 +87,43 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     };
 
     void restoreSession();
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [clearStoredSession, saveSession]);
 
-  const signIn = useCallback(
-    async (email: string, password: string) => {
-      const result = await authService.login(
-        email.trim().toLowerCase(),
-        password,
-      );
+  const signIn = useCallback(async (email: string, password: string) => {
+    const result = await authService.login(email.trim().toLowerCase(), password);
+    if (!result?.accessToken || !result?.user) {
+      throw new Error('Login response did not include token and user.');
+    }
+    await saveSession(result.accessToken, result.user);
+  }, [saveSession]);
 
-      if (!result?.accessToken || !result?.user) {
-        throw new Error('Login response did not include token and user.');
-      }
+  const signInWithGoogle = useCallback(async (role: 'CUSTOMER' | 'TAILOR' = 'CUSTOMER') => {
+    const idToken = await cognitoAuthService.signInWithGoogle();
+    const result = await authService.loginWithCognito(idToken, role);
+    if (!result?.accessToken || !result?.user) {
+      throw new Error('Cognito login response did not include an API token and user.');
+    }
+    await saveSession(result.accessToken, result.user);
+  }, [saveSession]);
 
-      await saveSession(result.accessToken, result.user);
-    },
-    [saveSession],
-  );
+  const signUp = useCallback(async (payload: SignupPayload) => {
+    const result = await authService.signup({
+      ...payload,
+      email: payload.email.trim().toLowerCase(),
+    });
+    if (!result?.accessToken || !result?.user) {
+      throw new Error('Signup response did not include token and user.');
+    }
+    await saveSession(result.accessToken, result.user);
+  }, [saveSession]);
 
-  const signUp = useCallback(
-    async (payload: SignupPayload) => {
-      const result = await authService.signup({
-        ...payload,
-        email: payload.email.trim().toLowerCase(),
-      });
-
-      if (!result?.accessToken || !result?.user) {
-        throw new Error('Signup response did not include token and user.');
-      }
-
-      await saveSession(result.accessToken, result.user);
-    },
-    [saveSession],
-  );
+  const refreshUser = useCallback(async () => {
+    if (!user || !accessToken) throw new Error('You are not signed in.');
+    const currentUser = await authService.getCurrentUser(user.id, accessToken);
+    await saveSession(accessToken, currentUser);
+    return currentUser;
+  }, [user, accessToken, saveSession]);
 
   const signOut = useCallback(async () => {
     await clearStoredSession();
@@ -141,31 +131,15 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     setUser(null);
   }, [clearStoredSession]);
 
-  const value = useMemo(
-    () => ({
-      user,
-      accessToken,
-      isLoading,
-      signIn,
-      signUp,
-      signOut,
-    }),
-    [user, accessToken, isLoading, signIn, signUp, signOut],
-  );
+  const value = useMemo(() => ({
+    user, accessToken, isLoading, signIn, signInWithGoogle, signUp, refreshUser, signOut,
+  }), [user, accessToken, isLoading, signIn, signInWithGoogle, signUp, refreshUser, signOut]);
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error('useAuth must be used inside AuthProvider');
-  }
-
+  if (!context) throw new Error('useAuth must be used inside AuthProvider');
   return context;
 }

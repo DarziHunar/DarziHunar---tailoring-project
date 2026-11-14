@@ -42,6 +42,7 @@ export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
 
 
 export const PaymentMethod = {
+  RAZORPAY: 'RAZORPAY',
   UPI: 'UPI',
   CARD: 'CARD',
   NET_BANKING: 'NET_BANKING',
@@ -49,3 +50,21 @@ export const PaymentMethod = {
 } as const
 
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
+
+
+export const MeasurementMethod = {
+  MANUAL: 'MANUAL',
+  CAMERA_ASSISTED: 'CAMERA_ASSISTED'
+} as const
+
+export type MeasurementMethod = (typeof MeasurementMethod)[keyof typeof MeasurementMethod]
+
+
+export const StyleAudience = {
+  WOMEN: 'WOMEN',
+  MEN: 'MEN',
+  TEENAGERS: 'TEENAGERS',
+  CHILDREN: 'CHILDREN'
+} as const
+
+export type StyleAudience = (typeof StyleAudience)[keyof typeof StyleAudience]
