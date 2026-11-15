@@ -5,8 +5,10 @@ WebBrowser.maybeCompleteAuthSession();
 
 const rawDomain = process.env.EXPO_PUBLIC_COGNITO_DOMAIN?.trim();
 const clientId = process.env.EXPO_PUBLIC_COGNITO_CLIENT_ID;
-const redirectUri = process.env.EXPO_PUBLIC_COGNITO_REDIRECT_URI ||
-  AuthSession.makeRedirectUri({ scheme: 'darzihunar', path: 'callback' });
+// Keep this exact value in Cognito User Pool > App client > Hosted UI callback URLs.
+// Do not use the Google-to-Cognito callback here; that is configured separately
+// in Google Cloud as https://<Cognito-domain>/oauth2/idpresponse.
+const redirectUri = (process.env.EXPO_PUBLIC_COGNITO_REDIRECT_URI || 'darzihunar://callback').trim();
 
 function getCognitoIssuer(): string | undefined {
   if (!rawDomain) return undefined;
@@ -29,10 +31,13 @@ export const cognitoAuthService = {
       throw new Error('Google sign-in is not configured. Set EXPO_PUBLIC_COGNITO_DOMAIN and EXPO_PUBLIC_COGNITO_CLIENT_ID in mobile/.env.');
     }
 
-    const discovery = await AuthSession.fetchDiscoveryAsync(issuer);
-    if (!discovery.authorizationEndpoint || !discovery.tokenEndpoint) {
-      throw new Error('Cognito OAuth discovery did not return authorization and token endpoints. Verify the Cognito domain.');
-    }
+    // Cognito's Hosted UI OAuth endpoints are deterministic. Using the fixed
+    // endpoints avoids relying on an OIDC discovery response from a custom domain.
+    const discovery: AuthSession.DiscoveryDocument = {
+      authorizationEndpoint: `${issuer}/oauth2/authorize`,
+      tokenEndpoint: `${issuer}/oauth2/token`,
+      revocationEndpoint: `${issuer}/oauth2/revoke`,
+    };
 
     const request = new AuthSession.AuthRequest({
       clientId,
@@ -40,7 +45,7 @@ export const cognitoAuthService = {
       responseType: AuthSession.ResponseType.Code,
       scopes: ['openid', 'email', 'profile'],
       usePKCE: true,
-      extraParams: { identity_provider: 'Google' },
+      extraParams: { identity_provider: 'Google', prompt: 'select_account' },
     });
 
     const result = await request.promptAsync(discovery);
@@ -51,7 +56,7 @@ export const cognitoAuthService = {
       const details = result.type === 'error'
         ? result.error?.message || result.params?.error_description || result.params?.error || 'Cognito authorization failed.'
         : 'Cognito did not return an authorization code.';
-      throw new Error(details);
+      throw new Error(`${details} App callback configured in this build: ${redirectUri}`);
     }
     if (!request.codeVerifier) throw new Error('PKCE verifier was not created. Restart the sign-in flow.');
 
@@ -64,9 +69,14 @@ export const cognitoAuthService = {
       ['code_verifier', request.codeVerifier],
     ].map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
 
-    const tokenResponse = await fetch(discovery.tokenEndpoint, {
+    const tokenEndpoint = `${issuer}/oauth2/token`;
+
+    const tokenResponse = await fetch(tokenEndpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+      },
       body: form,
     });
     const raw = await tokenResponse.text();

@@ -37,8 +37,15 @@
       "expo-secure-store",
       "expo-web-browser",
       [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "DarziHunar uses your location to save your shop location and find nearby tailors."
+        }
+      ],
+      [
         "@rnmapbox/maps"
-      ]
+      ],
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true,

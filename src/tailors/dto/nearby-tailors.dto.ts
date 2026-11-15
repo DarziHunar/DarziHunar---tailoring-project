@@ -13,8 +13,9 @@ export class NearbyTailorsDto {
   @IsNumberString()
   lng: string;
 
+  @IsOptional()
   @IsNumberString()
-  radius: string;
+  radius?: string;
 
   @IsOptional()
   @IsString()

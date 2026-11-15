@@ -21,7 +21,11 @@ async function uploadAsset(uri: string, ticket: UploadTicket, contentType: strin
   });
   if (!response.ok) {
     const detail = await response.text().catch(() => '');
-    throw new Error(`S3 image upload failed (${response.status}). ${detail.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 220) || 'Check the backend IAM role permissions and the presigned URL Content-Type.'}`);
+    const requestId = response.headers.get('x-amz-request-id') || response.headers.get('x-amz-id-2') || 'not returned';
+    const cleanDetail = detail.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 420);
+    throw new Error(
+      `S3 image upload failed (${response.status}). ${cleanDetail || 'S3 rejected the presigned PUT request.'} Request ID: ${requestId}. Check the AWS principal that created the URL, the object-key prefix, encryption/KMS permissions, and the exact signed Content-Type.`,
+    );
   }
   return ticket.key;
 }

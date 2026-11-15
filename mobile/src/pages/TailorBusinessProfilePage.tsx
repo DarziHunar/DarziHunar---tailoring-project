@@ -10,6 +10,58 @@ import type { TailorProfile } from '../services/tailorService';
 import { C } from '../theme/colors';
 
 type Props = { onBack: () => void; onSaved: () => void };
+type Audience = 'WOMEN' | 'MEN' | 'TEENAGERS' | 'CHILDREN';
+const audienceOptions: { value: Audience; label: string }[] = [
+  { value: 'WOMEN', label: 'Women' }, { value: 'MEN', label: 'Men' },
+  { value: 'TEENAGERS', label: 'Teenagers' }, { value: 'CHILDREN', label: 'Children' },
+];
+
+const AUDIENCE_VALUES: Audience[] = ['WOMEN', 'MEN', 'TEENAGERS', 'CHILDREN'];
+
+/** Accept API arrays, comma-separated legacy values, or enum-like objects safely. */
+function normalizeAudiences(value: unknown): Audience[] {
+  let rawValues: unknown[] = [];
+
+  if (Array.isArray(value)) {
+    rawValues = value;
+  } else if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed: unknown = JSON.parse(trimmed);
+        rawValues = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        rawValues = trimmed.split(/[,;|]/);
+      }
+    } else {
+      rawValues = trimmed.split(/[,;|]/);
+    }
+  } else if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    rawValues = Object.entries(record)
+      .filter(([key, item]) => item === true && AUDIENCE_VALUES.includes(key.toUpperCase() as Audience))
+      .map(([key]) => key);
+    if (rawValues.length === 0) rawValues = Object.values(record);
+  }
+
+  const normalized = rawValues
+    .filter((item): item is string => typeof item === 'string')
+    .map((item) => item.trim().toUpperCase())
+    .filter((item): item is Audience => AUDIENCE_VALUES.includes(item as Audience));
+
+  return Array.from(new Set(normalized));
+}
+
+/** Backward compatibility for profiles where audiences were typed into specialization. */
+function inferAudiencesFromSpecialization(value: string): Audience[] {
+  const text = value.toUpperCase();
+  const inferred: Audience[] = [];
+  if (/\bWOMEN\b|\bWOMAN\b|\bLADIES\b/.test(text)) inferred.push('WOMEN');
+  if (/\bMEN\b|\bMAN\b|\bGENTS\b/.test(text)) inferred.push('MEN');
+  if (/\bTEEN(?:AGER)?S?\b/.test(text)) inferred.push('TEENAGERS');
+  if (/\bCHILD(?:REN)?\b|\bKIDS?\b/.test(text)) inferred.push('CHILDREN');
+  return inferred;
+}
 const fieldStyle = { backgroundColor: C.card, borderColor: C.border, borderWidth: 1, borderRadius: 13, paddingHorizontal: 14, paddingVertical: 12, color: C.text, fontSize: 14, marginTop: 7 } as const;
 
 export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
@@ -18,6 +70,7 @@ export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
   const [shopName, setShopName] = useState('');
   const [bio, setBio] = useState('');
   const [categoriesText, setCategoriesText] = useState('');
+  const [audiences, setAudiences] = useState<Audience[]>([]);
   const [experienceYears, setExperienceYears] = useState('');
   const [specialization, setSpecialization] = useState('');
   const [startingPrice, setStartingPrice] = useState('');
@@ -39,6 +92,8 @@ export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
       setShopName(result.shopName ?? '');
       setBio(result.bio ?? '');
       setCategoriesText((result.categories ?? []).join(', '));
+      const savedAudiences = normalizeAudiences(result.audiences);
+      setAudiences(savedAudiences.length ? savedAudiences : inferAudiencesFromSpecialization(result.specialization ?? ''));
       setExperienceYears(result.experienceYears == null ? '' : String(result.experienceYears));
       setSpecialization(result.specialization ?? '');
       setStartingPrice(String(result.startingPrice ?? 0));
@@ -69,6 +124,16 @@ export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
       Alert.alert('Add at least one service', 'Enter categories separated by commas, such as Saree Blouse, Kurta, Shirts.');
       return;
     }
+    // Use explicit chip selections first. For older profiles that stored audience
+    // words in the specialization field, infer them once so the profile can be saved.
+    const audiencesToSave = normalizeAudiences(audiences).length
+      ? normalizeAudiences(audiences)
+      : inferAudiencesFromSpecialization(specialization);
+    if (audiencesToSave.length === 0) {
+      Alert.alert('Choose your customers', 'Tap at least one audience chip (Women, Men, Teenagers or Children). Do not enter these values in Specialization.');
+      return;
+    }
+    setAudiences(audiencesToSave);
     const exp = experienceYears.trim() ? Number(experienceYears) : undefined;
     const price = startingPrice.trim() ? Number(startingPrice) : 0;
     if (exp !== undefined && (!Number.isInteger(exp) || exp < 0 || exp > 80)) {
@@ -86,6 +151,7 @@ export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
         shopName: shopName.trim(),
         bio: bio.trim() || undefined,
         categories,
+        audiences: audiencesToSave,
         experienceYears: exp,
         specialization: specialization.trim() || undefined,
         startingPrice: price,
@@ -126,6 +192,17 @@ export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
             <Text style={{ color: C.muted, fontSize: 12, fontWeight: '700', marginTop: 15 }}>SERVICES / GARMENT CATEGORIES *</Text>
             <TextInput value={categoriesText} onChangeText={setCategoriesText} placeholder="Saree Blouse, Kurta, Shirts" placeholderTextColor={C.muted} style={fieldStyle} />
             <Text style={{ color: C.muted, fontSize: 11, marginTop: 5 }}>Separate each service with a comma. These names appear in the customer catalogue.</Text>
+
+            <Text style={{ color: C.muted, fontSize: 12, fontWeight: '700', marginTop: 16 }}>CUSTOMER AUDIENCES * </Text>
+            <Text style={{ color: C.muted, fontSize: 11, marginTop: 5 }}>Select only the groups you actually stitch for. Customers will see your profile only in these categories.</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+              {audienceOptions.map((item) => {
+                const selected = audiences.includes(item.value);
+                return <Pressable key={item.value} onPress={() => setAudiences((current) => selected ? current.filter((value) => value !== item.value) : [...current, item.value])} style={{ paddingHorizontal: 14, paddingVertical: 10, borderRadius: 22, borderWidth: 1, borderColor: selected ? C.wine : C.border, backgroundColor: selected ? C.wine : C.card }}>
+                  <Text style={{ color: selected ? '#FFFFFF' : C.wine, fontWeight: '800', fontSize: 12 }}>{item.label} {selected ? '✓' : '+'}</Text>
+                </Pressable>;
+              })}
+            </View>
 
             <Text style={{ color: C.muted, fontSize: 12, fontWeight: '700', marginTop: 15 }}>YEARS OF EXPERIENCE</Text>
             <TextInput value={experienceYears} onChangeText={setExperienceYears} keyboardType="number-pad" placeholder="e.g. 5" placeholderTextColor={C.muted} style={fieldStyle} />

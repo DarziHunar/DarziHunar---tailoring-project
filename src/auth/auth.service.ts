@@ -24,8 +24,32 @@ export class AuthService {
     if (existingUser) throw new ConflictException('Email is already registered');
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
-    const user = await this.prisma.user.create({
-      data: { email, passwordHash, role: 'CUSTOMER' },
+    const role = dto.role ?? 'CUSTOMER';
+    const user = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.user.create({
+        data: {
+          email,
+          fullName: dto.fullName.trim(),
+          phoneNumber: dto.phoneNumber?.trim() || null,
+          passwordHash,
+          role,
+        },
+      });
+      if (role === 'TAILOR') {
+        await tx.tailor.create({
+          data: {
+            userId: created.id,
+            shopName: dto.shopName?.trim() || `${dto.fullName.trim()}'s Studio`,
+            categories: [],
+            audiences: [],
+            experienceYears: dto.experience ?? null,
+            specialization: dto.specialization?.trim() || null,
+            startingPrice: 0,
+            acceptingOrders: true,
+          },
+        });
+      }
+      return created;
     });
     const accessToken = await this.issueApiToken(user);
     return { message: 'User registered successfully', accessToken, user: this.safeUser(user) };
@@ -38,6 +62,19 @@ export class AuthService {
     if (!user?.passwordHash || !(await bcrypt.compare(dto.password, user.passwordHash))) {
       throw new UnauthorizedException('Invalid email or password');
     }
+
+    // Older tailor accounts may predate automatic business-profile creation.
+    // Ensure the first authenticated dashboard visit always has a profile row
+    // so it can prompt for and save the shop's GPS coordinates.
+    if (user.role === 'TAILOR') {
+      const defaultShopName = `${user.fullName?.trim() || user.email.split('@')[0]}'s Studio`;
+      await this.prisma.tailor.upsert({
+        where: { userId: user.id },
+        create: { userId: user.id, shopName: defaultShopName, categories: [], audiences: [] },
+        update: {},
+      });
+    }
+
     return {
       message: 'Login successful',
       accessToken: await this.issueApiToken(user),
@@ -91,6 +128,17 @@ export class AuthService {
       }
     } else if (fullName && !user.fullName) {
       user = await this.prisma.user.update({ where: { id: user.id }, data: { fullName } });
+    }
+
+    // New Cognito users who select the tailor role need a profile row so the
+    // tailor workspace can complete onboarding immediately after sign-in.
+    if (user.role === 'TAILOR') {
+      const defaultShopName = `${user.fullName?.trim() || user.email.split('@')[0]}'s Studio`;
+      await this.prisma.tailor.upsert({
+        where: { userId: user.id },
+        create: { userId: user.id, shopName: defaultShopName, categories: [], audiences: [] },
+        update: {},
+      });
     }
 
     return {

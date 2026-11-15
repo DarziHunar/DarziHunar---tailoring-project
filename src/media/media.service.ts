@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 
 import {
@@ -14,6 +15,7 @@ import {
 } from '@aws-sdk/client-s3';
 
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { GetCallerIdentityCommand, STSClient, type GetCallerIdentityCommandOutput } from '@aws-sdk/client-sts';
 
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -21,8 +23,10 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class MediaService {
   private readonly s3: S3Client;
-
+  private readonly sts: STSClient;
   private readonly bucket: string;
+  private readonly region: string;
+  private readonly expectedAccountId?: string;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -38,11 +42,73 @@ export class MediaService {
       throw new Error('AWS_S3_BUCKET is not configured');
     }
 
-    this.s3 = new S3Client({
-      region,
-    });
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID?.trim();
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY?.trim();
+    const sessionToken = process.env.AWS_SESSION_TOKEN?.trim();
 
+    if (Boolean(accessKeyId) !== Boolean(secretAccessKey)) {
+      throw new Error('Set both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY, or remove both and use an IAM role.');
+    }
+
+    const expectedAccountId = process.env.AWS_EXPECTED_ACCOUNT_ID?.trim();
+    if (expectedAccountId && !/^\d{12}$/.test(expectedAccountId)) {
+      throw new Error('AWS_EXPECTED_ACCOUNT_ID must be the 12-digit AWS account ID.');
+    }
+
+    // When access keys are present, pass them explicitly to both S3 and STS.
+    // This avoids accidentally signing requests with a different shared profile.
+    const credentials = accessKeyId && secretAccessKey
+      ? {
+          accessKeyId,
+          secretAccessKey,
+          ...(sessionToken ? { sessionToken } : {}),
+        }
+      : undefined;
+    const clientConfig = {
+      region,
+      ...(credentials ? { credentials } : {}),
+    };
+
+    this.region = region;
     this.bucket = bucket;
+    this.expectedAccountId = expectedAccountId;
+    this.s3 = new S3Client(clientConfig);
+    this.sts = new STSClient(clientConfig);
+  }
+
+  /** Verify the exact AWS principal used to sign each upload URL. */
+  private async verifySigningIdentity(flow: string, key: string): Promise<void> {
+    const diagnosticsEnabled = process.env.AWS_S3_DIAGNOSTICS === 'true';
+    if (!this.expectedAccountId && !diagnosticsEnabled) return;
+
+    let identity: GetCallerIdentityCommandOutput;
+    try {
+      identity = await this.sts.send(new GetCallerIdentityCommand({}));
+    } catch (error) {
+      console.error('[DarziHunar S3 signer] STS identity check failed', error);
+      throw new ServiceUnavailableException(
+        'Could not verify the AWS credentials used for S3. Check AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN.',
+      );
+    }
+
+    const caller = identity;
+    if (diagnosticsEnabled) {
+      console.info('[DarziHunar S3 signer]', {
+        flow,
+        bucket: this.bucket,
+        region: this.region,
+        keyPrefix: key.split('/').slice(0, 3).join('/'),
+        callerArn: caller.Arn,
+        account: caller.Account,
+        expectedAccount: this.expectedAccountId,
+      });
+    }
+
+    if (this.expectedAccountId && caller.Account !== this.expectedAccountId) {
+      throw new ServiceUnavailableException(
+        `S3 credentials are using AWS account ${caller.Account ?? 'unknown'}, but DarziHunar expects account ${this.expectedAccountId}. Update the backend AWS credentials and fully restart the API. No upload URL was created.`,
+      );
+    }
   }
 
   async createUploadUrl(
@@ -95,6 +161,7 @@ export class MediaService {
       `tailors/${tailorId}/portfolio/` +
       `${uniqueId}-${safeFileName}`;
 
+    await this.verifySigningIdentity('tailor-portfolio', key);
     const command = new PutObjectCommand({
       Bucket: this.bucket,
       Key: key,
@@ -136,7 +203,12 @@ export class MediaService {
   async createUserProfileImageUploadUrl(userId: number, fileName: string, contentType: string) {
     this.validateCustomerImage(fileName, contentType);
     const key = `users/${userId}/profile/${randomUUID()}-${fileName.replace(/[^a-zA-Z0-9._-]/g, '-')}`;
-    const command = new PutObjectCommand({ Bucket: this.bucket, Key: key, ContentType: contentType });
+    await this.verifySigningIdentity('user-profile-image', key);
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+      ContentType: contentType,
+    });
     const uploadUrl = await getSignedUrl(this.s3, command, { expiresIn: 300 });
     // Persist the key only after the client confirms that the S3 PUT succeeded.
     return { uploadUrl, key, expiresIn: 300 };
@@ -149,7 +221,11 @@ export class MediaService {
     }
 
     try {
-      await this.s3.send(new HeadObjectCommand({ Bucket: this.bucket, Key: key }));
+      await this.s3.send(new HeadObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        ...(this.expectedAccountId ? { ExpectedBucketOwner: this.expectedAccountId } : {}),
+      }));
     } catch {
       throw new BadRequestException('The image was not found in S3. Upload the image before completing the profile update.');
     }
@@ -167,7 +243,11 @@ export class MediaService {
 
     // Best-effort cleanup of the previous private profile image.
     if (current.profileImageKey && current.profileImageKey !== key) {
-      await this.s3.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: current.profileImageKey })).catch(() => undefined);
+      await this.s3.send(new DeleteObjectCommand({
+        Bucket: this.bucket,
+        Key: current.profileImageKey,
+        ...(this.expectedAccountId ? { ExpectedBucketOwner: this.expectedAccountId } : {}),
+      })).catch(() => undefined);
     }
 
     return this.getUserProfileImageUrl(userId);
@@ -177,14 +257,22 @@ export class MediaService {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profileImageKey: true } });
     if (!user) throw new NotFoundException('User not found');
     if (!user.profileImageKey) return { imageUrl: null };
-    const command = new GetObjectCommand({ Bucket: this.bucket, Key: user.profileImageKey });
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: user.profileImageKey,
+    });
     return { imageUrl: await getSignedUrl(this.s3, command, { expiresIn: 3600 }) };
   }
 
   async createOrderReferenceUploadUrl(userId: number, fileName: string, contentType: string) {
     this.validateCustomerImage(fileName, contentType);
     const key = `users/${userId}/order-references/${randomUUID()}-${fileName.replace(/[^a-zA-Z0-9._-]/g, '-')}`;
-    const command = new PutObjectCommand({ Bucket: this.bucket, Key: key, ContentType: contentType });
+    await this.verifySigningIdentity('order-reference', key);
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+      ContentType: contentType,
+    });
     const uploadUrl = await getSignedUrl(this.s3, command, { expiresIn: 300 });
     return { uploadUrl, key, expiresIn: 300 };
   }
@@ -256,6 +344,7 @@ export class MediaService {
       new DeleteObjectCommand({
         Bucket: this.bucket,
         Key: image.s3Key,
+        ...(this.expectedAccountId ? { ExpectedBucketOwner: this.expectedAccountId } : {}),
       }),
     );
 

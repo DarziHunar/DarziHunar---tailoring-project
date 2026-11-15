@@ -20,6 +20,8 @@ export type CreateCustomerOrderPayload = {
     audience: Audience;
     fabric: string;
     sizeLabel: string;
+    garmentColor?: string;
+    designType?: string;
     measurementMethod: 'MANUAL' | 'CAMERA_ASSISTED';
     measurementUnit: 'cm' | 'in';
     measurements: Record<string, number>;
@@ -32,7 +34,7 @@ export type CreateCustomerOrderPayload = {
 export type CustomerOrder = {
   id: number; status: string; totalAmount: number; createdAt: string;
   deliveryDetails?: DeliveryDetails | null;
-  items: Array<{ id: number; garmentType: string; measurements: Record<string, unknown>; fabric?: string | null; sizeLabel?: string | null; measurementUnit?: string; notes?: string | null; referenceImages?: string[] }>;
+  items: Array<{ id: number; garmentType: string; measurements: Record<string, unknown>; fabric?: string | null; sizeLabel?: string | null; garmentColor?: string | null; designType?: string | null; measurementUnit?: string; notes?: string | null; referenceImages?: string[] }>;
   tailor?: { id: number; shopName: string; startingPrice?: number };
 };
 

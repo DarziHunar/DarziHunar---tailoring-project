@@ -1,0 +1,208 @@
+import React from 'react';
+import { Text, View } from 'react-native';
+import MapboxGL from '@rnmapbox/maps';
+
+import type { Coordinates } from '../services/locationService';
+import type { TailorProfile } from '../services/tailorService';
+import { C } from '../theme/colors';
+
+const accessToken = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN;
+
+if (accessToken) {
+  MapboxGL.setAccessToken(accessToken);
+}
+
+type Props = {
+  center: Coordinates;
+  tailors: TailorProfile[];
+  onSelect?: (tailor: TailorProfile) => void;
+};
+
+type Position = [number, number];
+
+type RadiusFeature = {
+  type: 'Feature';
+  properties: Record<string, never>;
+  geometry: {
+    type: 'Polygon';
+    coordinates: [Position[]];
+  };
+};
+
+function createRadiusCircle(center: Coordinates): RadiusFeature {
+  const earthRadiusMeters = 6_378_137;
+  const angularDistance = 4_000 / earthRadiusMeters;
+  const latitude = (center.latitude * Math.PI) / 180;
+  const longitude = (center.longitude * Math.PI) / 180;
+  const coordinates: Position[] = [];
+
+  for (let step = 0; step < 64; step += 1) {
+    const bearing = (step / 64) * 2 * Math.PI;
+    const destinationLatitude = Math.asin(
+      Math.sin(latitude) * Math.cos(angularDistance) +
+        Math.cos(latitude) * Math.sin(angularDistance) * Math.cos(bearing),
+    );
+    const destinationLongitude =
+      longitude +
+      Math.atan2(
+        Math.sin(bearing) * Math.sin(angularDistance) * Math.cos(latitude),
+        Math.cos(angularDistance) -
+          Math.sin(latitude) * Math.sin(destinationLatitude),
+      );
+
+    coordinates.push([
+      (destinationLongitude * 180) / Math.PI,
+      (destinationLatitude * 180) / Math.PI,
+    ]);
+  }
+
+  // GeoJSON polygon rings must be closed: repeat the first coordinate at the end.
+  const firstCoordinate = coordinates[0];
+  if (firstCoordinate) coordinates.push(firstCoordinate);
+
+  return {
+    type: 'Feature',
+    properties: {},
+    geometry: {
+      type: 'Polygon',
+      coordinates: [coordinates],
+    },
+  };
+}
+
+function isValidCoordinate(latitude: number, longitude: number): boolean {
+  return (
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    latitude >= -90 &&
+    latitude <= 90 &&
+    longitude >= -180 &&
+    longitude <= 180
+  );
+}
+
+export default function NearbyTailorsMap({
+  center,
+  tailors,
+  onSelect,
+}: Props) {
+  if (!accessToken) {
+    return (
+      <View
+        style={{
+          height: 190,
+          borderRadius: 16,
+          backgroundColor: C.cream,
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 18,
+          marginTop: 12,
+        }}
+      >
+        <Text style={{ color: C.wine, fontWeight: '800' }}>
+          Mapbox token required
+        </Text>
+        <Text
+          style={{
+            color: C.muted,
+            fontSize: 12,
+            textAlign: 'center',
+            marginTop: 5,
+          }}
+        >
+          Set EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN in the EAS preview environment,
+          then create a new build.
+        </Text>
+      </View>
+    );
+  }
+
+  const radiusCircle = createRadiusCircle(center);
+
+  const validTailors = tailors
+    .map((tailor) => ({
+      tailor,
+      latitude: Number(tailor.latitude),
+      longitude: Number(tailor.longitude),
+    }))
+    .filter(
+      ({ tailor, latitude, longitude }) =>
+        tailor.latitude != null &&
+        tailor.longitude != null &&
+        isValidCoordinate(latitude, longitude),
+    );
+
+  return (
+    <View
+      style={{
+        height: 250,
+        overflow: 'hidden',
+        borderRadius: 16,
+        marginTop: 12,
+      }}
+    >
+      <MapboxGL.MapView
+        style={{ flex: 1 }}
+        styleURL={MapboxGL.StyleURL.Street}
+        logoEnabled={false}
+        compassEnabled
+      >
+        <MapboxGL.Camera
+          centerCoordinate={[center.longitude, center.latitude]}
+          zoomLevel={10.8}
+          animationMode="flyTo"
+          animationDuration={600}
+        />
+
+        <MapboxGL.UserLocation visible />
+
+        <MapboxGL.ShapeSource
+          id="nearby-radius-source"
+          shape={radiusCircle}
+        >
+          <MapboxGL.FillLayer
+            id="nearby-radius-fill"
+            style={{ fillColor: C.wine, fillOpacity: 0.07 }}
+          />
+          <MapboxGL.LineLayer
+            id="nearby-radius-line"
+            style={{
+              lineColor: C.wine,
+              lineWidth: 1.5,
+              lineOpacity: 0.75,
+              lineDasharray: [2, 2],
+            }}
+          />
+        </MapboxGL.ShapeSource>
+
+        {validTailors.map(({ tailor, latitude, longitude }) => (
+          <MapboxGL.PointAnnotation
+            key={String(tailor.id)}
+            id={`tailor-${tailor.id}`}
+            coordinate={[longitude, latitude]}
+            onSelected={() => onSelect?.(tailor)}
+          >
+            <View
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: 15,
+                backgroundColor: C.wine,
+                borderWidth: 3,
+                borderColor: '#FFFFFF',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text
+                style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '900' }}
+              >
+                ✂
+              </Text>
+            </View>
+          </MapboxGL.PointAnnotation>
+        ))}
+      </MapboxGL.MapView>
+    </View>
+  );
+}

@@ -79,6 +79,8 @@ model Tailor {
   shopName        String
   bio             String?
   categories      String[] @default([])
+  // Audience groups the tailor explicitly serves; separate from garment/service categories.
+  audiences       StyleAudience[] @default([])
   experienceYears Int?
   specialization  String?
 
@@ -162,6 +164,8 @@ model OrderItem {
   audience          StyleAudience?
   fabric            String?
   sizeLabel         String?
+  garmentColor      String?
+  designType        String?
   measurementMethod MeasurementMethod @default(MANUAL)
   measurementUnit   String @default("cm")
   styleName         String?

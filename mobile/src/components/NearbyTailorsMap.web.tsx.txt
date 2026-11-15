@@ -1,0 +1,52 @@
+import React from 'react';
+import { Text, View } from 'react-native';
+
+import type { Coordinates } from '../services/locationService';
+import type { TailorProfile } from '../services/tailorService';
+import { C } from '../theme/colors';
+
+type Props = {
+  center: Coordinates;
+  tailors: TailorProfile[];
+  onSelect?: (tailor: TailorProfile) => void;
+};
+
+export default function NearbyTailorsMap({ tailors }: Props) {
+  return (
+    <View
+      style={{
+        height: 190,
+        borderRadius: 16,
+        backgroundColor: C.cream,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 18,
+        marginTop: 12,
+      }}
+    >
+      <Text style={{ color: C.wine, fontWeight: '800', fontSize: 15 }}>
+        Map preview is available in the mobile app
+      </Text>
+      <Text
+        style={{
+          color: C.muted,
+          fontSize: 12,
+          textAlign: 'center',
+          marginTop: 7,
+        }}
+      >
+        Interactive Mapbox maps are supported on Android and iOS builds.
+      </Text>
+      <Text
+        style={{
+          color: C.wine,
+          fontWeight: '700',
+          fontSize: 12,
+          marginTop: 10,
+        }}
+      >
+        {tailors.length} nearby tailor(s) found
+      </Text>
+    </View>
+  );
+}

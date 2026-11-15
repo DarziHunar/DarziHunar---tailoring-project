@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, Pressable, ScrollView, Text } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AuthButton from "../components/AuthButton";
 import AuthHeader from "../components/AuthHeader";
@@ -33,7 +33,8 @@ export default function LoginPage({ onBack, onSignup }: Props) {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}>
-      <ScrollView contentContainerStyle={{ padding: 24, flexGrow: 1 }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 48, flexGrow: 1 }} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" automaticallyAdjustKeyboardInsets>
         <AuthHeader title="Login" onBack={onBack} />
         <Text style={{ fontSize: 25, fontWeight: "800", color: C.wine }}>Welcome Back!</Text>
         <Text style={{ color: C.muted, marginTop: 8, marginBottom: 25 }}>Login to continue with DarziHunar.</Text>
@@ -50,6 +51,7 @@ export default function LoginPage({ onBack, onSignup }: Props) {
           <Text style={{ color: C.wine }}>Don’t have an account? Sign Up</Text>
         </Pressable>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

@@ -1,8 +1,8 @@
 export const C = {
   bg: "#F8F3EC",
   card: "#FFFFFF",
-  wine: "#633642",
-  gold: "#C6A46A",
+  wine: "#9b495f",
+  gold: "#6ac66d",
   cream: "#E9D9C7",
   text: "#34272A",
   muted: "#817174",

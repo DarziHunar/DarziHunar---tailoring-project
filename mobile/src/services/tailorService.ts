@@ -7,6 +7,7 @@ export type TailorProfile = {
   shopName: string;
   bio?: string | null;
   categories: string[];
+  audiences?: ('WOMEN' | 'MEN' | 'TEENAGERS' | 'CHILDREN')[];
   experienceYears?: number | null;
   specialization?: string | null;
   latitude?: number | null;
@@ -25,6 +26,7 @@ export type TailorProfilePayload = {
   shopName: string;
   bio?: string;
   categories: string[];
+  audiences?: ('WOMEN' | 'MEN' | 'TEENAGERS' | 'CHILDREN')[];
   experienceYears?: number;
   specialization?: string;
   startingPrice?: number;
@@ -46,8 +48,8 @@ export const tailorService = {
   getById(id: number) {
     return apiRequest<TailorProfile>(`/tailors/${id}`);
   },
-  findNearby(latitude: number, longitude: number, radiusMeters = 4000) {
-    const query = new URLSearchParams({ lat: String(latitude), lng: String(longitude), radius: String(radiusMeters), acceptingOrders: 'true', limit: '50', sort: 'nearest' });
+  findNearby(latitude: number, longitude: number, radiusMeters = 4000, audience?: 'WOMEN' | 'MEN' | 'TEENAGERS' | 'CHILDREN') {
+    const query = new URLSearchParams({ lat: String(latitude), lng: String(longitude), radius: String(Math.min(radiusMeters, 4000)), acceptingOrders: 'true', limit: '50', sort: 'nearest', ...(audience ? { category: audience } : {}) });
     return apiRequest<{ data: TailorProfile[]; pagination: { total: number; limit: number; offset: number; hasMore: boolean } }>(`/tailors/nearby?${query.toString()}`);
   },
   getMine(token: string) {

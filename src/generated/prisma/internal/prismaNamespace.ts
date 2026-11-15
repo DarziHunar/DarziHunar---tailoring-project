@@ -1077,6 +1077,7 @@ export const TailorScalarFieldEnum = {
   shopName: 'shopName',
   bio: 'bio',
   categories: 'categories',
+  audiences: 'audiences',
   experienceYears: 'experienceYears',
   specialization: 'specialization',
   verified: 'verified',
@@ -1131,6 +1132,8 @@ export const OrderItemScalarFieldEnum = {
   audience: 'audience',
   fabric: 'fabric',
   sizeLabel: 'sizeLabel',
+  garmentColor: 'garmentColor',
+  designType: 'designType',
   measurementMethod: 'measurementMethod',
   measurementUnit: 'measurementUnit',
   styleName: 'styleName'
@@ -1296,6 +1299,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'StyleAudience[]'
+ */
+export type ListEnumStyleAudienceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StyleAudience[]'>
+    
+
+
+/**
+ * Reference to a field of type 'StyleAudience'
+ */
+export type EnumStyleAudienceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StyleAudience'>
+    
+
+
+/**
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -1341,20 +1358,6 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-/**
- * Reference to a field of type 'StyleAudience'
- */
-export type EnumStyleAudienceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StyleAudience'>
-    
-
-
-/**
- * Reference to a field of type 'StyleAudience[]'
- */
-export type ListEnumStyleAudienceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StyleAudience[]'>
     
 
 

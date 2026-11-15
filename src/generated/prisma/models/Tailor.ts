@@ -78,6 +78,7 @@ export type TailorCountAggregateOutputType = {
   shopName: number
   bio: number
   categories: number
+  audiences: number
   experienceYears: number
   specialization: number
   verified: number
@@ -142,6 +143,7 @@ export type TailorCountAggregateInputType = {
   shopName?: true
   bio?: true
   categories?: true
+  audiences?: true
   experienceYears?: true
   specialization?: true
   verified?: true
@@ -245,6 +247,7 @@ export type TailorGroupByOutputType = {
   shopName: string
   bio: string | null
   categories: string[]
+  audiences: $Enums.StyleAudience[]
   experienceYears: number | null
   specialization: string | null
   verified: boolean
@@ -284,6 +287,7 @@ export type TailorWhereInput = {
   shopName?: Prisma.StringFilter<"Tailor"> | string
   bio?: Prisma.StringNullableFilter<"Tailor"> | string | null
   categories?: Prisma.StringNullableListFilter<"Tailor">
+  audiences?: Prisma.EnumStyleAudienceNullableListFilter<"Tailor">
   experienceYears?: Prisma.IntNullableFilter<"Tailor"> | number | null
   specialization?: Prisma.StringNullableFilter<"Tailor"> | string | null
   verified?: Prisma.BoolFilter<"Tailor"> | boolean
@@ -304,6 +308,7 @@ export type TailorOrderByWithRelationInput = {
   shopName?: Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   categories?: Prisma.SortOrder
+  audiences?: Prisma.SortOrder
   experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
   specialization?: Prisma.SortOrderInput | Prisma.SortOrder
   verified?: Prisma.SortOrder
@@ -327,6 +332,7 @@ export type TailorWhereUniqueInput = Prisma.AtLeast<{
   shopName?: Prisma.StringFilter<"Tailor"> | string
   bio?: Prisma.StringNullableFilter<"Tailor"> | string | null
   categories?: Prisma.StringNullableListFilter<"Tailor">
+  audiences?: Prisma.EnumStyleAudienceNullableListFilter<"Tailor">
   experienceYears?: Prisma.IntNullableFilter<"Tailor"> | number | null
   specialization?: Prisma.StringNullableFilter<"Tailor"> | string | null
   verified?: Prisma.BoolFilter<"Tailor"> | boolean
@@ -347,6 +353,7 @@ export type TailorOrderByWithAggregationInput = {
   shopName?: Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   categories?: Prisma.SortOrder
+  audiences?: Prisma.SortOrder
   experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
   specialization?: Prisma.SortOrderInput | Prisma.SortOrder
   verified?: Prisma.SortOrder
@@ -371,6 +378,7 @@ export type TailorScalarWhereWithAggregatesInput = {
   shopName?: Prisma.StringWithAggregatesFilter<"Tailor"> | string
   bio?: Prisma.StringNullableWithAggregatesFilter<"Tailor"> | string | null
   categories?: Prisma.StringNullableListFilter<"Tailor">
+  audiences?: Prisma.EnumStyleAudienceNullableListFilter<"Tailor">
   experienceYears?: Prisma.IntNullableWithAggregatesFilter<"Tailor"> | number | null
   specialization?: Prisma.StringNullableWithAggregatesFilter<"Tailor"> | string | null
   verified?: Prisma.BoolWithAggregatesFilter<"Tailor"> | boolean
@@ -385,6 +393,7 @@ export type TailorCreateInput = {
   shopName: string
   bio?: string | null
   categories?: Prisma.TailorCreatecategoriesInput | string[]
+  audiences?: Prisma.TailorCreateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: number | null
   specialization?: string | null
   verified?: boolean
@@ -405,6 +414,7 @@ export type TailorUncheckedCreateInput = {
   shopName: string
   bio?: string | null
   categories?: Prisma.TailorCreatecategoriesInput | string[]
+  audiences?: Prisma.TailorCreateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: number | null
   specialization?: string | null
   verified?: boolean
@@ -422,6 +432,7 @@ export type TailorUpdateInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -442,6 +453,7 @@ export type TailorUncheckedUpdateInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -461,6 +473,7 @@ export type TailorCreateManyInput = {
   shopName: string
   bio?: string | null
   categories?: Prisma.TailorCreatecategoriesInput | string[]
+  audiences?: Prisma.TailorCreateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: number | null
   specialization?: string | null
   verified?: boolean
@@ -475,6 +488,7 @@ export type TailorUpdateManyMutationInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -491,6 +505,7 @@ export type TailorUncheckedUpdateManyInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -514,12 +529,21 @@ export type StringNullableListFilter<$PrismaModel = never> = {
   isEmpty?: boolean
 }
 
+export type EnumStyleAudienceNullableListFilter<$PrismaModel = never> = {
+  equals?: $Enums.StyleAudience[] | Prisma.ListEnumStyleAudienceFieldRefInput<$PrismaModel> | null
+  has?: $Enums.StyleAudience | Prisma.EnumStyleAudienceFieldRefInput<$PrismaModel> | null
+  hasEvery?: $Enums.StyleAudience[] | Prisma.ListEnumStyleAudienceFieldRefInput<$PrismaModel>
+  hasSome?: $Enums.StyleAudience[] | Prisma.ListEnumStyleAudienceFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
+}
+
 export type TailorCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   shopName?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   categories?: Prisma.SortOrder
+  audiences?: Prisma.SortOrder
   experienceYears?: Prisma.SortOrder
   specialization?: Prisma.SortOrder
   verified?: Prisma.SortOrder
@@ -617,9 +641,18 @@ export type TailorCreatecategoriesInput = {
   set: string[]
 }
 
+export type TailorCreateaudiencesInput = {
+  set: $Enums.StyleAudience[]
+}
+
 export type TailorUpdatecategoriesInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type TailorUpdateaudiencesInput = {
+  set?: $Enums.StyleAudience[]
+  push?: $Enums.StyleAudience | $Enums.StyleAudience[]
 }
 
 export type NullableIntFieldUpdateOperationsInput = {
@@ -688,6 +721,7 @@ export type TailorCreateWithoutUserInput = {
   shopName: string
   bio?: string | null
   categories?: Prisma.TailorCreatecategoriesInput | string[]
+  audiences?: Prisma.TailorCreateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: number | null
   specialization?: string | null
   verified?: boolean
@@ -706,6 +740,7 @@ export type TailorUncheckedCreateWithoutUserInput = {
   shopName: string
   bio?: string | null
   categories?: Prisma.TailorCreatecategoriesInput | string[]
+  audiences?: Prisma.TailorCreateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: number | null
   specialization?: string | null
   verified?: boolean
@@ -739,6 +774,7 @@ export type TailorUpdateWithoutUserInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -757,6 +793,7 @@ export type TailorUncheckedUpdateWithoutUserInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -774,6 +811,7 @@ export type TailorCreateWithoutPortfolioImagesInput = {
   shopName: string
   bio?: string | null
   categories?: Prisma.TailorCreatecategoriesInput | string[]
+  audiences?: Prisma.TailorCreateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: number | null
   specialization?: string | null
   verified?: boolean
@@ -793,6 +831,7 @@ export type TailorUncheckedCreateWithoutPortfolioImagesInput = {
   shopName: string
   bio?: string | null
   categories?: Prisma.TailorCreatecategoriesInput | string[]
+  audiences?: Prisma.TailorCreateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: number | null
   specialization?: string | null
   verified?: boolean
@@ -825,6 +864,7 @@ export type TailorUpdateWithoutPortfolioImagesInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -844,6 +884,7 @@ export type TailorUncheckedUpdateWithoutPortfolioImagesInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -860,6 +901,7 @@ export type TailorCreateWithoutOrdersInput = {
   shopName: string
   bio?: string | null
   categories?: Prisma.TailorCreatecategoriesInput | string[]
+  audiences?: Prisma.TailorCreateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: number | null
   specialization?: string | null
   verified?: boolean
@@ -879,6 +921,7 @@ export type TailorUncheckedCreateWithoutOrdersInput = {
   shopName: string
   bio?: string | null
   categories?: Prisma.TailorCreatecategoriesInput | string[]
+  audiences?: Prisma.TailorCreateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: number | null
   specialization?: string | null
   verified?: boolean
@@ -911,6 +954,7 @@ export type TailorUpdateWithoutOrdersInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -930,6 +974,7 @@ export type TailorUncheckedUpdateWithoutOrdersInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -946,6 +991,7 @@ export type TailorCreateWithoutReviewsInput = {
   shopName: string
   bio?: string | null
   categories?: Prisma.TailorCreatecategoriesInput | string[]
+  audiences?: Prisma.TailorCreateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: number | null
   specialization?: string | null
   verified?: boolean
@@ -965,6 +1011,7 @@ export type TailorUncheckedCreateWithoutReviewsInput = {
   shopName: string
   bio?: string | null
   categories?: Prisma.TailorCreatecategoriesInput | string[]
+  audiences?: Prisma.TailorCreateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: number | null
   specialization?: string | null
   verified?: boolean
@@ -997,6 +1044,7 @@ export type TailorUpdateWithoutReviewsInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1016,6 +1064,7 @@ export type TailorUncheckedUpdateWithoutReviewsInput = {
   shopName?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.TailorUpdatecategoriesInput | string[]
+  audiences?: Prisma.TailorUpdateaudiencesInput | $Enums.StyleAudience[]
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   specialization?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1083,6 +1132,7 @@ export type TailorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   shopName?: boolean
   bio?: boolean
   categories?: boolean
+  audiences?: boolean
   experienceYears?: boolean
   specialization?: boolean
   verified?: boolean
@@ -1104,6 +1154,7 @@ export type TailorSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   shopName?: boolean
   bio?: boolean
   categories?: boolean
+  audiences?: boolean
   experienceYears?: boolean
   specialization?: boolean
   verified?: boolean
@@ -1121,6 +1172,7 @@ export type TailorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   shopName?: boolean
   bio?: boolean
   categories?: boolean
+  audiences?: boolean
   experienceYears?: boolean
   specialization?: boolean
   verified?: boolean
@@ -1138,6 +1190,7 @@ export type TailorSelectScalar = {
   shopName?: boolean
   bio?: boolean
   categories?: boolean
+  audiences?: boolean
   experienceYears?: boolean
   specialization?: boolean
   verified?: boolean
@@ -1148,7 +1201,7 @@ export type TailorSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TailorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "shopName" | "bio" | "categories" | "experienceYears" | "specialization" | "verified" | "rating" | "startingPrice" | "acceptingOrders" | "createdAt" | "updatedAt", ExtArgs["result"]["tailor"]>
+export type TailorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "shopName" | "bio" | "categories" | "audiences" | "experienceYears" | "specialization" | "verified" | "rating" | "startingPrice" | "acceptingOrders" | "createdAt" | "updatedAt", ExtArgs["result"]["tailor"]>
 export type TailorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   portfolioImages?: boolean | Prisma.Tailor$portfolioImagesArgs<ExtArgs>
@@ -1177,6 +1230,7 @@ export type $TailorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     shopName: string
     bio: string | null
     categories: string[]
+    audiences: $Enums.StyleAudience[]
     experienceYears: number | null
     specialization: string | null
     verified: boolean
@@ -1617,6 +1671,7 @@ export interface TailorFieldRefs {
   readonly shopName: Prisma.FieldRef<"Tailor", 'String'>
   readonly bio: Prisma.FieldRef<"Tailor", 'String'>
   readonly categories: Prisma.FieldRef<"Tailor", 'String[]'>
+  readonly audiences: Prisma.FieldRef<"Tailor", 'StyleAudience[]'>
   readonly experienceYears: Prisma.FieldRef<"Tailor", 'Int'>
   readonly specialization: Prisma.FieldRef<"Tailor", 'String'>
   readonly verified: Prisma.FieldRef<"Tailor", 'Boolean'>

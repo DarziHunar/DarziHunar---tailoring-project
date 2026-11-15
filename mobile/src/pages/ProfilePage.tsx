@@ -13,6 +13,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthButton from '../components/AuthButton';
 import AuthHeader from '../components/AuthHeader';
+import BottomNavigation from '../components/BottomNavigation';
+import type { MainTab } from '../types/navigation';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import { mediaService } from '../services/mediaService';
@@ -21,6 +23,7 @@ import { C } from '../theme/colors';
 type Props = {
   onBack: () => void;
   onEditBusiness?: () => void;
+  onNavigate?: (tab: MainTab) => void;
 };
 
 const inputStyle = {
@@ -35,7 +38,7 @@ const inputStyle = {
   marginTop: 7,
 };
 
-export default function ProfilePage({ onBack, onEditBusiness }: Props) {
+export default function ProfilePage({ onBack, onEditBusiness, onNavigate }: Props) {
   const { user, accessToken, refreshUser, signOut } = useAuth();
   const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState(user?.fullName ?? '');
@@ -212,6 +215,7 @@ export default function ProfilePage({ onBack, onEditBusiness }: Props) {
           Account deletion is permanent. Accounts with linked orders or reviews may need support assistance.
         </Text>
       </ScrollView>
+      {user?.role !== 'TAILOR' && onNavigate && <BottomNavigation activeTab="profile" onNavigate={onNavigate} />}
     </SafeAreaView>
   );
 }

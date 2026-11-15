@@ -3,4 +3,5 @@ export type MainTab =
   | 'favorites'
   | 'orders'
   | 'explore'
-  | 'measurements';
+  | 'measurements'
+  | 'profile';

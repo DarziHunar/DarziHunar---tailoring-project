@@ -11,7 +11,27 @@ type OrderRecord = {
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'IN_PROGRESS' | 'READY' | 'COMPLETED' | 'CANCELLED';
   totalAmount: number;
   createdAt: string;
-  items?: Array<{ id: number; garmentType: string; quantity: number; notes?: string | null }>;
+  deliveryDetails?: {
+    fullName?: string;
+    phone?: string;
+    addressLine1?: string;
+    addressLine2?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+  } | null;
+  items?: Array<{
+    id: number;
+    garmentType: string;
+    quantity: number;
+    fabric?: string | null;
+    sizeLabel?: string | null;
+    color?: string | null;
+    designType?: string | null;
+    measurementUnit?: string;
+    measurements?: Record<string, number>;
+    notes?: string | null;
+  }>;
   customer?: { id: number; email: string };
 };
 
@@ -79,9 +99,18 @@ export default function TailorOrdersPage({ onBack }: Props) {
               <Text style={{ color: C.text, fontSize: 16, fontWeight: '900' }}>Order #{order.id}</Text>
               <Text style={{ color: C.wine, fontSize: 11, fontWeight: '900' }}>{order.status.replace('_', ' ')}</Text>
             </View>
-            <Text style={{ color: C.muted, fontSize: 12, marginTop: 7 }}>Customer: {order.customer?.email || 'Customer'}</Text>
-            <Text style={{ color: C.muted, fontSize: 12, marginTop: 4 }}>{order.items?.map((item) => `${item.garmentType} × ${item.quantity}`).join(', ') || 'Custom tailoring'}</Text>
-            {order.items?.some((item) => item.notes) && <Text style={{ color: C.text, fontSize: 12, lineHeight: 18, marginTop: 7 }}>Notes: {order.items.filter((item) => item.notes).map((item) => item.notes).join(' · ')}</Text>}
+            <Text style={{ color: C.muted, fontSize: 12, marginTop: 7 }}>Customer: {order.deliveryDetails?.fullName || order.customer?.email || 'Customer'}</Text>
+            {!!order.deliveryDetails?.phone && <Text style={{ color: C.muted, fontSize: 12, marginTop: 3 }}>Phone: {order.deliveryDetails.phone}</Text>}
+            {!!order.deliveryDetails?.addressLine1 && <Text style={{ color: C.muted, fontSize: 12, lineHeight: 18, marginTop: 3 }}>Delivery: {[order.deliveryDetails.addressLine1, order.deliveryDetails.addressLine2, order.deliveryDetails.city, order.deliveryDetails.state, order.deliveryDetails.postalCode].filter(Boolean).join(', ')}</Text>}
+            {order.items?.map((item) => (
+              <View key={item.id} style={{ backgroundColor: C.cream, borderRadius: 12, padding: 11, marginTop: 9 }}>
+                <Text style={{ color: C.wine, fontWeight: '900', fontSize: 13 }}>{item.garmentType} × {item.quantity}</Text>
+                <Text style={{ color: C.text, fontSize: 12, marginTop: 5 }}>Fabric: {item.fabric || 'Not specified'} · Colour: {item.color || 'Not specified'}</Text>
+                <Text style={{ color: C.text, fontSize: 12, marginTop: 3 }}>Design: {item.designType || 'Not specified'} · Fit: {item.sizeLabel || 'Made to measure'}</Text>
+                {!!item.measurements && <Text style={{ color: C.muted, fontSize: 11, lineHeight: 17, marginTop: 5 }}>Measurements ({item.measurementUnit || 'cm'}): {Object.entries(item.measurements).map(([key, value]) => `${key}: ${value}`).join(' · ')}</Text>}
+                {!!item.notes && <Text style={{ color: C.text, fontSize: 12, lineHeight: 18, marginTop: 6 }}>Notes: {item.notes}</Text>}
+              </View>
+            ))}
             <Text style={{ color: C.wine, fontSize: 16, fontWeight: '900', marginTop: 9 }}>₹{Number(order.totalAmount).toLocaleString('en-IN')}</Text>
             {!!transitions[order.status]?.length && (
               <View style={{ flexDirection: 'row', gap: 9, marginTop: 14 }}>

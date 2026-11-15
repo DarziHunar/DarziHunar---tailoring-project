@@ -74,6 +74,7 @@ function AppNavigator() {
       orders: { name: 'orders' },
       explore: { name: 'explore' },
       measurements: { name: 'measurements' },
+      profile: { name: 'profile' },
     };
     push(nextRoutes[tab]);
   };
@@ -116,18 +117,15 @@ function AppNavigator() {
   }
   if (route.name === 'tailor-business') return <TailorBusinessProfilePage onBack={goBack} onSaved={goBack} />;
   if (route.name === 'tailor-orders') return <TailorOrdersPage onBack={goBack} />;
-  if (route.name === 'profile') return <ProfilePage onBack={goBack} onEditBusiness={() => push({ name: 'tailor-business' })} />;
+  if (route.name === 'profile') return <ProfilePage onBack={goBack} onEditBusiness={() => push({ name: 'tailor-business' })} onNavigate={navigateTab} />;
 
   if (route.name === 'home') return <HomePage
-    onProfile={() => push({ name: 'profile' })}
+    displayName={user.fullName}
     onOpenCategory={(category) => push({ name: 'customer-styles', audience: category.name.toUpperCase() as Audience })}
     onViewAllTailors={() => push({ name: 'tailors' })}
     onOpenTailor={(tailor) => push({ name: 'tailor-detail', tailor })}
     onOpenCreation={(creation) => push({ name: 'creation', creation })}
     onNavigateTab={navigateTab}
-    onSearch={(query) => push({ name: 'search', query })}
-    onLocation={() => push({ name: 'location' })}
-    locationLabel={locationLabel}
   />;
   if (route.name === 'customer-styles') return <CustomerStylesPage audience={route.audience} onBack={goBack} onNavigate={navigateTab} onSelect={(style) => push({ name: 'customer-tailors', audience: route.audience, style })} />;
   if (route.name === 'customer-tailors') return <CustomerTailorsPage audience={route.audience} style={route.style} onBack={goBack} onNavigate={navigateTab} onSelect={(tailor) => push({ name: 'customer-tailor-detail', audience: route.audience, style: route.style, tailor })} />;

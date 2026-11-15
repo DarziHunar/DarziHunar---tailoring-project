@@ -55,6 +55,8 @@ export type OrderItemMinAggregateOutputType = {
   audience: $Enums.StyleAudience | null
   fabric: string | null
   sizeLabel: string | null
+  garmentColor: string | null
+  designType: string | null
   measurementMethod: $Enums.MeasurementMethod | null
   measurementUnit: string | null
   styleName: string | null
@@ -73,6 +75,8 @@ export type OrderItemMaxAggregateOutputType = {
   audience: $Enums.StyleAudience | null
   fabric: string | null
   sizeLabel: string | null
+  garmentColor: string | null
+  designType: string | null
   measurementMethod: $Enums.MeasurementMethod | null
   measurementUnit: string | null
   styleName: string | null
@@ -93,6 +97,8 @@ export type OrderItemCountAggregateOutputType = {
   audience: number
   fabric: number
   sizeLabel: number
+  garmentColor: number
+  designType: number
   measurementMethod: number
   measurementUnit: number
   styleName: number
@@ -129,6 +135,8 @@ export type OrderItemMinAggregateInputType = {
   audience?: true
   fabric?: true
   sizeLabel?: true
+  garmentColor?: true
+  designType?: true
   measurementMethod?: true
   measurementUnit?: true
   styleName?: true
@@ -147,6 +155,8 @@ export type OrderItemMaxAggregateInputType = {
   audience?: true
   fabric?: true
   sizeLabel?: true
+  garmentColor?: true
+  designType?: true
   measurementMethod?: true
   measurementUnit?: true
   styleName?: true
@@ -167,6 +177,8 @@ export type OrderItemCountAggregateInputType = {
   audience?: true
   fabric?: true
   sizeLabel?: true
+  garmentColor?: true
+  designType?: true
   measurementMethod?: true
   measurementUnit?: true
   styleName?: true
@@ -274,6 +286,8 @@ export type OrderItemGroupByOutputType = {
   audience: $Enums.StyleAudience | null
   fabric: string | null
   sizeLabel: string | null
+  garmentColor: string | null
+  designType: string | null
   measurementMethod: $Enums.MeasurementMethod
   measurementUnit: string
   styleName: string | null
@@ -317,6 +331,8 @@ export type OrderItemWhereInput = {
   audience?: Prisma.EnumStyleAudienceNullableFilter<"OrderItem"> | $Enums.StyleAudience | null
   fabric?: Prisma.StringNullableFilter<"OrderItem"> | string | null
   sizeLabel?: Prisma.StringNullableFilter<"OrderItem"> | string | null
+  garmentColor?: Prisma.StringNullableFilter<"OrderItem"> | string | null
+  designType?: Prisma.StringNullableFilter<"OrderItem"> | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFilter<"OrderItem"> | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFilter<"OrderItem"> | string
   styleName?: Prisma.StringNullableFilter<"OrderItem"> | string | null
@@ -339,6 +355,8 @@ export type OrderItemOrderByWithRelationInput = {
   audience?: Prisma.SortOrderInput | Prisma.SortOrder
   fabric?: Prisma.SortOrderInput | Prisma.SortOrder
   sizeLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  garmentColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  designType?: Prisma.SortOrderInput | Prisma.SortOrder
   measurementMethod?: Prisma.SortOrder
   measurementUnit?: Prisma.SortOrder
   styleName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -364,6 +382,8 @@ export type OrderItemWhereUniqueInput = Prisma.AtLeast<{
   audience?: Prisma.EnumStyleAudienceNullableFilter<"OrderItem"> | $Enums.StyleAudience | null
   fabric?: Prisma.StringNullableFilter<"OrderItem"> | string | null
   sizeLabel?: Prisma.StringNullableFilter<"OrderItem"> | string | null
+  garmentColor?: Prisma.StringNullableFilter<"OrderItem"> | string | null
+  designType?: Prisma.StringNullableFilter<"OrderItem"> | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFilter<"OrderItem"> | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFilter<"OrderItem"> | string
   styleName?: Prisma.StringNullableFilter<"OrderItem"> | string | null
@@ -386,6 +406,8 @@ export type OrderItemOrderByWithAggregationInput = {
   audience?: Prisma.SortOrderInput | Prisma.SortOrder
   fabric?: Prisma.SortOrderInput | Prisma.SortOrder
   sizeLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  garmentColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  designType?: Prisma.SortOrderInput | Prisma.SortOrder
   measurementMethod?: Prisma.SortOrder
   measurementUnit?: Prisma.SortOrder
   styleName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -414,6 +436,8 @@ export type OrderItemScalarWhereWithAggregatesInput = {
   audience?: Prisma.EnumStyleAudienceNullableWithAggregatesFilter<"OrderItem"> | $Enums.StyleAudience | null
   fabric?: Prisma.StringNullableWithAggregatesFilter<"OrderItem"> | string | null
   sizeLabel?: Prisma.StringNullableWithAggregatesFilter<"OrderItem"> | string | null
+  garmentColor?: Prisma.StringNullableWithAggregatesFilter<"OrderItem"> | string | null
+  designType?: Prisma.StringNullableWithAggregatesFilter<"OrderItem"> | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodWithAggregatesFilter<"OrderItem"> | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringWithAggregatesFilter<"OrderItem"> | string
   styleName?: Prisma.StringNullableWithAggregatesFilter<"OrderItem"> | string | null
@@ -431,6 +455,8 @@ export type OrderItemCreateInput = {
   audience?: $Enums.StyleAudience | null
   fabric?: string | null
   sizeLabel?: string | null
+  garmentColor?: string | null
+  designType?: string | null
   measurementMethod?: $Enums.MeasurementMethod
   measurementUnit?: string
   styleName?: string | null
@@ -453,6 +479,8 @@ export type OrderItemUncheckedCreateInput = {
   audience?: $Enums.StyleAudience | null
   fabric?: string | null
   sizeLabel?: string | null
+  garmentColor?: string | null
+  designType?: string | null
   measurementMethod?: $Enums.MeasurementMethod
   measurementUnit?: string
   styleName?: string | null
@@ -470,6 +498,8 @@ export type OrderItemUpdateInput = {
   audience?: Prisma.NullableEnumStyleAudienceFieldUpdateOperationsInput | $Enums.StyleAudience | null
   fabric?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sizeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garmentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFieldUpdateOperationsInput | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFieldUpdateOperationsInput | string
   styleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -492,6 +522,8 @@ export type OrderItemUncheckedUpdateInput = {
   audience?: Prisma.NullableEnumStyleAudienceFieldUpdateOperationsInput | $Enums.StyleAudience | null
   fabric?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sizeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garmentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFieldUpdateOperationsInput | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFieldUpdateOperationsInput | string
   styleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -512,6 +544,8 @@ export type OrderItemCreateManyInput = {
   audience?: $Enums.StyleAudience | null
   fabric?: string | null
   sizeLabel?: string | null
+  garmentColor?: string | null
+  designType?: string | null
   measurementMethod?: $Enums.MeasurementMethod
   measurementUnit?: string
   styleName?: string | null
@@ -529,6 +563,8 @@ export type OrderItemUpdateManyMutationInput = {
   audience?: Prisma.NullableEnumStyleAudienceFieldUpdateOperationsInput | $Enums.StyleAudience | null
   fabric?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sizeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garmentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFieldUpdateOperationsInput | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFieldUpdateOperationsInput | string
   styleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -549,6 +585,8 @@ export type OrderItemUncheckedUpdateManyInput = {
   audience?: Prisma.NullableEnumStyleAudienceFieldUpdateOperationsInput | $Enums.StyleAudience | null
   fabric?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sizeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garmentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFieldUpdateOperationsInput | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFieldUpdateOperationsInput | string
   styleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -579,6 +617,8 @@ export type OrderItemCountOrderByAggregateInput = {
   audience?: Prisma.SortOrder
   fabric?: Prisma.SortOrder
   sizeLabel?: Prisma.SortOrder
+  garmentColor?: Prisma.SortOrder
+  designType?: Prisma.SortOrder
   measurementMethod?: Prisma.SortOrder
   measurementUnit?: Prisma.SortOrder
   styleName?: Prisma.SortOrder
@@ -605,6 +645,8 @@ export type OrderItemMaxOrderByAggregateInput = {
   audience?: Prisma.SortOrder
   fabric?: Prisma.SortOrder
   sizeLabel?: Prisma.SortOrder
+  garmentColor?: Prisma.SortOrder
+  designType?: Prisma.SortOrder
   measurementMethod?: Prisma.SortOrder
   measurementUnit?: Prisma.SortOrder
   styleName?: Prisma.SortOrder
@@ -623,6 +665,8 @@ export type OrderItemMinOrderByAggregateInput = {
   audience?: Prisma.SortOrder
   fabric?: Prisma.SortOrder
   sizeLabel?: Prisma.SortOrder
+  garmentColor?: Prisma.SortOrder
+  designType?: Prisma.SortOrder
   measurementMethod?: Prisma.SortOrder
   measurementUnit?: Prisma.SortOrder
   styleName?: Prisma.SortOrder
@@ -749,6 +793,8 @@ export type OrderItemCreateWithoutOrderInput = {
   audience?: $Enums.StyleAudience | null
   fabric?: string | null
   sizeLabel?: string | null
+  garmentColor?: string | null
+  designType?: string | null
   measurementMethod?: $Enums.MeasurementMethod
   measurementUnit?: string
   styleName?: string | null
@@ -769,6 +815,8 @@ export type OrderItemUncheckedCreateWithoutOrderInput = {
   audience?: $Enums.StyleAudience | null
   fabric?: string | null
   sizeLabel?: string | null
+  garmentColor?: string | null
+  designType?: string | null
   measurementMethod?: $Enums.MeasurementMethod
   measurementUnit?: string
   styleName?: string | null
@@ -818,6 +866,8 @@ export type OrderItemScalarWhereInput = {
   audience?: Prisma.EnumStyleAudienceNullableFilter<"OrderItem"> | $Enums.StyleAudience | null
   fabric?: Prisma.StringNullableFilter<"OrderItem"> | string | null
   sizeLabel?: Prisma.StringNullableFilter<"OrderItem"> | string | null
+  garmentColor?: Prisma.StringNullableFilter<"OrderItem"> | string | null
+  designType?: Prisma.StringNullableFilter<"OrderItem"> | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFilter<"OrderItem"> | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFilter<"OrderItem"> | string
   styleName?: Prisma.StringNullableFilter<"OrderItem"> | string | null
@@ -835,6 +885,8 @@ export type OrderItemCreateWithoutMeasurementProfileInput = {
   audience?: $Enums.StyleAudience | null
   fabric?: string | null
   sizeLabel?: string | null
+  garmentColor?: string | null
+  designType?: string | null
   measurementMethod?: $Enums.MeasurementMethod
   measurementUnit?: string
   styleName?: string | null
@@ -855,6 +907,8 @@ export type OrderItemUncheckedCreateWithoutMeasurementProfileInput = {
   audience?: $Enums.StyleAudience | null
   fabric?: string | null
   sizeLabel?: string | null
+  garmentColor?: string | null
+  designType?: string | null
   measurementMethod?: $Enums.MeasurementMethod
   measurementUnit?: string
   styleName?: string | null
@@ -900,6 +954,8 @@ export type OrderItemCreateManyOrderInput = {
   audience?: $Enums.StyleAudience | null
   fabric?: string | null
   sizeLabel?: string | null
+  garmentColor?: string | null
+  designType?: string | null
   measurementMethod?: $Enums.MeasurementMethod
   measurementUnit?: string
   styleName?: string | null
@@ -917,6 +973,8 @@ export type OrderItemUpdateWithoutOrderInput = {
   audience?: Prisma.NullableEnumStyleAudienceFieldUpdateOperationsInput | $Enums.StyleAudience | null
   fabric?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sizeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garmentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFieldUpdateOperationsInput | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFieldUpdateOperationsInput | string
   styleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -937,6 +995,8 @@ export type OrderItemUncheckedUpdateWithoutOrderInput = {
   audience?: Prisma.NullableEnumStyleAudienceFieldUpdateOperationsInput | $Enums.StyleAudience | null
   fabric?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sizeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garmentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFieldUpdateOperationsInput | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFieldUpdateOperationsInput | string
   styleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -956,6 +1016,8 @@ export type OrderItemUncheckedUpdateManyWithoutOrderInput = {
   audience?: Prisma.NullableEnumStyleAudienceFieldUpdateOperationsInput | $Enums.StyleAudience | null
   fabric?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sizeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garmentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFieldUpdateOperationsInput | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFieldUpdateOperationsInput | string
   styleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -975,6 +1037,8 @@ export type OrderItemCreateManyMeasurementProfileInput = {
   audience?: $Enums.StyleAudience | null
   fabric?: string | null
   sizeLabel?: string | null
+  garmentColor?: string | null
+  designType?: string | null
   measurementMethod?: $Enums.MeasurementMethod
   measurementUnit?: string
   styleName?: string | null
@@ -992,6 +1056,8 @@ export type OrderItemUpdateWithoutMeasurementProfileInput = {
   audience?: Prisma.NullableEnumStyleAudienceFieldUpdateOperationsInput | $Enums.StyleAudience | null
   fabric?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sizeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garmentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFieldUpdateOperationsInput | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFieldUpdateOperationsInput | string
   styleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1012,6 +1078,8 @@ export type OrderItemUncheckedUpdateWithoutMeasurementProfileInput = {
   audience?: Prisma.NullableEnumStyleAudienceFieldUpdateOperationsInput | $Enums.StyleAudience | null
   fabric?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sizeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garmentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFieldUpdateOperationsInput | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFieldUpdateOperationsInput | string
   styleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1031,6 +1099,8 @@ export type OrderItemUncheckedUpdateManyWithoutMeasurementProfileInput = {
   audience?: Prisma.NullableEnumStyleAudienceFieldUpdateOperationsInput | $Enums.StyleAudience | null
   fabric?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sizeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garmentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   measurementMethod?: Prisma.EnumMeasurementMethodFieldUpdateOperationsInput | $Enums.MeasurementMethod
   measurementUnit?: Prisma.StringFieldUpdateOperationsInput | string
   styleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1053,6 +1123,8 @@ export type OrderItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   audience?: boolean
   fabric?: boolean
   sizeLabel?: boolean
+  garmentColor?: boolean
+  designType?: boolean
   measurementMethod?: boolean
   measurementUnit?: boolean
   styleName?: boolean
@@ -1075,6 +1147,8 @@ export type OrderItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   audience?: boolean
   fabric?: boolean
   sizeLabel?: boolean
+  garmentColor?: boolean
+  designType?: boolean
   measurementMethod?: boolean
   measurementUnit?: boolean
   styleName?: boolean
@@ -1097,6 +1171,8 @@ export type OrderItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   audience?: boolean
   fabric?: boolean
   sizeLabel?: boolean
+  garmentColor?: boolean
+  designType?: boolean
   measurementMethod?: boolean
   measurementUnit?: boolean
   styleName?: boolean
@@ -1119,12 +1195,14 @@ export type OrderItemSelectScalar = {
   audience?: boolean
   fabric?: boolean
   sizeLabel?: boolean
+  garmentColor?: boolean
+  designType?: boolean
   measurementMethod?: boolean
   measurementUnit?: boolean
   styleName?: boolean
 }
 
-export type OrderItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "garmentType" | "measurements" | "notes" | "referenceImages" | "quantity" | "unitPrice" | "measurementProfileId" | "createdAt" | "updatedAt" | "audience" | "fabric" | "sizeLabel" | "measurementMethod" | "measurementUnit" | "styleName", ExtArgs["result"]["orderItem"]>
+export type OrderItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderId" | "garmentType" | "measurements" | "notes" | "referenceImages" | "quantity" | "unitPrice" | "measurementProfileId" | "createdAt" | "updatedAt" | "audience" | "fabric" | "sizeLabel" | "garmentColor" | "designType" | "measurementMethod" | "measurementUnit" | "styleName", ExtArgs["result"]["orderItem"]>
 export type OrderItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   measurementProfile?: boolean | Prisma.OrderItem$measurementProfileArgs<ExtArgs>
@@ -1159,6 +1237,8 @@ export type $OrderItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     audience: $Enums.StyleAudience | null
     fabric: string | null
     sizeLabel: string | null
+    garmentColor: string | null
+    designType: string | null
     measurementMethod: $Enums.MeasurementMethod
     measurementUnit: string
     styleName: string | null
@@ -1601,6 +1681,8 @@ export interface OrderItemFieldRefs {
   readonly audience: Prisma.FieldRef<"OrderItem", 'StyleAudience'>
   readonly fabric: Prisma.FieldRef<"OrderItem", 'String'>
   readonly sizeLabel: Prisma.FieldRef<"OrderItem", 'String'>
+  readonly garmentColor: Prisma.FieldRef<"OrderItem", 'String'>
+  readonly designType: Prisma.FieldRef<"OrderItem", 'String'>
   readonly measurementMethod: Prisma.FieldRef<"OrderItem", 'MeasurementMethod'>
   readonly measurementUnit: Prisma.FieldRef<"OrderItem", 'String'>
   readonly styleName: Prisma.FieldRef<"OrderItem", 'String'>

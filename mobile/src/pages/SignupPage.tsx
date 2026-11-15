@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthButton from '../components/AuthButton';
 import AuthHeader from '../components/AuthHeader';
@@ -83,7 +83,8 @@ export default function SignupPage({ role, onBack, onLogin }: Props) {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}>
-      <ScrollView contentContainerStyle={{ padding: 24, flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 48, flexGrow: 1 }} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" automaticallyAdjustKeyboardInsets>
         <AuthHeader title={`${isTailor ? 'Tailor' : 'Customer'} Registration`} onBack={onBack} />
         <Text style={{ fontSize: 24, fontWeight: '800', color: C.wine }}>Create Your Account</Text>
         <Text style={{ color: C.muted, marginTop: 8, marginBottom: 22 }}>{isTailor ? 'Tell us about yourself and your tailoring business.' : 'Create your customer account to get started.'}</Text>
@@ -120,6 +121,7 @@ export default function SignupPage({ role, onBack, onLogin }: Props) {
           <Text style={{ color: C.wine }}>Already have an account? Login</Text>
         </Pressable>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

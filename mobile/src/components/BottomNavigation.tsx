@@ -10,10 +10,10 @@ type Props = {
 
 const tabs: { key: MainTab; label: string; icon: string }[] = [
   { key: 'home', label: 'Home', icon: '⌂' },
-  { key: 'favorites', label: 'Favorites', icon: '♡' },
-  { key: 'orders', label: 'My Orders', icon: '▤' },
   { key: 'explore', label: 'Explore', icon: '◇' },
+  { key: 'orders', label: 'My Orders', icon: '▤' },
   { key: 'measurements', label: 'Measurements', icon: '↔' },
+  { key: 'profile', label: 'My Profile', icon: '♙' },
 ];
 
 export default function BottomNavigation({ activeTab, onNavigate }: Props) {

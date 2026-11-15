@@ -20,6 +20,7 @@ import { TailorsService } from './tailors.service';
 import { CreateTailorDto } from './dto/create-tailor.dto';
 import { UpdateTailorDto } from './dto/update-tailor.dto';
 import { NearbyTailorsDto } from './dto/nearby-tailors.dto';
+import { SaveTailorLocationDto } from './dto/save-tailor-location.dto';
 
 @Controller('tailors')
 export class TailorsController {
@@ -64,6 +65,13 @@ export class TailorsController {
     @Roles('TAILOR')
     create(@Req() req: any, @Body() dto: CreateTailorDto) {
         return this.tailorsService.create(req.user.sub, dto);
+    }
+
+    @Patch('me/location')
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('TAILOR')
+    saveMyLocation(@Req() req: any, @Body() dto: SaveTailorLocationDto) {
+        return this.tailorsService.saveMyLocation(req.user.sub, dto);
     }
 
     @Patch(':id')

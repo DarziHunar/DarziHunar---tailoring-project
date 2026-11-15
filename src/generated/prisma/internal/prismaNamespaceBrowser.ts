@@ -99,6 +99,7 @@ export const TailorScalarFieldEnum = {
   shopName: 'shopName',
   bio: 'bio',
   categories: 'categories',
+  audiences: 'audiences',
   experienceYears: 'experienceYears',
   specialization: 'specialization',
   verified: 'verified',
@@ -153,6 +154,8 @@ export const OrderItemScalarFieldEnum = {
   audience: 'audience',
   fabric: 'fabric',
   sizeLabel: 'sizeLabel',
+  garmentColor: 'garmentColor',
+  designType: 'designType',
   measurementMethod: 'measurementMethod',
   measurementUnit: 'measurementUnit',
   styleName: 'styleName'

@@ -81,6 +81,8 @@ export class OrdersService {
             audience: item.audience as StyleAudience | undefined,
             fabric: item.fabric?.trim() || null,
             sizeLabel: item.sizeLabel?.trim() || null,
+            garmentColor: item.garmentColor?.trim() || null,
+            designType: item.designType?.trim() || null,
             measurementMethod: (item.measurementMethod || 'MANUAL') as MeasurementMethod,
             measurementUnit: item.measurementUnit || 'cm',
             styleName: item.garmentType.trim(),

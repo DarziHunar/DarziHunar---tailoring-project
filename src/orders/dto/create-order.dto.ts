@@ -23,6 +23,12 @@ export class CreateOrderItemDto {
   @IsOptional() @IsString() @MaxLength(30)
   sizeLabel?: string;
 
+  @IsOptional() @IsString() @MaxLength(40)
+  garmentColor?: string;
+
+  @IsOptional() @IsString() @MaxLength(40)
+  designType?: string;
+
   @IsOptional() @IsIn(MEASUREMENT_METHODS)
   measurementMethod?: string;
 
