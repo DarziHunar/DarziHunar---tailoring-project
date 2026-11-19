@@ -1,5 +1,6 @@
+import { Alert } from '../utils/appAlert';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthHeader from '../components/AuthHeader';
 import { useAuth } from '../context/AuthContext';
@@ -73,7 +74,6 @@ export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
   const [audiences, setAudiences] = useState<Audience[]>([]);
   const [experienceYears, setExperienceYears] = useState('');
   const [specialization, setSpecialization] = useState('');
-  const [startingPrice, setStartingPrice] = useState('');
   const [acceptingOrders, setAcceptingOrders] = useState(true);
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
@@ -96,7 +96,6 @@ export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
       setAudiences(savedAudiences.length ? savedAudiences : inferAudiencesFromSpecialization(result.specialization ?? ''));
       setExperienceYears(result.experienceYears == null ? '' : String(result.experienceYears));
       setSpecialization(result.specialization ?? '');
-      setStartingPrice(String(result.startingPrice ?? 0));
       setAcceptingOrders(result.acceptingOrders ?? true);
       setLatitude(result.latitude ?? null);
       setLongitude(result.longitude ?? null);
@@ -135,13 +134,8 @@ export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
     }
     setAudiences(audiencesToSave);
     const exp = experienceYears.trim() ? Number(experienceYears) : undefined;
-    const price = startingPrice.trim() ? Number(startingPrice) : 0;
     if (exp !== undefined && (!Number.isInteger(exp) || exp < 0 || exp > 80)) {
       Alert.alert('Invalid experience', 'Enter a whole number between 0 and 80.');
-      return;
-    }
-    if (!Number.isFinite(price) || price < 0) {
-      Alert.alert('Invalid starting price', 'Enter a valid non-negative amount.');
       return;
     }
 
@@ -154,7 +148,6 @@ export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
         audiences: audiencesToSave,
         experienceYears: exp,
         specialization: specialization.trim() || undefined,
-        startingPrice: price,
         acceptingOrders,
         ...(latitude !== null && longitude !== null ? { latitude, longitude } : {}),
       };
@@ -174,7 +167,7 @@ export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
       <ScrollView contentContainerStyle={{ padding: 22, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
         <AuthHeader title="Business Profile" onBack={onBack} />
         <Text style={{ color: C.wine, fontSize: 24, fontWeight: '900', marginTop: 10 }}>{profile ? 'Edit your shop details' : 'Set up your shop'}</Text>
-        <Text style={{ color: C.muted, lineHeight: 20, marginTop: 7, marginBottom: 19 }}>These details help customers understand what you make and whether you are accepting new orders.</Text>
+        <Text style={{ color: C.muted, lineHeight: 20, marginTop: 7, marginBottom: 19 }}>These details help customers understand your services, customer groups and availability.</Text>
 
         {loading ? <ActivityIndicator color={C.wine} size="large" style={{ marginTop: 35 }} /> : loadError ? (
           <View style={{ backgroundColor: C.card, borderRadius: 15, padding: 16, borderColor: C.border, borderWidth: 1 }}>
@@ -231,9 +224,6 @@ export default function TailorBusinessProfilePage({ onBack, onSaved }: Props) {
               <Text style={{ color: C.wine, fontWeight: '800' }}>{capturingLocation ? 'Getting location…' : latitude !== null && longitude !== null ? 'Update shop location' : 'Use current shop location'}</Text>
             </Pressable>
             <Text style={{ color: C.muted, fontSize: 11, marginTop: 6 }}>{latitude !== null && longitude !== null ? `Saved coordinates: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}` : 'Your shop will not appear in nearby tailor results until a location is saved.'}</Text>
-
-            <Text style={{ color: C.muted, fontSize: 12, fontWeight: '700', marginTop: 15 }}>STARTING PRICE (₹)</Text>
-            <TextInput value={startingPrice} onChangeText={setStartingPrice} keyboardType="number-pad" placeholder="e.g. 500" placeholderTextColor={C.muted} style={fieldStyle} />
 
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: C.card, borderColor: C.border, borderWidth: 1, borderRadius: 13, padding: 14, marginTop: 17 }}>
               <View style={{ flex: 1, paddingRight: 12 }}>

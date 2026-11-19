@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   UnauthorizedException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -13,6 +14,8 @@ import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -97,8 +100,14 @@ export class AuthService {
         clientId,
       });
       claims = await verifier.verify(idToken) as unknown as Record<string, unknown>;
-    } catch {
-      throw new UnauthorizedException('Cognito ID token is invalid or expired');
+    } catch (error) {
+      // Keep token contents out of logs. The verifier error name/message is useful
+      // for diagnosing a pool, issuer, audience, token-use or expiry mismatch.
+      const detail = error instanceof Error ? `${error.name}: ${error.message}` : 'Unknown verifier error';
+      this.logger.warn(`Cognito ID token verification failed: ${detail}`);
+      throw new UnauthorizedException(
+        'Google authentication could not be verified. Confirm the mobile app and API use the same Cognito User Pool and public app-client ID, then try signing in again.',
+      );
     }
 
     const sub = typeof claims.sub === 'string' ? claims.sub : '';

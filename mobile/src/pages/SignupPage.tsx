@@ -1,5 +1,6 @@
+import { Alert } from '../utils/appAlert';
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthButton from '../components/AuthButton';
 import AuthHeader from '../components/AuthHeader';

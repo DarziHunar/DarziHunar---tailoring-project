@@ -13,6 +13,8 @@ import { MeasurementsModule } from './measurements/measurements.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { StylesModule } from './styles/styles.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { AiModule } from './ai/ai.module';
 
 
 @Module({
@@ -30,6 +32,8 @@ import { StylesModule } from './styles/styles.module';
     PaymentsModule,
     ReviewsModule,
     StylesModule,
+    NotificationsModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

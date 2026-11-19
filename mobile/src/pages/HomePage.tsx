@@ -20,9 +20,10 @@ type Props = {
   onOpenTailor: (tailor: TailorItem) => void;
   onOpenCreation: (creation: CreationItem) => void;
   onNavigateTab: (tab: MainTab) => void;
+  onNotifications: () => void;
 };
 
-export default function HomePage({ displayName, onOpenCategory, onViewAllTailors, onOpenTailor, onOpenCreation, onNavigateTab }: Props) {
+export default function HomePage({ displayName, onOpenCategory, onViewAllTailors, onOpenTailor, onOpenCreation, onNavigateTab, onNotifications }: Props) {
   const [liveTailors, setLiveTailors] = useState<TailorItem[]>([]);
   const [tailorsLoading, setTailorsLoading] = useState(true);
   const [welcomeVisible, setWelcomeVisible] = useState(true);
@@ -48,9 +49,10 @@ export default function HomePage({ displayName, onOpenCategory, onViewAllTailors
             <Text style={s.logo}>DarziHunar<Text style={s.dot}>.</Text></Text>
             <Text style={s.tagline}>YOUR STYLE, PERFECTLY STITCHED</Text>
           </View>
-          <Pressable style={s.bag} onPress={() => setChatVisible(true)} accessibilityLabel="Open DarziHunar assistant">
-            <Text style={s.bagIcon}>✦</Text>
-          </Pressable>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Pressable style={[s.bag, { marginRight: 0 }]} onPress={onNotifications} accessibilityLabel="Open notifications"><Text style={s.bagIcon}>♧</Text></Pressable>
+            <Pressable style={s.bag} onPress={() => setChatVisible(true)} accessibilityLabel="Open DarziHunar assistant"><Text style={s.bagIcon}>✦</Text></Pressable>
+          </View>
         </View>
 
         {welcomeVisible && <View style={[s.hero, { minHeight: 145, marginBottom: 25 }]}>
@@ -78,20 +80,6 @@ export default function HomePage({ displayName, onOpenCategory, onViewAllTailors
         </View>
 
         <View style={s.heading}>
-          <View><Text style={s.title}>Preview Your Design</Text><Text style={s.subtitle}>Explore the craftsmanship</Text></View>
-        </View>
-        <View style={s.features}>
-          <View style={s.feature}>
-            <Image source={{ uri: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500' }} style={s.featureImage} />
-            <Text style={s.featureName}>Custom styling</Text><Text style={s.featureSub}>Choose fabrics and colours</Text>
-          </View>
-          <View style={s.feature}>
-            <Image source={{ uri: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=500' }} style={s.featureImage} />
-            <Text style={s.featureName}>360° garment view</Text><Text style={s.featureSub}>Rotate supported 3D models</Text>
-          </View>
-        </View>
-
-        <View style={s.heading}>
           <View style={{ flex: 1 }}><Text style={s.title}>Tailor Masters</Text><Text style={s.subtitle}>Meet the hands behind the craft</Text></View>
           <Pressable onPress={onViewAllTailors}><Text style={s.viewAll}>View all ↗</Text></Pressable>
         </View>
@@ -113,7 +101,7 @@ export default function HomePage({ displayName, onOpenCategory, onViewAllTailors
           {creations.map((item, index) => (
             <View key={`${item.name}-${index}`} style={s.creation}>
               <Pressable onPress={() => onOpenCreation(item)} accessibilityLabel={`View ${item.name}`}><Image source={{ uri: item.image }} style={s.creationImage} resizeMode="cover" /></Pressable>
-              <Text style={s.creationName}>{item.name}</Text><Text style={s.creationHint}>{item.category} · {item.price}</Text>
+              <Text style={s.creationName}>{item.name}</Text><Text style={s.creationHint}>{item.category}</Text>
               <Pressable style={s.detailsButton} onPress={() => onOpenCreation(item)}><Text style={s.detailsButtonText}>Details →</Text></Pressable>
             </View>
           ))}

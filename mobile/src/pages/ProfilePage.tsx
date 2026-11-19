@@ -1,15 +1,7 @@
+import { Alert } from '../utils/appAlert';
 import React, { useEffect, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthButton from '../components/AuthButton';
 import AuthHeader from '../components/AuthHeader';
@@ -199,7 +191,7 @@ export default function ProfilePage({ onBack, onEditBusiness, onNavigate }: Prop
         {user?.role === 'TAILOR' && onEditBusiness && (
           <Pressable onPress={onEditBusiness} style={{ backgroundColor: C.card, borderWidth: 1, borderColor: C.border, borderRadius: 16, padding: 17, marginTop: 14 }}>
             <Text style={{ color: C.wine, fontSize: 16, fontWeight: '800' }}>Business profile</Text>
-            <Text style={{ color: C.muted, marginTop: 5 }}>Edit your shop details, specializations, categories and starting price.</Text>
+            <Text style={{ color: C.muted, marginTop: 5 }}>Edit your shop details, services, customer groups and availability.</Text>
             <Text style={{ color: C.wine, fontWeight: '700', marginTop: 10 }}>Manage business profile →</Text>
           </Pressable>
         )}

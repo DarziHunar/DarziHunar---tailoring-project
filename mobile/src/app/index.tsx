@@ -20,6 +20,9 @@ import type { TailorProfile } from '../services/tailorService';
 import { CustomerStylesPage, CustomerTailorsPage, CustomerTailorDetailPage, CustomerOrderDetailsPage } from '../pages/CustomerOrderPages';
 import type { Audience, GarmentStyle } from '../services/stylesService';
 import { C } from '../theme/colors';
+import NotificationsPage from '../pages/NotificationsPage';
+import AdminDashboardPage from '../pages/AdminDashboardPage';
+import { AppAlertProvider } from '../utils/appAlert';
 
 type PublicPage = 'welcome' | 'login' | 'signup-role' | 'signup';
 type Category = (typeof categories)[number];
@@ -44,7 +47,9 @@ type AppRoute =
   | { name: 'explore' }
   | { name: 'measurements' }
   | { name: 'search'; query: string }
-  | { name: 'location' };
+  | { name: 'location' }
+  | { name: 'notifications' }
+  | { name: 'admin' };
 
 function AppNavigator() {
   const { user, isLoading, signOut } = useAuth();
@@ -56,7 +61,7 @@ function AppNavigator() {
 
   useEffect(() => {
     if (user) {
-      setRoutes([{ name: user.role === 'TAILOR' ? 'tailor-home' : 'home' }]);
+      setRoutes([{ name: user.role === 'ADMIN' ? 'admin' : user.role === 'TAILOR' ? 'tailor-home' : 'home' }]);
     } else {
       setPublicPage('welcome');
       setRoutes([{ name: 'home' }]);
@@ -65,7 +70,7 @@ function AppNavigator() {
 
   const push = (next: AppRoute) => setRoutes((current) => [...current, next]);
   const goBack = () => setRoutes((current) => current.length > 1 ? current.slice(0, -1) : current);
-  const goRoot = () => setRoutes([{ name: user?.role === 'TAILOR' ? 'tailor-home' : 'home' }]);
+  const goRoot = () => setRoutes([{ name: user?.role === 'ADMIN' ? 'admin' : user?.role === 'TAILOR' ? 'tailor-home' : 'home' }]);
 
   const navigateTab = (tab: MainTab) => {
     const nextRoutes: Record<MainTab, AppRoute> = {
@@ -112,8 +117,10 @@ function AppNavigator() {
     return <WelcomePage onLogin={() => setPublicPage('login')} onSignup={() => setPublicPage('signup-role')} />;
   }
 
+  if (route.name === 'admin') return <AdminDashboardPage onNotifications={() => push({ name: 'notifications' })} onSignOut={() => { void signOut(); }} />;
+  if (route.name === 'notifications') return <NotificationsPage onBack={goBack} />;
   if (route.name === 'tailor-home') {
-    return <TailorDashboardPage onProfile={() => push({ name: 'profile' })} onBusinessProfile={() => push({ name: 'tailor-business' })} onOrders={() => push({ name: 'tailor-orders' })} onSignOut={() => { void signOut(); }} />;
+    return <TailorDashboardPage onProfile={() => push({ name: 'profile' })} onBusinessProfile={() => push({ name: 'tailor-business' })} onOrders={() => push({ name: 'tailor-orders' })} onNotifications={() => push({ name: 'notifications' })} onSignOut={() => { void signOut(); }} />;
   }
   if (route.name === 'tailor-business') return <TailorBusinessProfilePage onBack={goBack} onSaved={goBack} />;
   if (route.name === 'tailor-orders') return <TailorOrdersPage onBack={goBack} />;
@@ -126,6 +133,7 @@ function AppNavigator() {
     onOpenTailor={(tailor) => push({ name: 'tailor-detail', tailor })}
     onOpenCreation={(creation) => push({ name: 'creation', creation })}
     onNavigateTab={navigateTab}
+    onNotifications={() => push({ name: 'notifications' })}
   />;
   if (route.name === 'customer-styles') return <CustomerStylesPage audience={route.audience} onBack={goBack} onNavigate={navigateTab} onSelect={(style) => push({ name: 'customer-tailors', audience: route.audience, style })} />;
   if (route.name === 'customer-tailors') return <CustomerTailorsPage audience={route.audience} style={route.style} onBack={goBack} onNavigate={navigateTab} onSelect={(tailor) => push({ name: 'customer-tailor-detail', audience: route.audience, style: route.style, tailor })} />;
@@ -135,7 +143,7 @@ function AppNavigator() {
   if (route.name === 'category-tailors') return <BackendTailorsPage category={route.category} onBack={goBack} onSelect={(tailor) => push({ name: 'tailor-detail', tailor })} onNavigate={navigateTab} />;
   if (route.name === 'tailors') return <BackendAllTailorsPage onBack={goBack} onSelect={(tailor) => push({ name: 'tailor-detail', tailor })} onNavigate={navigateTab} />;
   if (route.name === 'tailor-detail') return <BackendTailorDetailPage tailor={route.tailor} onBack={goBack} onNavigate={navigateTab} />;
-  if (route.name === 'creation') return <CreationDetailPage creation={route.creation} onBack={goBack} onFindTailor={() => push({ name: 'tailors' })} onNavigate={navigateTab} />;
+  if (route.name === 'creation') return <CreationDetailPage creation={route.creation} onBack={goBack} onFindTailor={() => push({ name: 'customer-styles', audience: route.creation.category.toUpperCase() as Audience })} onNavigate={navigateTab} />;
   if (route.name === 'favorites') return <FavoritesPage onBack={goBack} onNavigate={navigateTab} />;
   if (route.name === 'orders') return <OrdersPage onBack={goBack} onNavigate={navigateTab} />;
   if (route.name === 'measurements') return <MeasurementsPage onBack={goBack} onNavigate={navigateTab} />;
@@ -161,5 +169,5 @@ function AppNavigator() {
 }
 
 export default function App() {
-  return <SafeAreaProvider><AuthProvider><AppNavigator /></AuthProvider></SafeAreaProvider>;
+  return <SafeAreaProvider><AppAlertProvider><AuthProvider><AppNavigator /></AuthProvider></AppAlertProvider></SafeAreaProvider>;
 }

@@ -14,6 +14,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { SetOrderQuoteDto } from './dto/set-order-quote-dto';
 
 @Controller('orders')
 @UseGuards(AuthGuard)
@@ -25,6 +26,15 @@ export class OrdersController {
     @Post()
     create(@Req() req: any, @Body() dto: CreateOrderDto) {
         return this.ordersService.create(req.user, dto);
+    }
+
+    @Patch(':id/quote')
+    setQuote(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: SetOrderQuoteDto,
+        @Req() req: any,
+    ) {
+        return this.ordersService.setQuote(id, dto, req.user);
     }
 
     @Get()

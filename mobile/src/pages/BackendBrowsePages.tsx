@@ -76,7 +76,6 @@ export function BackendAllTailorsPage({ onBack, onSelect, onNavigate }: { onBack
           <Text style={{ color: C.text, fontSize: 15, fontWeight: '900' }}>{tailor.shopName}</Text>
           {!!tailor.user?.fullName && <Text style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>By {tailor.user.fullName}</Text>}
           <Text style={{ color: C.wine, fontSize: 11, marginTop: 5 }}>★ {Number(tailor.rating || 0).toFixed(1)} · {tailor.verified ? 'Verified' : 'New tailor'}</Text>
-          <Text style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>From ₹{Number(tailor.startingPrice || 0).toLocaleString('en-IN')}</Text>
         </View>
         <Text style={{ color: C.wine, fontSize: 24 }}>›</Text>
       </Pressable>
@@ -104,7 +103,6 @@ export function BackendTailorsPage({ category, onBack, onSelect, onNavigate }: {
           <Text style={{ color: C.text, fontSize: 15, fontWeight: '900' }}>{tailor.shopName}</Text>
           {!!tailor.user?.fullName && <Text style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>By {tailor.user.fullName}</Text>}
           <Text style={{ color: C.wine, fontSize: 11, marginTop: 5 }}>★ {Number(tailor.rating || 0).toFixed(1)} · {tailor.verified ? 'Verified' : 'New tailor'}</Text>
-          <Text style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>Starting at ₹{Number(tailor.startingPrice || 0).toLocaleString('en-IN')}</Text>
         </View>
         <Text style={{ color: C.wine, fontSize: 24 }}>›</Text>
       </Pressable>
@@ -137,8 +135,7 @@ export function BackendTailorDetailPage({ tailor, onBack, onNavigate }: { tailor
     <Text style={{ color: C.text, fontSize: 18, fontWeight: '900', marginTop: 20, marginBottom: 9 }}>Services</Text>
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{(details.categories || []).map((item) => <View key={item} style={{ backgroundColor: C.cream, borderRadius: 20, paddingVertical: 8, paddingHorizontal: 12 }}><Text style={{ color: C.wine, fontSize: 12, fontWeight: '700' }}>{item}</Text></View>)}</View>
     <View style={{ backgroundColor: C.card, borderColor: C.border, borderWidth: 1, borderRadius: 16, padding: 16, marginTop: 18 }}>
-      <Text style={{ color: C.muted, fontSize: 12 }}>Starting price</Text><Text style={{ color: C.wine, fontSize: 22, fontWeight: '900', marginTop: 4 }}>₹{Number(details.startingPrice || 0).toLocaleString('en-IN')}</Text>
-      <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>Experience</Text><Text style={{ color: C.text, fontWeight: '700', marginTop: 4 }}>{details.experienceYears != null ? `${details.experienceYears} years` : 'Not provided'}</Text>
+      <Text style={{ color: C.muted, fontSize: 12 }}>Experience</Text><Text style={{ color: C.text, fontWeight: '700', marginTop: 4 }}>{details.experienceYears != null ? `${details.experienceYears} years` : 'Not provided'}</Text>
       <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>Specialization</Text><Text style={{ color: C.text, fontWeight: '700', marginTop: 4 }}>{details.specialization || 'General tailoring'}</Text>
     </View>
   </Frame>;

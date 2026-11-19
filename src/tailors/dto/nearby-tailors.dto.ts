@@ -26,10 +26,6 @@ export class NearbyTailorsDto {
   minRating?: string;
 
   @IsOptional()
-  @IsString()
-  priceRange?: string;
-
-  @IsOptional()
   @IsBooleanString()
   verified?: string;
 
@@ -46,6 +42,6 @@ export class NearbyTailorsDto {
   offset?: string;
 
   @IsOptional()
-  @IsIn(['nearest', 'rating', 'price'])
-  sort?: 'nearest' | 'rating' | 'price';
+  @IsIn(['nearest', 'rating'])
+  sort?: 'nearest' | 'rating';
 }

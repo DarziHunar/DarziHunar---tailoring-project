@@ -101,7 +101,7 @@ export class TailorsService {
                 ${dto.specialization?.trim() ?? null},
                 false,
                 0,
-                ${dto.startingPrice ?? 0},
+                0,
                 ${dto.acceptingOrders ?? true},
                 CURRENT_TIMESTAMP,
                 CURRENT_TIMESTAMP
@@ -263,7 +263,6 @@ export class TailorsService {
             specialization: string | null;
             verified: boolean;
             rating: number;
-            startingPrice: number;
             acceptingOrders: boolean;
             createdAt: Date;
             updatedAt: Date;
@@ -281,7 +280,6 @@ export class TailorsService {
                 specialization,
                 verified,
                 rating,
-                "startingPrice",
                 "acceptingOrders",
                 "createdAt",
                 "updatedAt"
@@ -345,7 +343,6 @@ export class TailorsService {
                 specialization: true,
                 verified: true,
                 rating: true,
-                startingPrice: true,
                 acceptingOrders: true,
                 createdAt: true,
                 updatedAt: true,
@@ -382,7 +379,6 @@ export class TailorsService {
                 specialization: true,
                 verified: true,
                 rating: true,
-                startingPrice: true,
                 acceptingOrders: true,
                 createdAt: true,
                 updatedAt: true,
@@ -438,32 +434,6 @@ export class TailorsService {
         }
         const offset = Math.trunc(requestedOffset);
 
-        let minPrice: number | undefined;
-        let maxPrice: number | undefined;
-
-        if (dto.priceRange) {
-            const parts = dto.priceRange.split('-');
-            if (parts.length !== 2) {
-                throw new BadRequestException(
-                    'priceRange must be in format min-max',
-                );
-            }
-
-            minPrice = Number(parts[0]);
-            maxPrice = Number(parts[1]);
-
-            if (
-                !Number.isFinite(minPrice) ||
-                !Number.isFinite(maxPrice) ||
-                minPrice < 0 ||
-                maxPrice < minPrice
-            ) {
-                throw new BadRequestException(
-                    'Invalid priceRange. Example: 500-2000',
-                );
-            }
-        }
-
         const verified = dto.verified !== undefined
             ? dto.verified === 'true'
             : undefined;
@@ -477,7 +447,6 @@ export class TailorsService {
 
         let audienceCondition = Prisma.empty;
         let ratingCondition = Prisma.empty;
-        let priceCondition = Prisma.empty;
         let verifiedCondition = Prisma.empty;
 
         if (audience) {
@@ -489,12 +458,6 @@ export class TailorsService {
         if (minRating !== undefined) {
             ratingCondition = Prisma.sql`
                 AND t."rating" >= ${minRating}
-            `;
-        }
-
-        if (minPrice !== undefined && maxPrice !== undefined) {
-            priceCondition = Prisma.sql`
-                AND t."startingPrice" BETWEEN ${minPrice} AND ${maxPrice}
             `;
         }
 
@@ -511,11 +474,7 @@ export class TailorsService {
                 "rating" DESC,
                 distance_meters ASC
             `;
-        } else if (dto.sort === 'price') {
-            orderBy = Prisma.sql`
-                "startingPrice" ASC,
-                distance_meters ASC
-            `;
+
         }
 
         const result = await this.prisma.$queryRaw<Array<{
@@ -532,7 +491,6 @@ export class TailorsService {
             specialization: string | null;
             verified: boolean;
             rating: number;
-            startingPrice: number;
             acceptingOrders: boolean;
             distance_meters: number;
             total_count: number;
@@ -554,7 +512,6 @@ export class TailorsService {
                     t.specialization,
                     t.verified,
                     t.rating,
-                    t."startingPrice",
                     t."acceptingOrders",
                     ST_Distance(
                         t.location,
@@ -579,7 +536,6 @@ export class TailorsService {
                     )
                     ${audienceCondition}
                     ${ratingCondition}
-                    ${priceCondition}
                     ${verifiedCondition}
             )
             SELECT
@@ -608,7 +564,6 @@ export class TailorsService {
                 specialization: tailor.specialization,
                 verified: tailor.verified,
                 rating: tailor.rating,
-                startingPrice: tailor.startingPrice,
                 acceptingOrders: tailor.acceptingOrders,
                 distanceMeters: Math.round(tailor.distance_meters),
                 createdAt: tailor.createdAt,
@@ -729,6 +684,21 @@ export class TailorsService {
             message: 'Tailor profile deleted successfully',
             tailorId,
         };
+    }
+
+
+    async adminUpdateModeration(tailorId: number, values: { verified?: boolean; acceptingOrders?: boolean }) {
+        const existing = await this.prisma.tailor.findUnique({ where: { id: tailorId }, select: { id: true } });
+        if (!existing) throw new NotFoundException('Tailor profile not found');
+        const data: { verified?: boolean; acceptingOrders?: boolean } = {};
+        if (values.verified !== undefined) data.verified = values.verified;
+        if (values.acceptingOrders !== undefined) data.acceptingOrders = values.acceptingOrders;
+        if (Object.keys(data).length === 0) throw new BadRequestException('Provide verified and/or acceptingOrders');
+        return this.prisma.tailor.update({
+            where: { id: tailorId },
+            data,
+            include: { user: { select: { id: true, fullName: true, email: true, role: true } } },
+        });
     }
 
     async adminRemove(tailorId: number) {

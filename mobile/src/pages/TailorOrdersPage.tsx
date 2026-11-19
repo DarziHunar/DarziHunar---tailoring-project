@@ -1,15 +1,18 @@
+import { Alert } from '../utils/appAlert';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthHeader from '../components/AuthHeader';
 import { useAuth } from '../context/AuthContext';
 import { apiRequest } from '../services/api';
+import { ordersService } from '../services/ordersService';
 import { C } from '../theme/colors';
 
 type OrderRecord = {
   id: number;
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'IN_PROGRESS' | 'READY' | 'COMPLETED' | 'CANCELLED';
   totalAmount: number;
+  payments?: Array<{ status: string }>;
   createdAt: string;
   deliveryDetails?: {
     fullName?: string;
@@ -26,7 +29,6 @@ type OrderRecord = {
     quantity: number;
     fabric?: string | null;
     sizeLabel?: string | null;
-    color?: string | null;
     designType?: string | null;
     measurementUnit?: string;
     measurements?: Record<string, number>;
@@ -37,7 +39,7 @@ type OrderRecord = {
 
 type Props = { onBack: () => void };
 const transitions: Partial<Record<OrderRecord['status'], Array<{ label: string; status: OrderRecord['status'] }>>> = {
-  PENDING: [{ label: 'Accept', status: 'ACCEPTED' }, { label: 'Reject', status: 'REJECTED' }],
+  PENDING: [{ label: 'Reject', status: 'REJECTED' }],
   ACCEPTED: [{ label: 'Start work', status: 'IN_PROGRESS' }],
   IN_PROGRESS: [{ label: 'Mark ready', status: 'READY' }],
   READY: [{ label: 'Resume work', status: 'IN_PROGRESS' }],
@@ -49,6 +51,7 @@ export default function TailorOrdersPage({ onBack }: Props) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [quoteValues, setQuoteValues] = useState<Record<number, string>>({});
 
   const load = useCallback(async () => {
     if (!accessToken) return;
@@ -73,6 +76,26 @@ export default function TailorOrdersPage({ onBack }: Props) {
       await load();
     } catch (error) {
       Alert.alert('Could not update order', error instanceof Error ? error.message : 'Please try again.');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const submitQuote = async (orderId: number) => {
+    if (!accessToken) return;
+    const amount = Number(quoteValues[orderId]);
+    if (!Number.isSafeInteger(amount) || amount <= 0 || amount > 10000000) {
+      Alert.alert('Enter a valid quote', 'Enter the final order amount in whole rupees, between ₹1 and ₹1,00,00,000.');
+      return;
+    }
+    setUpdatingId(orderId);
+    try {
+      await ordersService.setQuote(orderId, amount, accessToken);
+      setQuoteValues((current) => { const next = { ...current }; delete next[orderId]; return next; });
+      await load();
+      Alert.alert('Quote sent', 'The order has been accepted. The customer can now review the quote and pay securely with Razorpay.');
+    } catch (error) {
+      Alert.alert('Could not send quote', error instanceof Error ? error.message : 'Please try again.');
     } finally {
       setUpdatingId(null);
     }
@@ -105,14 +128,26 @@ export default function TailorOrdersPage({ onBack }: Props) {
             {order.items?.map((item) => (
               <View key={item.id} style={{ backgroundColor: C.cream, borderRadius: 12, padding: 11, marginTop: 9 }}>
                 <Text style={{ color: C.wine, fontWeight: '900', fontSize: 13 }}>{item.garmentType} × {item.quantity}</Text>
-                <Text style={{ color: C.text, fontSize: 12, marginTop: 5 }}>Fabric: {item.fabric || 'Not specified'} · Colour: {item.color || 'Not specified'}</Text>
+                <Text style={{ color: C.text, fontSize: 12, marginTop: 5 }}>Fabric: {item.fabric || 'Not specified'}</Text>
                 <Text style={{ color: C.text, fontSize: 12, marginTop: 3 }}>Design: {item.designType || 'Not specified'} · Fit: {item.sizeLabel || 'Made to measure'}</Text>
                 {!!item.measurements && <Text style={{ color: C.muted, fontSize: 11, lineHeight: 17, marginTop: 5 }}>Measurements ({item.measurementUnit || 'cm'}): {Object.entries(item.measurements).map(([key, value]) => `${key}: ${value}`).join(' · ')}</Text>}
                 {!!item.notes && <Text style={{ color: C.text, fontSize: 12, lineHeight: 18, marginTop: 6 }}>Notes: {item.notes}</Text>}
               </View>
             ))}
-            <Text style={{ color: C.wine, fontSize: 16, fontWeight: '900', marginTop: 9 }}>₹{Number(order.totalAmount).toLocaleString('en-IN')}</Text>
-            {!!transitions[order.status]?.length && (
+            {order.status === 'PENDING' && Number(order.totalAmount) <= 0 && (
+              <View style={{ backgroundColor: C.cream, borderRadius: 12, padding: 12, marginTop: 12 }}>
+                <Text style={{ color: C.wine, fontWeight: '900', fontSize: 13 }}>Send your final quote</Text>
+                <Text style={{ color: C.muted, fontSize: 11, lineHeight: 17, marginTop: 4 }}>Review the measurements and instructions, then enter the total amount for this order. The customer can pay after you send it.</Text>
+                <TextInput value={quoteValues[order.id] || ''} onChangeText={(value) => setQuoteValues((current) => ({ ...current, [order.id]: value.replace(/[^0-9]/g, '') }))} keyboardType="number-pad" placeholder="Final quote in ₹" placeholderTextColor={C.muted} style={{ borderWidth: 1, borderColor: C.border, borderRadius: 10, backgroundColor: '#FFFFFF', color: C.text, paddingHorizontal: 12, paddingVertical: 11, marginTop: 10 }} />
+                <Pressable disabled={updatingId === order.id} onPress={() => { void submitQuote(order.id); }} style={{ backgroundColor: C.wine, borderRadius: 10, padding: 12, alignItems: 'center', marginTop: 9, opacity: updatingId === order.id ? 0.6 : 1 }}>
+                  <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{updatingId === order.id ? 'Sending quote…' : 'Send quote & accept order'}</Text>
+                </Pressable>
+              </View>
+            )}
+            {order.status === 'ACCEPTED' && !order.payments?.some((payment) => payment.status === 'SUCCESS') && (
+              <Text style={{ color: '#A66A16', fontSize: 12, marginTop: 11 }}>Quote sent · Waiting for customer payment before work can begin.</Text>
+            )}
+            {!!transitions[order.status]?.length && (order.status !== 'ACCEPTED' || order.payments?.some((payment) => payment.status === 'SUCCESS')) && (
               <View style={{ flexDirection: 'row', gap: 9, marginTop: 14 }}>
                 {transitions[order.status]?.map((action) => (
                   <Pressable key={action.status} disabled={updatingId === order.id} onPress={() => { void updateStatus(order.id, action.status); }} style={{ flex: 1, backgroundColor: action.status === 'REJECTED' ? '#FCE9E7' : C.wine, borderRadius: 11, padding: 12, alignItems: 'center', opacity: updatingId === order.id ? 0.55 : 1 }}>

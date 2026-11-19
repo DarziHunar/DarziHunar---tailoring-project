@@ -1,21 +1,18 @@
+import { showLocalNotification } from '../utils/localNotification';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator, Alert, Pressable, ScrollView, Text, TextInput, View,
+  ActivityIndicator, Modal, Pressable, ScrollView, Text, TextInput, View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import SelectField from '../components/SelectField';
-import Garment360Viewer from '../components/Garment360Viewer';
-import NearbyTailorsMap from '../components/NearbyTailorsMap';
-import { getCurrentCoordinates, type Coordinates } from '../services/locationService';
+import { getCurrentCoordinates } from '../services/locationService';
 import BottomNavigation from '../components/BottomNavigation';
 import { useAuth } from '../context/AuthContext';
 import { mediaService } from '../services/mediaService';
 import { ordersService } from '../services/ordersService';
-import { paymentsService } from '../services/paymentsService';
 import { measurementsService, type MeasurementProfile } from '../services/measurementsService';
-import RazorpayCheckout from 'react-native-razorpay';
 import { stylesService, type Audience, type GarmentStyle } from '../services/stylesService';
 import { tailorService, type TailorProfile } from '../services/tailorService';
 import { C } from '../theme/colors';
@@ -48,13 +45,11 @@ const audienceLabel: Record<Audience, string> = {
   WOMEN: 'Women', MEN: 'Men', TEENAGERS: 'Teenagers', CHILDREN: 'Children',
 };
 
-const garmentColours = [
-  { name: 'Wine', hex: '#65263A' }, { name: 'Black', hex: '#171717' },
-  { name: 'Navy', hex: '#1D3557' }, { name: 'Emerald', hex: '#13745A' },
-  { name: 'Maroon', hex: '#850A30' }, { name: 'Beige', hex: '#D8C3A5' },
-  { name: 'White', hex: '#F7F5EF' }, { name: 'Mustard', hex: '#C99B1C' },
+const designTypes = [
+  'Classic', 'Modern', 'Traditional', 'Contemporary', 'Minimal', 'Embroidered',
+  'Printed', 'Floral', 'A-line', 'Straight cut', 'Anarkali', 'Fusion',
+  'Casual', 'Formal', 'Festive', 'Bridal / Occasion', 'Party wear', 'Layered', 'Pleated',
 ];
-const designTypes = ['Classic', 'Modern', 'Embroidered', 'Minimal'];
 const fabricOptions = ['Cotton', 'Linen', 'Silk', 'Rayon', 'Georgette', 'Chiffon', 'Velvet', 'Denim', 'Wool', 'Other'];
 const sizeFitOptions = ['Made to measure', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'Slim fit', 'Regular fit', 'Relaxed fit', 'Other / Custom'];
 
@@ -81,7 +76,6 @@ export function CustomerStylesPage({ audience, onBack, onNavigate, onSelect }: P
 
 export function CustomerTailorsPage({ audience, style, onBack, onNavigate, onSelect }: PageProps & { audience: Audience; style: GarmentStyle; onSelect: (tailor: TailorProfile) => void }) {
   const [tailors, setTailors] = useState<TailorProfile[]>([]);
-  const [center, setCenter] = useState<Coordinates | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -90,7 +84,6 @@ export function CustomerTailorsPage({ audience, style, onBack, onNavigate, onSel
     setError('');
     try {
       const coordinates = await getCurrentCoordinates();
-      setCenter(coordinates);
       const response = await tailorService.findNearby(coordinates.latitude, coordinates.longitude, 4000, audience);
       // Category eligibility is enforced by the backend against Tailor.audiences.
       setTailors(response.data.filter((tailor) => tailor.acceptingOrders));
@@ -111,17 +104,8 @@ export function CustomerTailorsPage({ audience, style, onBack, onNavigate, onSel
         {(['WOMEN', 'MEN', 'TEENAGERS', 'CHILDREN'] as Audience[]).map((item) => <View key={item} style={{ borderRadius: 20, paddingHorizontal: 11, paddingVertical: 7, backgroundColor: item === audience ? C.wine : C.cream }}><Text style={{ color: item === audience ? '#FFFFFF' : C.wine, fontSize: 11, fontWeight: '800' }}>{audienceLabel[item]}</Text></View>)}
       </View>
       <Text style={{ color: C.muted, fontSize: 11, marginTop: 9 }}>Showing accepting tailors within 4 km who have selected the {audienceLabel[audience]} audience in their business profile.</Text>
-      <Pressable onPress={() => { void loadNearby(); }} style={{ alignSelf: 'flex-start', marginTop: 11, paddingHorizontal: 13, paddingVertical: 9, borderRadius: 20, backgroundColor: C.cream }}><Text style={{ color: C.wine, fontWeight: '800', fontSize: 12 }}>Refresh my location</Text></Pressable>
+      <Pressable onPress={() => { void loadNearby(); }} style={{ alignSelf: 'flex-start', marginTop: 11, paddingHorizontal: 13, paddingVertical: 9, borderRadius: 20, backgroundColor: C.cream }}><Text style={{ color: C.wine, fontWeight: '800', fontSize: 12 }}>Refresh nearby tailors</Text></Pressable>
     </Card>
-    {/* Mapbox nearby tailor map */}
-    {center !== null && (
-      <NearbyTailorsMap
-        center={center}
-        tailors={tailors}
-        onSelect={onSelect}
-      />
-    )}
-
     {/* Loading indicator */}
     {loading ? (
       <ActivityIndicator
@@ -197,8 +181,7 @@ export function CustomerTailorsPage({ audience, style, onBack, onNavigate, onSel
               {tailor.distanceMeters != null
                 ? `${(tailor.distanceMeters / 1000).toFixed(1)} km away`
                 : 'Nearby'}
-              {' · '}
-              From ₹{Number(tailor.startingPrice || 0).toLocaleString('en-IN')}
+
             </Text>
           </View>
 
@@ -220,7 +203,6 @@ export function CustomerTailorDetailPage({ audience, style, tailor, onBack, onNa
       </View>
       {!!tailor.specialization && <Text style={{ color: C.muted, marginTop: 9 }}>{tailor.specialization}</Text>}
       <Text style={{ color: C.text, fontWeight: '900', marginTop: 15 }}>Order category</Text><Text style={{ color: C.wine, fontWeight: '800', marginTop: 5 }}>{audienceLabel[audience]} · {style.name}</Text>
-      <Text style={{ color: C.text, fontWeight: '900', marginTop: 15 }}>Starting price</Text><Text style={{ color: C.wine, fontWeight: '900', fontSize: 20, marginTop: 5 }}>₹{Number(tailor.startingPrice || 0).toLocaleString('en-IN')}</Text>
       {!!tailor.bio && <Text style={{ color: C.muted, lineHeight: 20, marginTop: 14 }}>{tailor.bio}</Text>}
     </Card>
     <ActionButton title="Continue to fabric & measurements" onPress={onContinue} />
@@ -238,7 +220,6 @@ export function CustomerOrderDetailsPage({ audience, style, tailor, onBack, onNa
   const [customFabric, setCustomFabric] = useState('');
   const [sizeLabel, setSizeLabel] = useState('Made to measure');
   const [customSizeLabel, setCustomSizeLabel] = useState('');
-  const [garmentColor, setGarmentColor] = useState(garmentColours[0]);
   const [designType, setDesignType] = useState('Classic');
   const [resolvingAddress, setResolvingAddress] = useState(false);
   const [selectedMeasurementProfileId, setSelectedMeasurementProfileId] = useState<number | null>(null);
@@ -251,7 +232,7 @@ export function CustomerOrderDetailsPage({ audience, style, tailor, onBack, onNa
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [pendingOrderId, setPendingOrderId] = useState<number | null>(null);
+  const [dialog, setDialog] = useState<{ kind: 'confirm' | 'success' | 'error' | 'info'; title: string; message: string; orderId?: number } | null>(null);
   const [savedMeasurementProfiles, setSavedMeasurementProfiles] = useState<MeasurementProfile[]>([]);
   const measurementRecord = useMemo(() => Object.fromEntries(style.measurementFields.map((field) => [field.key, Number(measurementValues[field.key])])), [measurementValues, style.measurementFields]);
   const matchingMeasurementProfiles = savedMeasurementProfiles.filter((profile) => profile.garmentType === style.garmentType);
@@ -275,9 +256,9 @@ export function CustomerOrderDetailsPage({ audience, style, tailor, onBack, onNa
         postalCode: current.postalCode.trim() ? current.postalCode : (result.postalCode || ''),
         country: current.country.trim() ? current.country : (result.country || 'India'),
       }));
-      Alert.alert('Address suggested', 'We filled the address using your current coordinates. Please verify the house number, street and PIN code and correct anything that is inaccurate.');
+      setDialog({ kind: 'info', title: 'Address suggested', message: 'We filled the address using your current location. Please verify the house number, street and PIN code before sending your request.' });
     } catch (error) {
-      Alert.alert('Could not get delivery address', error instanceof Error ? error.message : 'Please enter your address manually.');
+      setDialog({ kind: 'error', title: 'Could not get delivery address', message: error instanceof Error ? error.message : 'Please enter your address manually.' });
     } finally { setResolvingAddress(false); }
   };
 
@@ -316,7 +297,7 @@ export function CustomerOrderDetailsPage({ audience, style, tailor, onBack, onNa
     setSelectedMeasurementProfileId(profile.id);
     const missing = style.measurementFields.filter((field) => profile.measurements[field.key] === undefined);
     if (missing.length) {
-      Alert.alert('Profile does not match this style', `This saved profile is missing: ${missing.map((field) => field.label).join(', ')}. You can fill those fields manually.`);
+      setDialog({ kind: 'info', title: 'Measurement profile needs review', message: `This saved profile is missing: ${missing.map((field) => field.label).join(', ')}. Fill those fields manually before sending the request.` });
     }
     setMeasurementValues((current) => ({
       ...current,
@@ -331,7 +312,7 @@ export function CustomerOrderDetailsPage({ audience, style, tailor, onBack, onNa
     if (!accessToken) return;
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Camera permission required', 'Allow camera access to take a reference photo for your tailor.');
+      setDialog({ kind: 'error', title: 'Camera permission required', message: 'Allow camera access to take a reference photo for your tailor, or continue with manual measurements.' });
       return;
     }
     const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.75, allowsEditing: false });
@@ -341,160 +322,135 @@ export function CustomerOrderDetailsPage({ audience, style, tailor, onBack, onNa
       const key = await mediaService.uploadOrderReference(result.assets[0], accessToken);
       setReferenceImages((current) => [...current, key]);
       setMethod('CAMERA_ASSISTED');
-      Alert.alert('Reference photo saved', 'The photo will be attached to your order. Please still enter and verify your body measurements manually.');
+      setDialog({ kind: 'info', title: 'Reference photo saved', message: 'The photo will be attached to your request. Please still enter and verify your body measurements manually.' });
     } catch (error) {
-      Alert.alert('Photo upload failed', error instanceof Error ? error.message : 'Please try again.');
+      setDialog({ kind: 'error', title: 'Photo upload failed', message: error instanceof Error ? error.message : 'Please try again.' });
     } finally {
       setUploadingPhoto(false);
     }
   };
 
-  const submitOrder = async () => {
+  const submitOrder = () => {
     if (!accessToken) return;
     if (!delivery.fullName.trim() || !/^\+?[0-9][0-9\s-]{7,15}$/.test(delivery.phone.trim()) || !delivery.addressLine1.trim() || !delivery.city.trim() || !delivery.state.trim() || !/^[A-Za-z0-9 -]{3,12}$/.test(delivery.postalCode.trim())) {
-      Alert.alert('Delivery details required', 'Enter a valid name, phone number, street address, city, state and PIN/postal code.');
+      setDialog({ kind: 'error', title: 'Delivery details needed', message: 'Please add a valid name, phone number and complete delivery address so the tailor can review your request.' });
       return;
     }
-    if (!effectiveFabric) { Alert.alert('Fabric required', 'Choose a fabric. If you selected Other, enter the fabric name.'); return; }
-    if (!effectiveSizeLabel) { Alert.alert('Size required', 'Choose a size/fit or enter a custom value.'); return; }
+    if (!effectiveFabric) { setDialog({ kind: 'error', title: 'Choose a fabric', message: 'Select a fabric or enter the fabric name under Other.' }); return; }
+    if (!effectiveSizeLabel) { setDialog({ kind: 'error', title: 'Choose a size or fit', message: 'Select a size/fit or enter your custom details.' }); return; }
     const missing = style.measurementFields.filter((field) => !measurementValues[field.key]?.trim() || !Number.isFinite(Number(measurementValues[field.key])) || Number(measurementValues[field.key]) <= 0);
-    if (missing.length) { Alert.alert('Measurements incomplete', `Please enter valid ${missing.map((field) => field.label).join(', ')} measurements.`); return; }
+    if (missing.length) { setDialog({ kind: 'error', title: 'Measurements incomplete', message: `Please enter valid ${missing.map((field) => field.label).join(', ')} measurements before sending your request.` }); return; }
     if (method === 'CAMERA_ASSISTED' && referenceImages.length === 0) {
-      Alert.alert('Add a camera reference', 'Capture a reference photo or switch to manual measurement entry before continuing.');
+      setDialog({ kind: 'error', title: 'Add a reference photo', message: 'Capture a reference photo or switch to manual measurement entry before continuing.' });
       return;
     }
     const measurementSummary = style.measurementFields.map((field) => `${field.label}: ${measurementValues[field.key]} ${unit}`).join('\n');
-    const summary = `${style.name}\nTailor: ${tailor.shopName}\nDeliver to: ${delivery.fullName}, ${delivery.phone}\n${delivery.addressLine1}${delivery.addressLine2 ? `, ${delivery.addressLine2}` : ''}, ${delivery.city}, ${delivery.state} ${delivery.postalCode}, ${delivery.country}\nFabric: ${effectiveFabric}\nColour: ${garmentColor.name}\nDesign: ${designType}\nSize: ${effectiveSizeLabel}\n\nMeasurements\n${measurementSummary}\n\nEstimated starting price: ₹${Number(tailor.startingPrice || 0).toLocaleString('en-IN')}`;
-    Alert.alert('Confirm your order', `Please review your details before placing this order.\n\n${summary}\n\nAfter confirmation, these measurements are saved as an order snapshot and cannot be edited. You will proceed to secure Razorpay checkout.`, [
-      { text: 'Review again', style: 'cancel' },
-      { text: 'Confirm & pay', onPress: () => { void createOrder(); } },
-    ]);
+    const summary = `${style.name}\nTailor: ${tailor.shopName}\nDeliver to: ${delivery.fullName}, ${delivery.phone}\n${delivery.addressLine1}${delivery.addressLine2 ? `, ${delivery.addressLine2}` : ''}, ${delivery.city}, ${delivery.state} ${delivery.postalCode}, ${delivery.country}\nFabric: ${effectiveFabric}\nDesign: ${designType}\nSize: ${effectiveSizeLabel}\n\nMeasurements\n${measurementSummary}`;
+    setDialog({ kind: 'confirm', title: 'Review your order request', message: `${summary}\n\nYour measurements will be saved with this request. The tailor will review the details and send a final quote. You can pay securely with Razorpay after the quote is ready.` });
   };
 
-  const payForOrder = async (orderId: number) => {
-    if (!accessToken) return;
-    const paymentOrder = await paymentsService.createRazorpayOrder(orderId, 'RAZORPAY', accessToken);
-    const checkoutResult = await RazorpayCheckout.open({
-      key: paymentOrder.keyId,
-      amount: paymentOrder.amountPaise,
-      currency: paymentOrder.currency,
-      name: 'DarziHunar',
-      description: `${style.name} stitching by ${tailor.shopName}`,
-      order_id: paymentOrder.providerOrderId,
-      prefill: {
-        email: user?.email || '',
-        contact: user?.phoneNumber || '',
-        name: user?.fullName || '',
-      },
-      theme: { color: '#5B1F32' },
-    });
-
-    await paymentsService.verifyRazorpayPayment({
-      razorpay_order_id: checkoutResult.razorpay_order_id,
-      razorpay_payment_id: checkoutResult.razorpay_payment_id,
-      razorpay_signature: checkoutResult.razorpay_signature,
-    }, accessToken);
-
-    setPendingOrderId(null);
-    Alert.alert('Payment successful', 'Your measurements are locked with this order. The paid order is now available in My Orders.', [
-      { text: 'View my orders', onPress: onOrderPlaced },
-    ]);
-  };
-
-  const createOrder = async () => {
-    if (!accessToken) return;
+  const confirmOrder = async () => {
+    if (!accessToken || submitting) return;
     setSubmitting(true);
+    setDialog(null);
     try {
-      let orderId = pendingOrderId;
-      if (!orderId) {
-        const order = await ordersService.create({
-          tailorId: tailor.id,
-          deliveryDetails: { ...delivery, addressLine2: delivery.addressLine2.trim() || undefined },
-          items: [{
-            garmentType: style.name,
-            audience,
-            fabric: effectiveFabric,
-            sizeLabel: effectiveSizeLabel,
-            garmentColor: garmentColor.name,
-            designType,
-            measurementMethod: method,
-            measurementUnit: unit,
-            measurements: measurementRecord,
-            notes: notes.trim() || undefined,
-            referenceImages,
-            quantity: 1,
-          }],
-        }, accessToken);
-        orderId = order.id;
-        setPendingOrderId(orderId);
-      }
-      await payForOrder(orderId);
+      const order = await ordersService.create({
+        tailorId: tailor.id,
+        deliveryDetails: { ...delivery, addressLine2: delivery.addressLine2.trim() || undefined },
+        items: [{
+          garmentType: style.name,
+          audience,
+          fabric: effectiveFabric,
+          sizeLabel: effectiveSizeLabel,
+          designType,
+          measurementMethod: method,
+          measurementUnit: unit,
+          measurements: measurementRecord,
+          notes: notes.trim() || undefined,
+          referenceImages,
+          quantity: 1,
+        }],
+      }, accessToken);
+      const notificationBody = `Your request #${order.id} has been sent to ${tailor.shopName}. The tailor will review it and send a final quote.`;
+      void showLocalNotification('Order request placed', notificationBody, { orderId: order.id });
+      setDialog({ kind: 'success', title: 'Order request placed', message: notificationBody + ' You can follow updates in Notifications and My Orders.', orderId: order.id });
     } catch (error) {
-      Alert.alert('Checkout not completed', error instanceof Error ? error.message : 'Your order is saved as awaiting payment. You can retry payment below.');
+      setDialog({ kind: 'error', title: 'Could not send your request', message: error instanceof Error ? error.message : 'Please check your connection and try again.' });
     } finally {
       setSubmitting(false);
     }
   };
 
-  const modelBaseUrl = process.env.EXPO_PUBLIC_GARMENT_3D_BASE_URL?.replace(/\/$/, '');
-  const modelUrl = style.modelUrl || (modelBaseUrl ? `${modelBaseUrl}/${encodeURIComponent(style.id)}.glb` : undefined);
-
-  return <PageFrame title="Order details" subtitle={`${style.name} · ${tailor.shopName}`} onBack={onBack} onNavigate={onNavigate}>
+  return <>
+  <PageFrame title="Order details" subtitle={`${style.name} · ${tailor.shopName}`} onBack={onBack} onNavigate={onNavigate}>
     <Card>
-      <Text style={{ color: C.wine, fontWeight: '900', fontSize: 16 }}>Choose garment colour</Text>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 13 }}>
-        {garmentColours.map((item) => {
-          const selected = garmentColor.name === item.name; return <Pressable key={item.name} onPress={() => { if (pendingOrderId === null) setGarmentColor(item); }} disabled={pendingOrderId !== null} style={{ width: '24%', alignItems: 'center', marginBottom: 13 }}>
-            <View style={{ width: 43, height: 43, borderRadius: 22, backgroundColor: item.hex, borderWidth: selected ? 3 : 1, borderColor: selected ? C.gold : C.border, marginBottom: 5 }} />
-            <Text style={{ color: selected ? C.wine : C.text, fontSize: 11, fontWeight: selected ? '900' : '500' }}>{item.name}</Text>
-          </Pressable>;
-        })}
-      </View>
-      <Text style={{ color: C.wine, fontWeight: '900', fontSize: 16, marginTop: 3 }}>Choose design type</Text>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
-        {designTypes.map((item) => <Pressable key={item} onPress={() => { if (pendingOrderId === null) setDesignType(item); }} disabled={pendingOrderId !== null} style={{ borderWidth: 1, borderColor: designType === item ? C.wine : C.border, backgroundColor: designType === item ? C.cream : '#FFFFFF', paddingHorizontal: 13, paddingVertical: 9, borderRadius: 22 }}>
+      <Text style={{ color: C.wine, fontWeight: '900', fontSize: 16 }}>Choose design type</Text>
+      <Text style={{ color: C.muted, fontSize: 12, marginTop: 5 }}>Select the style direction that best matches what you have in mind. You can add more specific instructions below.</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
+        {designTypes.map((item) => <Pressable key={item} onPress={() => setDesignType(item)} disabled={submitting} style={{ borderWidth: 1, borderColor: designType === item ? C.wine : C.border, backgroundColor: designType === item ? C.cream : '#FFFFFF', paddingHorizontal: 13, paddingVertical: 9, borderRadius: 22 }}>
           <Text style={{ color: C.wine, fontWeight: '800', fontSize: 12 }}>{item}</Text>
         </Pressable>)}
       </View>
     </Card>
-    <Card><Text style={{ color: C.wine, fontWeight: '900', fontSize: 16 }}>360° design preview</Text><Text style={{ color: C.muted, fontSize: 12, marginTop: 5 }}>Drag to rotate, pinch to zoom. Colour changes are applied to GLB materials named for the garment; design choices use named GLB material variants.</Text><Garment360Viewer title={style.name} modelUrl={modelUrl} color={garmentColor.hex} designType={designType} /></Card>
     <Card><Text style={{ color: C.wine, fontWeight: '900', fontSize: 16 }}>Delivery details</Text>
-      <Text style={{ color: C.muted, fontSize: 12, marginTop: 10 }}>FULL NAME</Text><TextInput value={delivery.fullName} onChangeText={(v) => updateDelivery('fullName', v)} editable={pendingOrderId === null} placeholder="Recipient full name" placeholderTextColor={C.muted} style={fieldStyle} />
-      <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>PHONE NUMBER</Text><TextInput value={delivery.phone} onChangeText={(v) => updateDelivery('phone', v)} editable={pendingOrderId === null} keyboardType="phone-pad" placeholder="+91 98765 43210" placeholderTextColor={C.muted} style={fieldStyle} />
+      <Text style={{ color: C.muted, fontSize: 12, marginTop: 10 }}>FULL NAME</Text><TextInput value={delivery.fullName} onChangeText={(v) => updateDelivery('fullName', v)} editable={!submitting} placeholder="Recipient full name" placeholderTextColor={C.muted} style={fieldStyle} />
+      <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>PHONE NUMBER</Text><TextInput value={delivery.phone} onChangeText={(v) => updateDelivery('phone', v)} editable={!submitting} keyboardType="phone-pad" placeholder="+91 98765 43210" placeholderTextColor={C.muted} style={fieldStyle} />
       <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>ADDRESS</Text>
-      <Pressable disabled={pendingOrderId !== null || resolvingAddress} onPress={() => { void populateAddressFromLocation(true); }} style={{ alignSelf: 'flex-start', backgroundColor: C.cream, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 18, marginTop: 8, opacity: resolvingAddress ? 0.6 : 1 }}><Text style={{ color: C.wine, fontSize: 11, fontWeight: '800' }}>{resolvingAddress ? 'Finding address…' : 'Use my current location'}</Text></Pressable>
+      <Pressable disabled={submitting || resolvingAddress} onPress={() => { void populateAddressFromLocation(true); }} style={{ alignSelf: 'flex-start', backgroundColor: C.cream, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 18, marginTop: 8, opacity: resolvingAddress ? 0.6 : 1 }}><Text style={{ color: C.wine, fontSize: 11, fontWeight: '800' }}>{resolvingAddress ? 'Finding address…' : 'Use my current location'}</Text></Pressable>
       <Text style={{ color: C.muted, fontSize: 10, marginTop: 5 }}>Address is suggested from your coordinates. Verify and edit it before confirming.</Text>
-      <TextInput value={delivery.addressLine1} onChangeText={(v) => updateDelivery('addressLine1', v)} editable={pendingOrderId === null} placeholder="House / flat, street, building" placeholderTextColor={C.muted} style={fieldStyle} />
-      <TextInput value={delivery.addressLine2} onChangeText={(v) => updateDelivery('addressLine2', v)} editable={pendingOrderId === null} placeholder="Landmark / area (optional)" placeholderTextColor={C.muted} style={fieldStyle} />
-      <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>CITY</Text><TextInput value={delivery.city} onChangeText={(v) => updateDelivery('city', v)} editable={pendingOrderId === null} placeholder="City" placeholderTextColor={C.muted} style={fieldStyle} />
-      <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>STATE</Text><TextInput value={delivery.state} onChangeText={(v) => updateDelivery('state', v)} editable={pendingOrderId === null} placeholder="State" placeholderTextColor={C.muted} style={fieldStyle} />
-      <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>PIN / POSTAL CODE</Text><TextInput value={delivery.postalCode} onChangeText={(v) => updateDelivery('postalCode', v)} editable={pendingOrderId === null} keyboardType="number-pad" placeholder="PIN code" placeholderTextColor={C.muted} style={fieldStyle} />
+      <TextInput value={delivery.addressLine1} onChangeText={(v) => updateDelivery('addressLine1', v)} editable={!submitting} placeholder="House / flat, street, building" placeholderTextColor={C.muted} style={fieldStyle} />
+      <TextInput value={delivery.addressLine2} onChangeText={(v) => updateDelivery('addressLine2', v)} editable={!submitting} placeholder="Landmark / area (optional)" placeholderTextColor={C.muted} style={fieldStyle} />
+      <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>CITY</Text><TextInput value={delivery.city} onChangeText={(v) => updateDelivery('city', v)} editable={!submitting} placeholder="City" placeholderTextColor={C.muted} style={fieldStyle} />
+      <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>STATE</Text><TextInput value={delivery.state} onChangeText={(v) => updateDelivery('state', v)} editable={!submitting} placeholder="State" placeholderTextColor={C.muted} style={fieldStyle} />
+      <Text style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>PIN / POSTAL CODE</Text><TextInput value={delivery.postalCode} onChangeText={(v) => updateDelivery('postalCode', v)} editable={!submitting} keyboardType="number-pad" placeholder="PIN code" placeholderTextColor={C.muted} style={fieldStyle} />
     </Card>
     <Card><Text style={{ color: C.wine, fontWeight: '900', fontSize: 16 }}>Fabric & size</Text>
-      <SelectField label="Fabric" value={fabric} options={fabricOptions} onChange={setFabric} disabled={pendingOrderId !== null} />
-      {fabric === 'Other' && <TextInput value={customFabric} onChangeText={setCustomFabric} editable={pendingOrderId === null} placeholder="Enter fabric name" placeholderTextColor={C.muted} style={fieldStyle} />}
-      <SelectField label="Size / fit" value={sizeLabel} options={sizeFitOptions} onChange={setSizeLabel} disabled={pendingOrderId !== null} />
-      {sizeLabel === 'Other / Custom' && <TextInput value={customSizeLabel} onChangeText={setCustomSizeLabel} editable={pendingOrderId === null} placeholder="Enter size or fit details" placeholderTextColor={C.muted} style={fieldStyle} />}
-      <Text style={{ color: C.muted, fontSize: 12, marginTop: 13 }}>MEASUREMENT UNIT</Text><View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>{(['cm', 'in'] as const).map((value) => <Pressable key={value} onPress={() => { if (pendingOrderId === null) setUnit(value); }} disabled={pendingOrderId !== null} style={{ backgroundColor: unit === value ? C.wine : C.cream, borderRadius: 20, paddingHorizontal: 18, paddingVertical: 9 }}><Text style={{ color: unit === value ? '#FFFFFF' : C.wine, fontWeight: '800' }}>{value}</Text></Pressable>)}</View>
+      <SelectField label="Fabric" value={fabric} options={fabricOptions} onChange={setFabric} disabled={submitting} />
+      {fabric === 'Other' && <TextInput value={customFabric} onChangeText={setCustomFabric} editable={!submitting} placeholder="Enter fabric name" placeholderTextColor={C.muted} style={fieldStyle} />}
+      <SelectField label="Size / fit" value={sizeLabel} options={sizeFitOptions} onChange={setSizeLabel} disabled={submitting} />
+      {sizeLabel === 'Other / Custom' && <TextInput value={customSizeLabel} onChangeText={setCustomSizeLabel} editable={!submitting} placeholder="Enter size or fit details" placeholderTextColor={C.muted} style={fieldStyle} />}
+      <Text style={{ color: C.muted, fontSize: 12, marginTop: 13 }}>MEASUREMENT UNIT</Text><View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>{(['cm', 'in'] as const).map((value) => <Pressable key={value} onPress={() => { setUnit(value); }} disabled={submitting} style={{ backgroundColor: unit === value ? C.wine : C.cream, borderRadius: 20, paddingHorizontal: 18, paddingVertical: 9 }}><Text style={{ color: unit === value ? '#FFFFFF' : C.wine, fontWeight: '800' }}>{value}</Text></Pressable>)}</View>
     </Card>
     <Card><Text style={{ color: C.wine, fontWeight: '900', fontSize: 16 }}>How would you like to provide measurements?</Text>
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 13 }}>
-        {([{ value: 'MANUAL', label: 'Enter manually' }, { value: 'CAMERA_ASSISTED', label: 'Use camera' }] as const).map((item) => <Pressable key={item.value} onPress={() => { if (pendingOrderId === null) setMethod(item.value); }} disabled={pendingOrderId !== null} style={{ flex: 1, borderWidth: 1, borderColor: method === item.value ? C.wine : C.border, backgroundColor: method === item.value ? C.cream : '#FFFFFF', borderRadius: 12, padding: 12, alignItems: 'center' }}><Text style={{ color: C.wine, fontWeight: '800', fontSize: 12 }}>{item.label}</Text></Pressable>)}
+        {([{ value: 'MANUAL', label: 'Enter manually' }, { value: 'CAMERA_ASSISTED', label: 'Use camera' }] as const).map((item) => <Pressable key={item.value} onPress={() => { setMethod(item.value); }} disabled={submitting} style={{ flex: 1, borderWidth: 1, borderColor: method === item.value ? C.wine : C.border, backgroundColor: method === item.value ? C.cream : '#FFFFFF', borderRadius: 12, padding: 12, alignItems: 'center' }}><Text style={{ color: C.wine, fontWeight: '800', fontSize: 12 }}>{item.label}</Text></Pressable>)}
       </View>
-      {method === 'CAMERA_ASSISTED' && <View style={{ backgroundColor: '#FFF7E8', borderRadius: 12, padding: 12, marginTop: 12 }}><Text style={{ color: C.text, fontWeight: '800' }}>Camera-assisted reference</Text><Text style={{ color: C.muted, fontSize: 12, lineHeight: 18, marginTop: 5 }}>Capture a reference photo for your tailor. This camera flow does not calculate body dimensions yet; enter and verify every measurement manually with a measuring tape. Do not rely on a photo as a measurement.</Text><Pressable onPress={captureReferencePhoto} disabled={uploadingPhoto || pendingOrderId !== null} style={{ backgroundColor: C.wine, borderRadius: 10, padding: 12, alignItems: 'center', marginTop: 10, opacity: uploadingPhoto ? 0.6 : 1 }}><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>{uploadingPhoto ? 'Uploading…' : 'Open camera & add reference photo'}</Text></Pressable><Text style={{ color: C.muted, fontSize: 11, marginTop: 7 }}>{referenceImages.length} reference photo(s) added</Text></View>}
+      {method === 'CAMERA_ASSISTED' && <View style={{ backgroundColor: '#FFF7E8', borderRadius: 12, padding: 12, marginTop: 12 }}><Text style={{ color: C.text, fontWeight: '800' }}>Camera-assisted reference</Text><Text style={{ color: C.muted, fontSize: 12, lineHeight: 18, marginTop: 5 }}>Capture a reference photo for your tailor. This camera flow does not calculate body dimensions yet; enter and verify every measurement manually with a measuring tape. Do not rely on a photo as a measurement.</Text><Pressable onPress={captureReferencePhoto} disabled={uploadingPhoto || submitting} style={{ backgroundColor: C.wine, borderRadius: 10, padding: 12, alignItems: 'center', marginTop: 10, opacity: uploadingPhoto ? 0.6 : 1 }}><Text style={{ color: '#FFFFFF', fontWeight: '800' }}>{uploadingPhoto ? 'Uploading…' : 'Open camera & add reference photo'}</Text></Pressable><Text style={{ color: C.muted, fontSize: 11, marginTop: 7 }}>{referenceImages.length} reference photo(s) added</Text></View>}
       {matchingMeasurementProfiles.length > 0 && <View style={{ marginTop: 16, padding: 12, borderRadius: 12, backgroundColor: C.cream }}>
         <Text style={{ color: C.wine, fontWeight: '900' }}>Use a saved measurement profile</Text>
         <Text style={{ color: C.muted, fontSize: 11, marginTop: 4 }}>Only profiles for {style.garmentType} are shown. Review each value before confirming.</Text>
-        {matchingMeasurementProfiles.map((profile) => <Pressable key={profile.id} onPress={() => applyMeasurementProfile(profile)} disabled={pendingOrderId !== null} style={{ padding: 10, marginTop: 8, backgroundColor: '#FFFFFF', borderRadius: 9, borderWidth: selectedMeasurementProfileId === profile.id ? 1 : 0, borderColor: C.wine }}><View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><Text style={{ color: C.wine, fontWeight: '800' }}>{profile.name}</Text><Text style={{ color: C.wine, fontSize: 11, fontWeight: '800' }}>{selectedMeasurementProfileId === profile.id ? 'Selected ✓' : 'Use profile'}</Text></View><Text style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>{Object.keys(profile.measurements).length} saved values · {profile.unit}</Text><View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 6 }}>{style.measurementFields.filter((field) => profile.measurements[field.key] !== undefined).map((field) => <Text key={field.key} style={{ color: C.text, fontSize: 10 }}>{field.label}: {profile.measurements[field.key]} {profile.unit}</Text>)}</View></Pressable>)}
+        {matchingMeasurementProfiles.map((profile) => <Pressable key={profile.id} onPress={() => applyMeasurementProfile(profile)} disabled={submitting} style={{ padding: 10, marginTop: 8, backgroundColor: '#FFFFFF', borderRadius: 9, borderWidth: selectedMeasurementProfileId === profile.id ? 1 : 0, borderColor: C.wine }}><View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><Text style={{ color: C.wine, fontWeight: '800' }}>{profile.name}</Text><Text style={{ color: C.wine, fontSize: 11, fontWeight: '800' }}>{selectedMeasurementProfileId === profile.id ? 'Selected ✓' : 'Use profile'}</Text></View><Text style={{ color: C.muted, fontSize: 11, marginTop: 3 }}>{Object.keys(profile.measurements).length} saved values · {profile.unit}</Text><View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 6 }}>{style.measurementFields.filter((field) => profile.measurements[field.key] !== undefined).map((field) => <Text key={field.key} style={{ color: C.text, fontSize: 10 }}>{field.label}: {profile.measurements[field.key]} {profile.unit}</Text>)}</View></Pressable>)}
       </View>}
       <Text style={{ color: C.wine, fontWeight: '900', marginTop: 17 }}>Enter measurements ({unit})</Text>
-      {style.measurementFields.map((field) => <View key={field.key} style={{ marginTop: 12 }}><Text style={{ color: C.muted, fontSize: 12 }}>{field.label.toUpperCase()}</Text><TextInput value={measurementValues[field.key] || ''} onChangeText={(value) => setMeasurementValues((current) => ({ ...current, [field.key]: value.replace(/[^0-9.]/g, '') }))} editable={pendingOrderId === null} keyboardType="decimal-pad" placeholder={`Enter ${field.label.toLowerCase()}`} placeholderTextColor={C.muted} style={fieldStyle} /></View>)}
+      {style.measurementFields.map((field) => <View key={field.key} style={{ marginTop: 12 }}><Text style={{ color: C.muted, fontSize: 12 }}>{field.label.toUpperCase()}</Text><TextInput value={measurementValues[field.key] || ''} onChangeText={(value) => setMeasurementValues((current) => ({ ...current, [field.key]: value.replace(/[^0-9.]/g, '') }))} editable={!submitting} keyboardType="decimal-pad" placeholder={`Enter ${field.label.toLowerCase()}`} placeholderTextColor={C.muted} style={fieldStyle} /></View>)}
     </Card>
-    <Card><Text style={{ color: C.wine, fontWeight: '900', fontSize: 16 }}>Additional instructions</Text><TextInput value={notes} onChangeText={setNotes} editable={pendingOrderId === null} multiline placeholder="Preferred fit, design details, lining, buttons, or anything else the tailor should know" placeholderTextColor={C.muted} style={[fieldStyle, { minHeight: 90, textAlignVertical: 'top' }]} /></Card>
-    <View style={{ backgroundColor: C.cream, borderRadius: 15, padding: 15, marginTop: 14 }}><Text style={{ color: C.wine, fontWeight: '900' }}>Order estimate</Text><Text style={{ color: C.text, marginTop: 5 }}>{tailor.shopName} · {style.name}</Text><Text style={{ color: C.wine, fontWeight: '900', fontSize: 20, marginTop: 7 }}>Starting at ₹{Number(tailor.startingPrice || 0).toLocaleString('en-IN')}</Text><Text style={{ color: C.muted, fontSize: 11, lineHeight: 17, marginTop: 5 }}>This is the tailor's starting price, not a final quote. Confirm any additional fabric or design charges directly with the tailor.</Text></View>
-    {pendingOrderId !== null && <Card><Text style={{ color: C.wine, fontWeight: '900' }}>Order #{pendingOrderId} is awaiting payment</Text><Text style={{ color: C.muted, fontSize: 12, marginTop: 5 }}>Your confirmed measurements have been saved with this order and cannot be edited. Complete payment to submit it to the tailor.</Text><ActionButton title={submitting ? 'Opening Razorpay…' : 'Retry payment'} onPress={() => { void createOrder(); }} disabled={submitting || uploadingPhoto} /></Card>}
-    <ActionButton title={submitting ? 'Opening checkout…' : 'Confirm measurements & proceed to payment'} onPress={submitOrder} disabled={submitting || uploadingPhoto || pendingOrderId !== null} />
-  </PageFrame>;
+    <Card><Text style={{ color: C.wine, fontWeight: '900', fontSize: 16 }}>Additional instructions</Text><TextInput value={notes} onChangeText={setNotes} editable={!submitting} multiline placeholder="Preferred fit, design details, lining, buttons, or anything else the tailor should know" placeholderTextColor={C.muted} style={[fieldStyle, { minHeight: 90, textAlignVertical: 'top' }]} /></Card>
+    <View style={{ backgroundColor: C.cream, borderRadius: 15, padding: 15, marginTop: 14 }}>
+      <Text style={{ color: C.wine, fontWeight: '900' }}>What happens next?</Text>
+      <Text style={{ color: C.muted, fontSize: 12, lineHeight: 19, marginTop: 6 }}>Your request goes to {tailor.shopName}. The tailor reviews your fabric choice, design and measurements, then sends a final quote. Razorpay payment becomes available in My Orders after the quote is shared.</Text>
+    </View>
+    <ActionButton title={submitting ? 'Sending request…' : 'Confirm & send order request'} onPress={submitOrder} disabled={submitting || uploadingPhoto} />
+  </PageFrame>
+  <Modal transparent visible={dialog !== null} animationType="fade" onRequestClose={() => { if (!submitting) setDialog(null); }}>
+    <View style={{ flex: 1, backgroundColor: 'rgba(28, 16, 20, 0.55)', justifyContent: 'center', padding: 24 }}>
+      <View style={{ backgroundColor: C.card, borderRadius: 22, borderWidth: 1, borderColor: C.border, padding: 20, maxHeight: '82%' }}>
+        <View style={{ width: 42, height: 4, borderRadius: 4, backgroundColor: C.gold, marginBottom: 15 }} />
+        <Text style={{ color: C.wine, fontSize: 19, fontWeight: '900' }}>{dialog?.title || ''}</Text>
+        <ScrollView style={{ marginTop: 10 }} showsVerticalScrollIndicator={false}>
+          <Text style={{ color: C.text, fontSize: 13, lineHeight: 21 }}>{dialog?.message || ''}</Text>
+        </ScrollView>
+        <Pressable disabled={submitting} onPress={() => {
+          if (dialog?.kind === 'confirm') { void confirmOrder(); return; }
+          if (dialog?.kind === 'success') { setDialog(null); onOrderPlaced(); return; }
+          setDialog(null);
+        }} style={{ backgroundColor: C.wine, borderRadius: 13, padding: 14, alignItems: 'center', marginTop: 17, opacity: submitting ? 0.6 : 1 }}>
+          <Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{dialog?.kind === 'confirm' ? 'Confirm request' : dialog?.kind === 'success' ? 'Go to My Orders' : 'Understood'}</Text>
+        </Pressable>
+        {dialog?.kind === 'confirm' && <Pressable onPress={() => setDialog(null)} disabled={submitting} style={{ padding: 12, alignItems: 'center', marginTop: 4 }}><Text style={{ color: C.muted, fontWeight: '700' }}>Review details again</Text></Pressable>}
+      </View>
+    </View>
+  </Modal>
+  </>;
 }
 
 const fieldStyle = {

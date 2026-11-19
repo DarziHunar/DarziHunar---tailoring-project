@@ -78,11 +78,6 @@ export class UpdateTailorDto {
   specialization?: string;
 
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  startingPrice?: number;
-
-  @IsOptional()
   @IsBoolean()
   acceptingOrders?: boolean;
 }

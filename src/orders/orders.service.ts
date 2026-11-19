@@ -9,6 +9,8 @@ import { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role, OrderStatus, StyleAudience, MeasurementMethod, PaymentStatus } from '../generated/prisma/enums';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { SetOrderQuoteDto } from './dto/set-order-quote-dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 interface AuthenticatedUser {
     sub: number;
@@ -18,7 +20,7 @@ interface AuthenticatedUser {
 
 @Injectable()
 export class OrdersService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(private readonly prisma: PrismaService, private readonly notifications: NotificationsService) { }
 
     async create(customer: AuthenticatedUser, dto: CreateOrderDto) {
         if (customer.role !== Role.CUSTOMER) {
@@ -40,15 +42,6 @@ export class OrdersService {
                 'This tailor is not accepting orders',
             );
         }
-        if (
-            !Number.isSafeInteger(tailor.startingPrice) ||
-            tailor.startingPrice <= 0
-        ) {
-            throw new BadRequestException(
-                'This tailor has not configured a valid starting price. Please contact the tailor.',
-            );
-        }
-
         if (tailor.userId === customer.sub) {
             throw new BadRequestException(
                 'You cannot place an order with your own tailor profile',
@@ -77,7 +70,8 @@ export class OrdersService {
             notes: item.notes?.trim() || null,
             referenceImages: item.referenceImages ?? [],
             quantity: item.quantity,
-            unitPrice: tailor.startingPrice,
+            // The tailor sets a final order quote after reviewing the request.
+            unitPrice: 0,
             audience: item.audience as StyleAudience | undefined,
             fabric: item.fabric?.trim() || null,
             sizeLabel: item.sizeLabel?.trim() || null,
@@ -88,18 +82,10 @@ export class OrdersService {
             styleName: item.garmentType.trim(),
         }));
 
-        const totalAmount = items.reduce(
-            (total, item) => total + item.unitPrice * item.quantity,
-            0,
-        );
+        // No payment amount is assigned until the tailor submits a final quote.
+        const totalAmount = 0;
 
-        if (!Number.isSafeInteger(totalAmount) || totalAmount <= 0) {
-            throw new BadRequestException(
-                'The calculated order amount is invalid',
-            );
-        }
-
-        return this.prisma.order.create({
+        const createdOrder = await this.prisma.order.create({
             data: {
                 customerId: customer.sub,
                 tailorId: tailor.id,
@@ -126,11 +112,66 @@ export class OrdersService {
                     select: {
                         id: true,
                         shopName: true,
-                        startingPrice: true,
                     },
                 },
             },
         });
+        await Promise.all([
+            this.notifications.createSafely(
+                customer.sub,
+                'Order request placed',
+                `Your request #${createdOrder.id} has been sent to ${tailor.shopName}. The tailor will review it and send a final quote.`,
+                'ORDER_PLACED',
+                { orderId: createdOrder.id },
+            ),
+            this.notifications.createSafely(
+                tailor.userId,
+                'New order request',
+                `You received a new request #${createdOrder.id}. Review the customer's design and measurements and send a quote.`,
+                'NEW_ORDER',
+                { orderId: createdOrder.id },
+            ),
+        ]);
+        return createdOrder;
+    }
+
+    async setQuote(id: number, dto: SetOrderQuoteDto, user: AuthenticatedUser) {
+        if (user.role !== Role.TAILOR) {
+            throw new ForbiddenException('Only the assigned tailor can submit an order quote');
+        }
+        if (!Number.isSafeInteger(dto.amount) || dto.amount <= 0 || dto.amount > 10_000_000) {
+            throw new BadRequestException('Enter a valid final quote between ₹1 and ₹1,00,00,000');
+        }
+
+        const order = await this.prisma.order.findUnique({
+            where: { id },
+            include: { tailor: true, payments: true },
+        });
+        if (!order) throw new NotFoundException('Order not found');
+        await this.assertCanAccess(order, user);
+        if (order.status !== OrderStatus.PENDING) {
+            throw new BadRequestException('A quote can only be submitted for a new pending request');
+        }
+        if (order.payments.some((payment) => payment.status === PaymentStatus.SUCCESS)) {
+            throw new BadRequestException('This order has already been paid');
+        }
+
+        const updatedOrder = await this.prisma.order.update({
+            where: { id },
+            data: {
+                totalAmount: dto.amount,
+                status: OrderStatus.ACCEPTED,
+            },
+            include: this.orderInclude(),
+        });
+        await this.notifications.createSafely(
+            order.customerId,
+            'Your tailor sent a quote',
+            `Your order #${order.id} has a final quote of ₹${dto.amount.toLocaleString('en-IN')}. Open My Orders to review and pay securely.`,
+            'QUOTE_READY',
+            { orderId: order.id },
+        );
+        return updatedOrder;
     }
 
     async findAll(user: AuthenticatedUser) {
@@ -146,7 +187,6 @@ export class OrdersService {
             return this.prisma.order.findMany({
                 where: {
                     tailor: { userId: user.sub },
-                    payments: { some: { status: 'SUCCESS' } },
                 },
                 include: this.orderInclude(),
                 orderBy: { createdAt: 'desc' },
@@ -202,7 +242,7 @@ export class OrdersService {
     ) {
         const order = await this.prisma.order.findUnique({
             where: { id },
-            include: { tailor: true },
+            include: { tailor: true, payments: true },
         });
 
         if (!order) {
@@ -210,6 +250,11 @@ export class OrdersService {
         }
 
         await this.assertCanAccess(order, user);
+
+        if (user.role === Role.TAILOR && newStatus === OrderStatus.IN_PROGRESS &&
+            !order.payments.some((payment) => payment.status === PaymentStatus.SUCCESS)) {
+            throw new BadRequestException('The customer must complete Razorpay payment before work can begin');
+        }
 
         if (
             !this.canTransition(
@@ -223,11 +268,21 @@ export class OrdersService {
             );
         }
 
-        return this.prisma.order.update({
+        const updatedOrder = await this.prisma.order.update({
             where: { id },
             data: { status: newStatus },
             include: this.orderInclude(),
         });
+        if (user.role !== Role.CUSTOMER) {
+            await this.notifications.createSafely(
+                order.customerId,
+                'Order status updated',
+                `Your order #${order.id} is now ${newStatus.replace(/_/g, ' ').toLowerCase()}. Open My Orders for details.`,
+                'ORDER_STATUS',
+                { orderId: order.id, status: newStatus },
+            );
+        }
+        return updatedOrder;
     }
 
 
@@ -369,6 +424,7 @@ export class OrdersService {
                     email: true,
                 },
             },
+            payments: { select: { status: true, amount: true, currency: true, method: true, createdAt: true } },
         };
     }
 }

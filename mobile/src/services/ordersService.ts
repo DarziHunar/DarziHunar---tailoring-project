@@ -20,7 +20,6 @@ export type CreateCustomerOrderPayload = {
     audience: Audience;
     fabric: string;
     sizeLabel: string;
-    garmentColor?: string;
     designType?: string;
     measurementMethod: 'MANUAL' | 'CAMERA_ASSISTED';
     measurementUnit: 'cm' | 'in';
@@ -34,8 +33,8 @@ export type CreateCustomerOrderPayload = {
 export type CustomerOrder = {
   id: number; status: string; totalAmount: number; createdAt: string;
   deliveryDetails?: DeliveryDetails | null;
-  items: Array<{ id: number; garmentType: string; measurements: Record<string, unknown>; fabric?: string | null; sizeLabel?: string | null; garmentColor?: string | null; designType?: string | null; measurementUnit?: string; notes?: string | null; referenceImages?: string[] }>;
-  tailor?: { id: number; shopName: string; startingPrice?: number };
+  items: Array<{ id: number; garmentType: string; measurements: Record<string, unknown>; fabric?: string | null; sizeLabel?: string | null; designType?: string | null; measurementUnit?: string; notes?: string | null; referenceImages?: string[] }>;
+  tailor?: { id: number; shopName: string };
 };
 
 export const ordersService = {
@@ -47,5 +46,8 @@ export const ordersService = {
   },
   pendingPayment(token: string) {
     return apiRequest<CustomerOrder[]>('/orders/pending-payment', { token });
+  },
+  setQuote(orderId: number, amount: number, token: string) {
+    return apiRequest<CustomerOrder>(`/orders/${orderId}/quote`, { method: 'PATCH', token, body: { amount } });
   },
 };

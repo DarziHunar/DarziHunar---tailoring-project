@@ -1,5 +1,6 @@
+import { Alert } from '../utils/appAlert';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
@@ -22,6 +23,7 @@ type Props = {
   onProfile: () => void;
   onBusinessProfile: () => void;
   onOrders: () => void;
+  onNotifications: () => void;
   onSignOut: () => void;
 };
 
@@ -67,7 +69,7 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
   );
 }
 
-export default function TailorDashboardPage({ onProfile, onBusinessProfile, onOrders, onSignOut }: Props) {
+export default function TailorDashboardPage({ onProfile, onBusinessProfile, onOrders, onNotifications, onSignOut }: Props) {
   const { user, accessToken } = useAuth();
   const [profile, setProfile] = useState<TailorProfile | null>(null);
   const [orders, setOrders] = useState<OrderSummary[]>([]);
@@ -160,9 +162,10 @@ export default function TailorDashboardPage({ onProfile, onBusinessProfile, onOr
             <Text style={{ color: C.wine, fontSize: 25, fontWeight: '900' }}>DarziHunar.</Text>
             <Text style={{ color: C.muted, fontSize: 10, letterSpacing: 1.3, marginTop: 3 }}>TAILOR WORKSPACE</Text>
           </View>
-          <Pressable onPress={onProfile} style={{ width: 46, height: 46, backgroundColor: C.card, borderColor: C.border, borderWidth: 1, borderRadius: 16, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ color: C.wine, fontSize: 23 }}>♙</Text>
-          </Pressable>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Pressable onPress={onNotifications} style={{ width: 46, height: 46, backgroundColor: C.card, borderColor: C.border, borderWidth: 1, borderRadius: 16, justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: C.wine, fontSize: 23 }}>♧</Text></Pressable>
+            <Pressable onPress={onProfile} style={{ width: 46, height: 46, backgroundColor: C.card, borderColor: C.border, borderWidth: 1, borderRadius: 16, justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: C.wine, fontSize: 23 }}>♙</Text></Pressable>
+          </View>
         </View>
 
         {welcomeVisible && <View style={{ backgroundColor: C.wine, borderRadius: 22, padding: 21, marginBottom: 20 }}>
@@ -189,7 +192,7 @@ export default function TailorDashboardPage({ onProfile, onBusinessProfile, onOr
           <View style={{ backgroundColor: C.card, borderColor: C.border, borderWidth: 1, borderRadius: 18, padding: 19 }}>
             <Text style={{ color: C.wine, fontSize: 18, fontWeight: '800' }}>Complete your tailor profile</Text>
             <Text style={{ color: C.muted, lineHeight: 20, marginTop: 8 }}>
-              Your account is registered, but a business profile has not been created yet. Add your shop name, services and starting price to become discoverable to customers.
+              Your account is registered, but a business profile has not been created yet. Add your shop name, services and customer groups to become discoverable to customers.
             </Text>
             <Pressable onPress={onBusinessProfile} style={{ backgroundColor: C.wine, borderRadius: 13, padding: 14, alignItems: 'center', marginTop: 16 }}>
               <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>Create Business Profile</Text>
@@ -206,7 +209,6 @@ export default function TailorDashboardPage({ onProfile, onBusinessProfile, onOr
               </View>
               {!!profile.specialization && <Text style={{ color: C.muted, marginTop: 6 }}>{profile.specialization}</Text>}
               <Text style={{ color: C.muted, marginTop: 8, fontSize: 12 }}>★ {Number(profile.rating || 0).toFixed(1)} · {profile.verified ? 'Verified tailor' : 'Verification pending'}</Text>
-              <Text style={{ color: C.text, fontWeight: '700', marginTop: 7 }}>Starting price: ₹{Number(profile.startingPrice || 0).toLocaleString('en-IN')}</Text>
               <Pressable onPress={onBusinessProfile} style={{ marginTop: 12 }}><Text style={{ color: C.wine, fontWeight: '800' }}>Edit business details →</Text></Pressable>
             </View>
 
@@ -261,7 +263,6 @@ export default function TailorDashboardPage({ onProfile, onBusinessProfile, onOr
                   <Text style={{ color: statusColor(order.status), fontSize: 11, fontWeight: '800' }}>{order.status.replace('_', ' ')}</Text>
                 </View>
                 <Text style={{ color: C.muted, marginTop: 5, fontSize: 12 }}>{order.items?.map((item) => `${item.garmentType} × ${item.quantity}`).join(', ') || 'Custom tailoring order'}</Text>
-                <Text style={{ color: C.wine, fontWeight: '800', marginTop: 7 }}>₹{Number(order.totalAmount).toLocaleString('en-IN')}</Text>
               </Pressable>
             ))}
           </>

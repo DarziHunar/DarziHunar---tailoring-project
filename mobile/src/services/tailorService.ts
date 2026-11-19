@@ -15,7 +15,6 @@ export type TailorProfile = {
   distanceMeters?: number;
   verified: boolean;
   rating: number;
-  startingPrice: number;
   acceptingOrders: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -29,7 +28,6 @@ export type TailorProfilePayload = {
   audiences?: ('WOMEN' | 'MEN' | 'TEENAGERS' | 'CHILDREN')[];
   experienceYears?: number;
   specialization?: string;
-  startingPrice?: number;
   acceptingOrders?: boolean;
   latitude?: number;
   longitude?: number;

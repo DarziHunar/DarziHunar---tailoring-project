@@ -1,14 +1,6 @@
+import { Alert } from '../utils/appAlert';
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomNavigation from '../components/BottomNavigation';
 import { useAuth } from '../context/AuthContext';
@@ -21,7 +13,7 @@ import type { MainTab } from '../types/navigation';
 
 type CategoryItem = { name: string; detail: string };
 type TailorItem = { name: string; rating: number | string; distance: string };
-type CreationItem = { name: string; category: string; price: string; image: string };
+type CreationItem = { name: string; category: string; image: string };
 
 type FrameProps = React.PropsWithChildren<{
   title: string;
@@ -189,14 +181,13 @@ export function CreationDetailPage({
         <View style={{ padding: 17 }}>
           <Text style={{ color: palette.ink, fontSize: 21, fontWeight: '800' }}>{creation.name}</Text>
           <Text style={{ color: palette.muted, marginTop: 7 }}>{creation.category}</Text>
-          <Text style={{ color: C.wine, fontSize: 17, fontWeight: '800', marginTop: 11 }}>{creation.price}</Text>
         </View>
       </View>
       <Text style={{ color: palette.muted, lineHeight: 21, marginTop: 16 }}>
-        This is an inspiration listing. Final pricing, fabric, measurements and delivery details should be confirmed with the selected tailor.
+        Use this design as inspiration. You can choose the garment style, select a tailor and share your measurements in the next steps.
       </Text>
       <Pressable onPress={onFindTailor} style={{ backgroundColor: C.wine, borderRadius: 15, padding: 16, alignItems: 'center', marginTop: 20 }}>
-        <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>Find a tailor for this design</Text>
+        <Text style={{ color: '#FFFFFF', fontWeight: '800' }}>Continue to measurements</Text>
       </Pressable>
     </PageFrame>
   );
@@ -258,7 +249,7 @@ export function OrdersPage({ onBack, onNavigate }: { onBack: () => void; onNavig
         name: 'DarziHunar',
         description: `Order #${order.id} · ${order.items?.[0]?.garmentType || 'Custom tailoring'}`,
         order_id: paymentOrder.providerOrderId,
-        prefill: { email: user?.email || '', name: user?.fullName || '' },
+        prefill: { email: user?.email || '', contact: user?.phoneNumber || '', name: user?.fullName || '' },
         theme: { color: '#5B1F32' },
       });
       await paymentsService.verifyRazorpayPayment({
@@ -278,16 +269,23 @@ export function OrdersPage({ onBack, onNavigate }: { onBack: () => void; onNavig
   return <PageFrame title="My Orders" subtitle="Track your tailoring requests" onBack={onBack} activeTab="orders" onNavigate={onNavigate}>
     {loading ? <ActivityIndicator color={C.wine} style={{ marginTop: 35 }} /> : error ? <EmptyState title="Could not load orders" body={error} /> : <>
       {pendingOrders.length > 0 && <>
-        <SectionTitle>Awaiting payment</SectionTitle>
+        <SectionTitle>Requests & payment</SectionTitle>
         {pendingOrders.map((order) => <View key={order.id} style={{ backgroundColor: '#FFF7E8', borderRadius: 18, borderWidth: 1, borderColor: '#E8D7B6', padding: 16, marginTop: 4, marginBottom: 10 }}>
-          <Text style={{ color: C.wine, fontWeight: '900' }}>Order #{order.id} · Payment pending</Text>
+          <Text style={{ color: C.wine, fontWeight: '900' }}>Order #{order.id} · {Number(order.totalAmount) > 0 ? 'Quote ready' : 'Awaiting tailor quote'}</Text>
           <Text style={{ color: C.text, marginTop: 7, fontWeight: '700' }}>{order.tailor?.shopName || 'Selected tailor'}</Text>
           {!!order.deliveryDetails && <Text style={{ color: C.muted, fontSize: 12, marginTop: 5 }}>Deliver to: {order.deliveryDetails.fullName}, {order.deliveryDetails.addressLine1}, {order.deliveryDetails.city} {order.deliveryDetails.postalCode}</Text>}
           <Text style={{ color: C.muted, fontSize: 12, marginTop: 4 }}>{order.items?.map((item) => item.garmentType).join(', ') || 'Custom tailoring'}</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-            <Text style={{ color: C.wine, fontWeight: '900' }}>₹{Number(order.totalAmount).toLocaleString('en-IN')}</Text>
-            <Pressable disabled={retryingId !== null} onPress={() => { void retryPayment(order); }} style={{ backgroundColor: C.wine, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, opacity: retryingId !== null ? 0.6 : 1 }}><Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{retryingId === order.id ? 'Opening…' : 'Retry payment'}</Text></Pressable>
-          </View>
+          {Number(order.totalAmount) > 0 ? (
+            <View style={{ marginTop: 12 }}>
+              <Text style={{ color: C.wine, fontWeight: '900', marginBottom: 8 }}>Final quote: ₹{Number(order.totalAmount).toLocaleString('en-IN')}</Text>
+              <Pressable disabled={retryingId !== null} onPress={() => { void retryPayment(order); }} style={{ backgroundColor: C.wine, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 11, alignItems: 'center', opacity: retryingId !== null ? 0.6 : 1 }}><Text style={{ color: '#FFFFFF', fontWeight: '900' }}>{retryingId === order.id ? 'Opening Razorpay…' : 'Pay securely with Razorpay'}</Text></Pressable>
+            </View>
+          ) : (
+            <View style={{ backgroundColor: C.cream, borderRadius: 11, padding: 11, marginTop: 12 }}>
+              <Text style={{ color: C.wine, fontWeight: '800', fontSize: 12 }}>Waiting for tailor quote</Text>
+              <Text style={{ color: C.muted, fontSize: 11, lineHeight: 17, marginTop: 4 }}>The tailor is reviewing your request. The secure payment option will appear here once your quote is ready.</Text>
+            </View>
+          )}
         </View>)}
       </>}
       <SectionTitle>Paid orders</SectionTitle>
@@ -305,7 +303,6 @@ export function OrdersPage({ onBack, onNavigate }: { onBack: () => void; onNavig
           </View>)}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 13, paddingTop: 12, borderTopWidth: 1, borderTopColor: C.border }}>
             <Text style={{ color: C.muted, fontSize: 12 }}>{new Date(order.createdAt).toLocaleDateString()}</Text>
-            <Text style={{ color: C.wine, fontWeight: '900' }}>₹{Number(order.totalAmount).toLocaleString('en-IN')}</Text>
           </View>
         </View>
       ))}
